@@ -1739,20 +1739,7 @@
                 } catch (e) { console.error(e); }
             };
 
-            const handleUseJailCard = async () => {
-                if (gameState.players[gameState.currentTurnIndex].id !== playerId) return;
-                if (!me.inJail || !me.getOutJailFreeCards || me.getOutJailFreeCards <= 0) return;
-                
-                const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, getOutJailFreeCards: p.getOutJailFreeCards - 1 } : p);
-                const logMsg = `${me.name} usó una carta para salir de la cárcel.`;
-                
-                try {
-                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
-                        players: updatedPlayers,
-                        logs: [...(gameState.logs || []), logMsg]
-                    });
-                } catch (e) { console.error(e); }
-            };
+
 
             const handleBuyProperty = async (accept) => {
                 if (accept) SoundFX.cash();
