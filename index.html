@@ -262,7 +262,7 @@
         }
 
         // --- COMPONENTE: TARJETA DE PROPIEDAD (ESTILO MONOPOLY) ---
-        function PropertyCard({ space, owner, isMortgaged, isOwner, onMortgage, onUnmortgage, canBuild, canSellBuild, buildings = 0, hasAllColors = false, onBuild, onSellBuild, onClose }) {
+        function PropertyCard({ space, owner, isMortgaged, isOwner, onMortgage, onUnmortgage, canBuild, canSellBuild, canMortgage, buildings = 0, hasAllColors = false, onBuild, onSellBuild, onClose }) {
             if (!space) return null;
             const isProperty = space.type === 'property';
             const isStation = space.type === 'station';
@@ -336,7 +336,7 @@
                                         <div>HIPOTECADO<br/><span className="font-mono">POR M{mortgageVal}</span></div>
                                         <div className="text-right">PARA DESHIP.<br/><span className="font-mono">PAGA M{unmortgageVal}</span></div>
                                     </div>
-                                    {isOwner && buildings === 0 && (
+                                    {isOwner && canMortgage && (
                                         <button onClick={onMortgage} className="w-full mt-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-orange-400 active:scale-95 transition">
                                             Hipotecar – cobrar M{mortgageVal}
                                         </button>
@@ -346,11 +346,21 @@
                                             {buildings === 5 ? `Vender Hotel (+M${Math.floor(space.houseCost/2)})` : `Vender Casa (+M${Math.floor(space.houseCost/2)})`}
                                         </button>
                                     )}
-                                    {isOwner && canBuild && buildings < 5 && (
-                                        <button onClick={onBuild} className="w-full mt-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-emerald-400 active:scale-95 transition">
-                                            {buildings === 4 ? `Comprar Hotel (M${space.houseCost})` : `Comprar Casa (M${space.houseCost})`}
-                                        </button>
-                                    )}
+                                    {isOwner && canBuild && buildings < 5 && (() => {
+                                        const maxHouses = Math.min(4 - buildings, Math.floor((owner?.balance || 0) / space.houseCost));
+                                        return (
+                                            <div className="flex gap-1 mt-2">
+                                                <button onClick={() => onBuild(1)} className="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-black py-2 rounded-lg text-[11px] sm:text-xs uppercase tracking-wider shadow hover:from-emerald-400 active:scale-95 transition">
+                                                    {buildings === 4 ? `Hotel (M${space.houseCost})` : `+1 Casa (M${space.houseCost})`}
+                                                </button>
+                                                {buildings < 4 && maxHouses > 1 && (
+                                                    <button onClick={() => onBuild(maxHouses)} className="flex-1 bg-gradient-to-r from-emerald-600 to-green-700 text-white font-black py-2 rounded-lg text-[11px] sm:text-xs uppercase tracking-wider shadow hover:from-emerald-500 active:scale-95 transition">
+                                                        +{maxHouses} Casas (M${space.houseCost * maxHouses})
+                                                    </button>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
                                 </>
                             )}
                         </div>
@@ -1729,6 +1739,21 @@
                 } catch (e) { console.error(e); }
             };
 
+            const handleUseJailCard = async () => {
+                if (gameState.players[gameState.currentTurnIndex].id !== playerId) return;
+                if (!me.inJail || !me.getOutJailFreeCards || me.getOutJailFreeCards <= 0) return;
+                
+                const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, getOutJailFreeCards: p.getOutJailFreeCards - 1 } : p);
+                const logMsg = `${me.name} usó una carta para salir de la cárcel.`;
+                
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                        players: updatedPlayers,
+                        logs: [...(gameState.logs || []), logMsg]
+                    });
+                } catch (e) { console.error(e); }
+            };
+
             const handleBuyProperty = async (accept) => {
                 if (accept) SoundFX.cash();
                 const ap = gameState.awaitingPurchase;
@@ -1853,28 +1878,29 @@
                 } catch(e) { console.error(e); }
             };
 
-            const handleBuild = async (spaceId) => {
+            const handleBuild = async (spaceId, qty = 1) => {
                 const space = boardSpaces[spaceId];
-                if (me.balance < space.houseCost) return;
+                const totalCost = space.houseCost * qty;
+                if (me.balance < totalCost) return;
 
                 const myBuildings = me.buildings || {};
                 const currentCount = myBuildings[spaceId] || 0;
-                if (currentCount >= 5) return;
+                if (currentCount + qty > 5) return;
 
-                const newBuildings = { ...myBuildings, [spaceId]: currentCount + 1 };
+                const newBuildings = { ...myBuildings, [spaceId]: currentCount + qty };
                 
                 const updatedPlayers = gameState.players.map(p => {
                     if (p.id === playerId) {
-                        return { ...p, balance: p.balance - space.houseCost, buildings: newBuildings };
+                        return { ...p, balance: p.balance - totalCost, buildings: newBuildings };
                     }
                     return p;
                 });
 
-                const buildName = currentCount === 4 ? 'un Hotel' : 'una Casa';
+                const buildName = (currentCount + qty) === 5 ? 'un Hotel' : (qty > 1 ? `${qty} Casas` : 'una Casa');
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `${me.name} construyó ${buildName} en ${space.name} por M${space.houseCost}.`]
+                        logs: [...(gameState.logs || []), `${me.name} construyó ${buildName} en ${space.name} por M${totalCost}.`]
                     });
                     setSelectedSpacePC(null); // Force close to refresh or we can leave it open but it doesn't auto-update the modal easily unless we wait for snapshot
                 } catch(e) { console.error(e); }
@@ -2227,6 +2253,7 @@
 
                         let canBuild = false;
                         let canSellBuild = false;
+                        let canMortgage = false;
                         let currentBuildings = 0;
                         let hasAllColors = false;
 
@@ -2240,31 +2267,41 @@
                                 if (hasAllColors && currentBuildings < 5 && pcOwner.balance >= selectedSpacePC.houseCost) {
                                     // Extra check: none in color group can be mortgaged to build
                                     const anyMortgaged = groupSpaces.some(s => pcOwner.mortgaged?.includes(s.id));
-                                    if (!anyMortgaged) canBuild = true;
+                                    if (!anyMortgaged && isMyTurn) canBuild = true;
                                 }
                                 
                                 if (currentBuildings > 0) {
                                     canSellBuild = true;
                                 }
+                                
+                                if (currentBuildings === 0 && isMyTurn) {
+                                    const anyHousesInGroup = groupSpaces.some(s => (pcOwner.buildings?.[s.id] || 0) > 0);
+                                    if (!anyHousesInGroup) canMortgage = true;
+                                }
+                            }
+                        } else if (pcOwner && (selectedSpacePC.type === 'station' || selectedSpacePC.type === 'utility')) {
+                            if (pcIsOwner && !pcIsMortgaged && isMyTurn) {
+                                canMortgage = true;
                             }
                         }
 
                         return (
-                            <PropertyCard
-                                space={selectedSpacePC}
-                                owner={pcOwner}
-                                isMortgaged={pcIsMortgaged}
-                                isOwner={pcIsOwner}
-                                canBuild={canBuild}
-                                canSellBuild={canSellBuild}
-                                buildings={currentBuildings}
-                                hasAllColors={hasAllColors}
-                                onMortgage={() => handleMortgage(selectedSpacePC.id)}
-                                onUnmortgage={() => handleUnmortgage(selectedSpacePC.id)}
-                                onBuild={() => handleBuild(selectedSpacePC.id)}
-                                onSellBuild={() => handleSellBuild(selectedSpacePC.id)}
-                                onClose={() => setSelectedSpacePC(null)}
-                            />
+                                <PropertyCard 
+                                    space={selectedSpacePC}
+                                    owner={pcOwner}
+                                    isOwner={pcIsOwner}
+                                    isMortgaged={pcIsMortgaged}
+                                    buildings={currentBuildings}
+                                    hasAllColors={hasAllColors}
+                                    canBuild={canBuild}
+                                    canSellBuild={canSellBuild}
+                                    canMortgage={canMortgage}
+                                    onMortgage={() => handleMortgage(selectedSpacePC.id)}
+                                    onUnmortgage={() => handleUnmortgage(selectedSpacePC.id)}
+                                    onBuild={(qty) => handleBuild(selectedSpacePC.id, qty)}
+                                    onSellBuild={() => handleSellBuild(selectedSpacePC.id)}
+                                    onClose={() => setSelectedSpacePC(null)}
+                                />
                         );
                     })()}
 
@@ -2559,12 +2596,22 @@
                                 </div>
                                 <div className="flex gap-2">
                                     {isMyTurn && me.inJail && (
+                                        <>
                                         <button 
                                             onClick={handlePayJail}
                                             disabled={me.balance < 50 || gameState.isAnimating}
                                             className="p-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md bg-gradient-to-br from-red-600 to-orange-700 hover:from-red-500 hover:to-orange-600 active:scale-95 border border-red-400/30">
                                             <span className="font-bold text-xs uppercase hidden xl:inline text-white">Pagar M50</span>
                                         </button>
+                                        {me.getOutJailFreeCards > 0 && (
+                                            <button 
+                                                onClick={handleUseJailCard}
+                                                disabled={gameState.isAnimating}
+                                                className="p-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 active:scale-95 border border-yellow-400/30">
+                                                <span className="font-bold text-xs uppercase hidden xl:inline text-white">Usar Carta</span>
+                                            </button>
+                                        )}
+                                        </>
                                     )}
                                     {(() => {
                                         const isRollingAllowed = isMyTurn && !gameState.isAnimating && !gameState.awaitingPurchase && !gameState.awaitingTax && !gameState.activeCard && !gameState.awaitingRent && !gameState.freeParkingClaim && !gameState.awaitingUtilityRoll;
@@ -2584,6 +2631,11 @@
                                     </button>
                                 </div>
                             </div>
+                            {me.balance <= 0 && (
+                                <div className="mt-2 pt-2 border-t border-slate-700">
+                                    <button onClick={() => setShowBankruptcyConfirm(true)} className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-2 rounded-lg text-xs uppercase animate-pulse border border-red-400 shadow-lg shadow-red-900/50">Declarar Bancarrota</button>
+                                </div>
+                            )}
                         </div>
 
                         {/* MIDDLE SECTION: Balance */}
@@ -2599,11 +2651,6 @@
                                     </div>
                                 )}
                             </div>
-                            {me.balance < 0 && (
-                                <div className="mt-3 w-[90%] z-20">
-                                    <button onClick={() => setShowBankruptcyConfirm(true)} className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-2 rounded-lg text-xs uppercase animate-pulse border border-red-400 shadow-lg shadow-red-900/50">Declarar Bancarrota</button>
-                                </div>
-                            )}
                         </div>
 
                         {/* BOTTOM SECTION: Patrimonio y Mercado */}
