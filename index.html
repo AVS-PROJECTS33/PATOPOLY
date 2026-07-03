@@ -17,6 +17,10 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 1); }
     </style>
 </head>
 <body class="bg-slate-900">
@@ -52,48 +56,79 @@
         // --- DATOS DEL TABLERO ---
         const boardSpaces = [
             { id: 0, name: "SALIDA", type: "corner", bg: "bg-red-100" },
-            { id: 1, name: "Letamendi", type: "property", color: "bg-amber-800", price: 60 },
+            { id: 1, name: "Letamendi", type: "property", color: "bg-amber-800", colorHex: "#92400e", price: 60, rent: [2,4,10,30,90,160,250], houseCost: 50, mortgage: 30 },
             { id: 2, name: "Caja de Comunidad", type: "community", bg: "bg-blue-50" },
-            { id: 3, name: "Urquinaona", type: "property", color: "bg-amber-800", price: 60 },
+            { id: 3, name: "Urquinaona", type: "property", color: "bg-amber-800", colorHex: "#92400e", price: 60, rent: [4,8,20,60,180,320,450], houseCost: 50, mortgage: 30 },
             { id: 4, name: "Impuesto", type: "tax", price: 200, bg: "bg-gray-200" },
-            { id: 5, name: "Estación de Sants", type: "station", price: 200, bg: "bg-gray-100" },
-            { id: 6, name: "Consell de Cent", type: "property", color: "bg-sky-300", price: 100 },
+            { id: 5, name: "Estación de Sants", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
+            { id: 6, name: "Consell de Cent", type: "property", color: "bg-sky-300", colorHex: "#7dd3fc", price: 100, rent: [6,12,30,90,270,400,550], houseCost: 50, mortgage: 50 },
             { id: 7, name: "Suerte", type: "chance", bg: "bg-orange-50" },
-            { id: 8, name: "Muntaner", type: "property", color: "bg-sky-300", price: 100 },
-            { id: 9, name: "Aribau", type: "property", color: "bg-sky-300", price: 120 },
+            { id: 8, name: "Muntaner", type: "property", color: "bg-sky-300", colorHex: "#7dd3fc", price: 100, rent: [6,12,30,90,270,400,550], houseCost: 50, mortgage: 50 },
+            { id: 9, name: "Aribau", type: "property", color: "bg-sky-300", colorHex: "#7dd3fc", price: 120, rent: [8,16,40,100,300,450,600], houseCost: 50, mortgage: 60 },
             { id: 10, name: "CÁRCEL", type: "corner", bg: "bg-orange-100" },
-            { id: 11, name: "Vía Augusta", type: "property", color: "bg-pink-500", price: 140 },
-            { id: 12, name: "Cía. Eléctrica", type: "utility", price: 150, bg: "bg-yellow-50" },
-            { id: 13, name: "Balmes", type: "property", color: "bg-pink-500", price: 140 },
-            { id: 14, name: "P. San Juan", type: "property", color: "bg-pink-500", price: 160 },
-            { id: 15, name: "Est. de Francia", type: "station", price: 200, bg: "bg-gray-100" },
-            { id: 16, name: "Plaza Cataluña", type: "property", color: "bg-orange-500", price: 180 },
+            { id: 11, name: "Vía Augusta", type: "property", color: "bg-pink-500", colorHex: "#ec4899", price: 140, rent: [10,20,50,150,450,625,750], houseCost: 100, mortgage: 70 },
+            { id: 12, name: "Cía. Eléctrica", type: "utility", price: 150, bg: "bg-yellow-50", mortgage: 75 },
+            { id: 13, name: "Balmes", type: "property", color: "bg-pink-500", colorHex: "#ec4899", price: 140, rent: [10,20,50,150,450,625,750], houseCost: 100, mortgage: 70 },
+            { id: 14, name: "P. San Juan", type: "property", color: "bg-pink-500", colorHex: "#ec4899", price: 160, rent: [12,24,60,180,500,700,900], houseCost: 100, mortgage: 80 },
+            { id: 15, name: "Est. de Francia", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
+            { id: 16, name: "Plaza Cataluña", type: "property", color: "bg-orange-500", colorHex: "#f97316", price: 180, rent: [14,28,70,200,550,750,950], houseCost: 100, mortgage: 90 },
             { id: 17, name: "Caja de Comunidad", type: "community", bg: "bg-blue-50" },
-            { id: 18, name: "Pta. del Ángel", type: "property", color: "bg-orange-500", price: 180 },
-            { id: 19, name: "Las Ramblas", type: "property", color: "bg-orange-500", price: 200 },
+            { id: 18, name: "Pta. del Ángel", type: "property", color: "bg-orange-500", colorHex: "#f97316", price: 180, rent: [14,28,70,200,550,750,950], houseCost: 100, mortgage: 90 },
+            { id: 19, name: "Las Ramblas", type: "property", color: "bg-orange-500", colorHex: "#f97316", price: 200, rent: [16,32,80,220,600,800,1000], houseCost: 100, mortgage: 100 },
             { id: 20, name: "PARKING", type: "corner", bg: "bg-blue-100" },
-            { id: 21, name: "Av. Diagonal", type: "property", color: "bg-red-500", price: 220 },
+            { id: 21, name: "Av. Diagonal", type: "property", color: "bg-red-500", colorHex: "#ef4444", price: 220, rent: [18,36,90,250,700,875,1050], houseCost: 150, mortgage: 110 },
             { id: 22, name: "Suerte", type: "chance", bg: "bg-orange-50" },
-            { id: 23, name: "P. de Gracia", type: "property", color: "bg-red-500", price: 220 },
-            { id: 24, name: "Rambla Cataluña", type: "property", color: "bg-red-500", price: 240 },
-            { id: 25, name: "Est. del Norte", type: "station", price: 200, bg: "bg-gray-100" },
-            { id: 26, name: "Plaza España", type: "property", color: "bg-yellow-400", price: 260 },
-            { id: 27, name: "Gran Vía", type: "property", color: "bg-yellow-400", price: 260 },
-            { id: 28, name: "Cía. de Aguas", type: "utility", price: 150, bg: "bg-blue-50" },
-            { id: 29, name: "Calle Aragón", type: "property", color: "bg-yellow-400", price: 280 },
+            { id: 23, name: "P. de Gracia", type: "property", color: "bg-red-500", colorHex: "#ef4444", price: 220, rent: [18,36,90,250,700,875,1050], houseCost: 150, mortgage: 110 },
+            { id: 24, name: "Rambla Cataluña", type: "property", color: "bg-red-500", colorHex: "#ef4444", price: 240, rent: [20,40,100,300,750,925,1100], houseCost: 150, mortgage: 120 },
+            { id: 25, name: "Est. del Norte", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
+            { id: 26, name: "Plaza España", type: "property", color: "bg-yellow-400", colorHex: "#facc15", price: 260, rent: [22,44,110,330,800,975,1150], houseCost: 150, mortgage: 130 },
+            { id: 27, name: "Gran Vía", type: "property", color: "bg-yellow-400", colorHex: "#facc15", price: 260, rent: [22,44,110,330,800,975,1150], houseCost: 150, mortgage: 130 },
+            { id: 28, name: "Cía. de Aguas", type: "utility", price: 150, bg: "bg-blue-50", mortgage: 75 },
+            { id: 29, name: "Calle Aragón", type: "property", color: "bg-yellow-400", colorHex: "#facc15", price: 280, rent: [24,48,120,360,850,1025,1200], houseCost: 150, mortgage: 140 },
             { id: 30, name: "IR A CÁRCEL", type: "corner", bg: "bg-gray-300" },
-            { id: 31, name: "Pedralbes", type: "property", color: "bg-green-500", price: 300 },
-            { id: 32, name: "Sarrià", type: "property", color: "bg-green-500", price: 300 },
+            { id: 31, name: "Pedralbes", type: "property", color: "bg-green-500", colorHex: "#22c55e", price: 300, rent: [26,52,130,390,900,1100,1275], houseCost: 200, mortgage: 150 },
+            { id: 32, name: "Sarrià", type: "property", color: "bg-green-500", colorHex: "#22c55e", price: 300, rent: [26,52,130,390,900,1100,1275], houseCost: 200, mortgage: 150 },
             { id: 33, name: "Caja de Comunidad", type: "community", bg: "bg-blue-50" },
-            { id: 34, name: "Sant Gervasi", type: "property", color: "bg-green-500", price: 320 },
-            { id: 35, name: "Est. Sagrera", type: "station", price: 200, bg: "bg-gray-100" },
+            { id: 34, name: "Sant Gervasi", type: "property", color: "bg-green-500", colorHex: "#22c55e", price: 320, rent: [28,56,150,450,1000,1200,1400], houseCost: 200, mortgage: 160 },
+            { id: 35, name: "Est. Sagrera", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
             { id: 36, name: "Suerte", type: "chance", bg: "bg-orange-50" },
-            { id: 37, name: "Tibidabo", type: "property", color: "bg-blue-800", price: 350 },
+            { id: 37, name: "Tibidabo", type: "property", color: "bg-blue-800", colorHex: "#1e40af", price: 350, rent: [35,70,175,500,1100,1300,1500], houseCost: 200, mortgage: 175 },
             { id: 38, name: "Impuesto Lujo", type: "tax", price: 100, bg: "bg-gray-200" },
-            { id: 39, name: "Parque Güell", type: "property", color: "bg-blue-800", price: 400 },
+            { id: 39, name: "Parque Güell", type: "property", color: "bg-blue-800", colorHex: "#1e40af", price: 400, rent: [50,100,200,600,1400,1700,2000], houseCost: 200, mortgage: 200 },
         ];
 
-        const availableTokens = ['🚗', '🎩', '🚢', '🐕', '👟', '🐧'];
+        const chanceCards = [
+            { id: 'c1', text: "Avanza hasta la Salida (Cobra M200)", action: "moveTo", value: 0 },
+            { id: 'c2', text: "Avanza hasta la calle Muntaner. Si pasas por la Salida, cobra M200", action: "moveTo", value: 24 },
+            { id: 'c3', text: "Ve a la cárcel. Ve directamente sin pasar por la Salida y sin cobrar M200", action: "goToJail" },
+            { id: 'c4', text: "Retrocede 3 casillas", action: "moveRelative", value: -3 },
+            { id: 'c5', text: "La banca te paga un dividendo de M50", action: "receiveBank", value: 50 },
+            { id: 'c6', text: "Quedas libre de la cárcel. Esta carta puede conservarse hasta que se utilice.", action: "jailFree" },
+            { id: 'c7', text: "Paga una multa por exceso de velocidad de M15", action: "payBank", value: 15 },
+            { id: 'c8', text: "Avanza hasta el Paseo de Gracia", action: "moveTo", value: 39 },
+            { id: 'c9', text: "Haz reparaciones en tus propiedades: paga M25 por cada una", action: "repairs", value: 25 },
+            { id: 'c10', text: "Has sido elegido presidente del consejo. Paga M50 a cada jugador", action: "payPlayers", value: 50 }
+        ];
+
+        const communityChestCards = [
+            { id: 'cc1', text: "Avanza hasta la Salida (Cobra M200)", action: "moveTo", value: 0 },
+            { id: 'cc2', text: "Error de cálculo a tu favor en el banco. Cobra M200", action: "receiveBank", value: 200 },
+            { id: 'cc3', text: "Gastos médicos. Paga M50", action: "payBank", value: 50 },
+            { id: 'cc4', text: "Quedas libre de la cárcel. Esta carta puede conservarse hasta que se utilice.", action: "jailFree" },
+            { id: 'cc5', text: "Ve a la cárcel. Ve directamente sin pasar por la Salida y sin cobrar M200", action: "goToJail" },
+            { id: 'cc6', text: "Es tu cumpleaños. Cobra M10 de cada jugador", action: "receivePlayers", value: 10 },
+            { id: 'cc7', text: "Paga tu póliza de seguro vitalicio: M50", action: "payBank", value: 50 },
+            { id: 'cc8', text: "Paga la factura del hospital: M100", action: "payBank", value: 100 },
+            { id: 'cc9', text: "Recibes por servicios M25", action: "receiveBank", value: 25 },
+            { id: 'cc10', text: "Ganas el segundo premio de belleza. Cobra M10", action: "receiveBank", value: 10 }
+        ];
+
+        const availableTokens = [
+            { emoji: '🏎️', name: 'Coche' },
+            { emoji: '🎩', name: 'Sombrero' },
+            { emoji: '🐕', name: 'Perrito' },
+            { emoji: '🚢', name: 'Barco' }
+        ];
         const BACKGROUND_URL = "https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_eknq59eknq59eknq.png";
 
         // --- COMPONENTE PRINCIPAL ---
@@ -127,15 +162,228 @@
             );
         }
 
+        // --- COMPONENTE: TARJETA DE PROPIEDAD (ESTILO MONOPOLY) ---
+        function PropertyCard({ space, owner, isMortgaged, isOwner, onMortgage, onUnmortgage, onClose }) {
+            if (!space) return null;
+            const isProperty = space.type === 'property';
+            const isStation = space.type === 'station';
+            const isUtility = space.type === 'utility';
+            const houseIcons = ['🏠','🏠🏠','🏠🏠🏠','🏠🏠🏠🏠','🏨'];
+            const mortgageVal = space.mortgage || Math.floor(space.price / 2);
+            const unmortgageVal = Math.floor(mortgageVal * 1.1);
+            return (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+                    <div className="relative w-72 bg-[#f5f0e8] rounded-lg shadow-2xl border-4 border-slate-800 overflow-hidden" onClick={e => e.stopPropagation()}>
+                        {/* HEADER */}
+                        <div className="px-4 py-3 text-center border-b-4 border-slate-800 relative" style={{ backgroundColor: space.colorHex || '#6b7280' }}>
+                            {isMortgaged && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-red-400 font-black text-lg uppercase tracking-widest rotate-[-12deg] border-2 border-red-400 px-3 py-1">HIPOTECADA</span></div>}
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 mb-1">TÍTULO DE PROPIEDAD</p>
+                            <h2 className="text-xl font-black text-white uppercase leading-tight drop-shadow">{space.name}</h2>
+                        </div>
+
+                        {/* BODY */}
+                        <div className="px-4 py-3 font-mono text-slate-900">
+                            {isMortgaged ? (
+                                <div className="text-center py-4">
+                                    <p className="text-slate-600 text-xs mb-3">Esta propiedad está hipotecada y no genera alquiler.</p>
+                                    {isOwner && (
+                                        <button onClick={onUnmortgage} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-black py-3 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-green-400 active:scale-95 transition">
+                                            Paga M{unmortgageVal} para deshipotecar
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    {isProperty && space.rent && (
+                                        <>
+                                            <div className="flex justify-between text-xs border-b border-slate-300 pb-1 mb-1">
+                                                <span>Alquiler</span><span className="font-black">M{space.rent[0]}</span>
+                                            </div>
+                                            <div className="flex justify-between text-xs border-b border-slate-300 pb-1 mb-1">
+                                                <span>Alquiler con grupo de color</span><span className="font-black">M{space.rent[1]}</span>
+                                            </div>
+                                            {space.rent.slice(2).map((r, i) => (
+                                                <div key={i} className="flex justify-between text-xs border-b border-slate-300 pb-1 mb-1 items-center">
+                                                    <span className="flex items-center gap-1">Alquiler con <span className="text-sm">{houseIcons[i]}</span></span>
+                                                    <span className="font-black">M{r}</span>
+                                                </div>
+                                            ))}
+                                            <div className="mt-2 pt-1 border-t-2 border-slate-400">
+                                                <div className="flex justify-between text-xs mb-0.5">
+                                                    <span>Cada Casa cuesta</span><span className="font-black">M{space.houseCost}</span>
+                                                </div>
+                                                <div className="flex justify-between text-xs">
+                                                    <span>Cada Hotel cuesta</span><span className="font-black">M{space.houseCost} <span className="text-[9px] text-slate-500">(más 4 casas)</span></span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                    {isStation && space.rent && (
+                                        <>
+                                            <div className="text-[10px] text-slate-500 italic mb-2">Si posees:</div>
+                                            {space.rent.map((r, i) => (
+                                                <div key={i} className="flex justify-between text-xs border-b border-slate-300 pb-1 mb-1">
+                                                    <span>{i+1} Estación{i>0?'es':''}</span><span className="font-black">M{r}</span>
+                                                </div>
+                                            ))}
+                                        </>
+                                    )}
+                                    {isUtility && (
+                                        <p className="text-[10px] text-slate-600 mb-2">Si posees 1 servicio: alquiler 4x dado. Si posees ambos: 10x dado.</p>
+                                    )}
+                                    <div className="mt-3 pt-2 border-t-2 border-slate-800 flex justify-between text-[10px] font-black">
+                                        <div>HIPOTECADO<br/><span className="font-mono">POR M{mortgageVal}</span></div>
+                                        <div className="text-right">PARA DESHIP.<br/><span className="font-mono">PAGA M{unmortgageVal}</span></div>
+                                    </div>
+                                    {isOwner && (
+                                        <button onClick={onMortgage} className="w-full mt-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-orange-400 active:scale-95 transition">
+                                            Hipotecar – cobrar M{mortgageVal}
+                                        </button>
+                                    )}
+                                </>
+                            )}
+                        </div>
+
+                        {/* FOOTER */}
+                        <div className="bg-slate-800 px-3 py-1.5 flex justify-between items-center">
+                            {owner ? (
+                                <span className="text-xs text-green-400 font-black">⚫ {owner.token} {owner.name}</span>
+                            ) : (
+                                <span className="text-xs text-yellow-400 font-black">✨ EN VENTA – M{space.price}</span>
+                            )}
+                            <button onClick={onClose} className="text-white/60 hover:text-white text-xs font-bold transition">✕ Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         // --- COMPONENTE: TABLERO COMPARTIDO ---
-        function Board({ gameState }) {
+        function Board({ gameState, onAnimationComplete }) {
             const playersOnBoard = gameState?.players?.filter(p => p.hasJoined) || [];
+            const [displayPositions, setDisplayPositions] = useState({});
+            const [animationPhase, setAnimationPhase] = useState('idle'); // 'rolling', 'result', 'moving', 'idle'
+            const [currentRoll, setCurrentRoll] = useState(null);
+            const [selectedSpace, setSelectedSpace] = useState(null);
+            useEffect(() => {
+                if (gameState?.activeRoll && gameState.activeRoll.timestamp !== currentRoll?.timestamp) {
+                    const roll = gameState.activeRoll;
+                    setCurrentRoll(roll);
+                    setAnimationPhase('rolling');
+                    setDisplayPositions(prev => ({ ...prev, [roll.playerId]: roll.from }));
+
+                    setTimeout(() => {
+                        setAnimationPhase('result');
+                        setTimeout(() => {
+                            setAnimationPhase('moving');
+                            let currentPos = roll.from;
+                            const targetPos = roll.to;
+                            const totalSteps = currentPos <= targetPos ? (targetPos - currentPos) : (40 - currentPos + targetPos);
+                            let step = 0;
+                            
+                            const interval = setInterval(() => {
+                                step++;
+                                currentPos = (currentPos + 1) % 40;
+                                setDisplayPositions(prev => ({ ...prev, [roll.playerId]: currentPos }));
+                                
+                                if (step >= totalSteps) {
+                                    clearInterval(interval);
+                                    setAnimationPhase('idle');
+                                    if (onAnimationComplete) onAnimationComplete(roll);
+                                }
+                            }, 300);
+                        }, 2000);
+                    }, 1500);
+                }
+            }, [gameState?.activeRoll]);
 
             return (
-                <div className="w-full max-w-[90vh] aspect-square bg-white border-2 border-slate-800 shadow-2xl relative mx-auto"
-                style={{ display: 'grid', gridTemplateColumns: 'repeat(11, 1fr)', gridTemplateRows: 'repeat(11, 1fr)' }} >
+                <div className="w-full aspect-square bg-white border-2 border-slate-800 shadow-2xl relative text-slate-900"
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(11, minmax(0, 1fr))', gridTemplateRows: 'repeat(11, minmax(0, 1fr))' }} >
+
+                {/* TARJETA PROPIEDAD */}
+                {selectedSpace && (
+                    <PropertyCard
+                        space={selectedSpace}
+                        owner={gameState?.players?.find(p => p.properties?.includes(selectedSpace.id))}
+                        onClose={() => setSelectedSpace(null)}
+                    />
+                )}
+                
+                <div className="bg-[#cde6d0] border border-slate-800 shadow-inner flex flex-col items-center justify-center relative z-0 p-4 sm:p-8" style={{ gridColumn: '2 / 11', gridRow: '2 / 11' }}>
+                    <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                    
+                    {/* BOTE DE PARKING GRATUITO */}
+                    <div className="absolute top-8 sm:top-12 left-8 sm:left-12 bg-white/80 backdrop-blur-md border-2 border-blue-500 rounded-2xl p-2 sm:p-4 shadow-xl flex flex-col items-center justify-center z-10 rotate-[-15deg] min-w-[60px] sm:min-w-[100px]">
+                        <span className="text-xl sm:text-4xl mb-1">🚘</span>
+                        <span className="text-[6px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 mb-1 leading-none text-center">Bote<br/>Parking</span>
+                        <span className="text-sm sm:text-2xl font-black text-green-600">M{gameState?.freeParkingPot || 0}</span>
+                    </div>
+
+                    <div className="rotate-[-45deg] text-center">
+                        <h1 className="text-4xl sm:text-7xl font-black text-red-600 drop-shadow-sm uppercase tracking-tighter border-4 sm:border-8 border-red-600 p-2 sm:p-4 bg-white">
+                            PATOPOLY
+                        </h1>
+                        <h2 className="text-sm sm:text-2xl font-bold mt-2 text-slate-800 uppercase tracking-widest bg-white inline-block px-2 sm:px-4 py-1 border-2 border-slate-800">
+                            Barcelona
+                        </h2>
+                    </div>
+                </div>
+
+                {/* OVERLAY: solo opaco en rolling y result */}
+                {(animationPhase === 'rolling' || animationPhase === 'result') && currentRoll && (
+                    <div className="absolute inset-0 bg-black/70 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
+                        {animationPhase === 'rolling' && (
+                            <div className="flex gap-6 animate-bounce">
+                                <Dices className="w-24 h-24 sm:w-32 sm:h-32 text-white animate-spin drop-shadow-[0_0_20px_rgba(255,255,255,0.9)]" />
+                                <Dices className="w-24 h-24 sm:w-32 sm:h-32 text-white animate-spin drop-shadow-[0_0_20px_rgba(255,255,255,0.9)]" style={{animationDirection: 'reverse'}} />
+                            </div>
+                        )}
+                        {animationPhase === 'result' && (
+                            <div className="bg-gradient-to-b from-yellow-300 to-yellow-600 p-1 rounded-2xl shadow-[0_0_40px_rgba(250,204,21,0.6)]">
+                                <div className="bg-slate-900 px-6 sm:px-10 py-4 sm:py-6 rounded-xl flex flex-col items-center border border-yellow-500/50">
+                                    <div className="text-4xl sm:text-6xl mb-2 sm:mb-3">{currentRoll.token}</div>
+                                    <h2 className="text-xl sm:text-3xl font-black text-white uppercase tracking-widest mb-4 text-center">{currentRoll.playerName}</h2>
+                                    <div className="flex items-center gap-4 sm:gap-6 text-yellow-400 font-black text-4xl sm:text-6xl">
+                                        <div className="bg-black/50 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-xl border border-yellow-500/30">{currentRoll.d1}</div>
+                                        <span className="text-3xl sm:text-4xl">+</span>
+                                        <div className="bg-black/50 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-xl border border-yellow-500/30">{currentRoll.d2}</div>
+                                    </div>
+                                    <div className="mt-3 sm:mt-5 text-lg sm:text-2xl font-bold text-slate-300">¡Avanza <span className="text-white text-2xl sm:text-3xl">{currentRoll.totalMove}</span> casillas!</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* OVERLAY: Has pasado por la Salida */}
+                {animationPhase === 'moving' && currentRoll?.passedGo && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+                        <div className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl border-2 border-green-300 animate-bounce text-center">
+                            <div className="text-3xl sm:text-5xl mb-1">🏁</div>
+                            <p className="font-black text-sm sm:text-xl uppercase tracking-widest leading-tight">¡Has pasado por la</p>
+                            <p className="font-black text-lg sm:text-3xl uppercase">Casilla Salida!</p>
+                            <p className="font-black text-2xl sm:text-4xl text-yellow-300 mt-1">+M200</p>
+                        </div>
+                    </div>
+                )}
+
                 {boardSpaces.map((space, index) => {
-                    let gridCol, gridRow, borderClasses = "", innerClasses = "flex flex-col items-center justify-between text-center p-0.5 sm:p-1 text-[0.45rem] sm:text-[10px] md:text-xs font-semibold overflow-hidden relative";
+                    let gridCol, gridRow, borderClasses = "", innerClasses = "flex flex-col items-center justify-between text-center p-0.5 sm:p-1 text-[0.4rem] sm:text-[8px] md:text-[9px] font-bold relative leading-tight tracking-tight";
+                    
+                    let combinedPosClass = "";
+                    if (index > 0 && index < 10) {
+                        combinedPosClass = "absolute bottom-full mb-1 sm:mb-2 left-1/2 -translate-x-1/2 z-30"; // Inferior -> Encima (adentro)
+                    }
+                    else if (index > 10 && index < 20) {
+                        combinedPosClass = "absolute right-full mr-1 sm:mr-2 top-1/2 -translate-y-1/2 z-30"; // Izquierda -> a la izquierda (afuera)
+                    }
+                    else if (index > 20 && index < 30) {
+                        combinedPosClass = "absolute top-full mt-1 sm:mt-2 left-1/2 -translate-x-1/2 z-30"; // Superior -> Debajo (adentro)
+                    }
+                    else if (index > 30 && index < 40) {
+                        combinedPosClass = "absolute left-full ml-1 sm:ml-2 top-1/2 -translate-y-1/2 z-30"; // Derecha -> a la derecha (afuera)
+                    }
                     
                     if (index >= 0 && index <= 10) {
                         gridRow = 11; gridCol = 11 - index; borderClasses = "border-t border-r border-slate-800";
@@ -152,41 +400,136 @@
                         innerClasses = innerClasses.replace('flex-col', 'flex-row');
                     }
 
-                    const occupants = playersOnBoard.filter(p => p.position === index);
+                    const occupants = playersOnBoard.filter(p => {
+                        const pos = displayPositions[p.id] !== undefined ? displayPositions[p.id] : p.position;
+                        return pos === index;
+                    });
                     
                     // BUSCAMOS SI LA CASILLA TIENE DUEÑO
                     const owner = gameState?.players?.find(p => p.properties?.includes(space.id));
 
                     return (
-                        <div key={index} className={`box-border ${borderClasses}`} style={{ gridColumn: gridCol, gridRow: gridRow }}>
+                        <div key={index} className={`box-border relative z-10 ${borderClasses} ${(space.type==='property'||space.type==='station'||space.type==='utility') ? 'cursor-pointer hover:brightness-95 active:brightness-90 transition-all' : ''}`} style={{ gridColumn: gridCol, gridRow: gridRow }} onClick={() => { if(space.type==='property'||space.type==='station'||space.type==='utility') setSelectedSpace(space); }}>
                             <div className={`w-full h-full ${space.bg || 'bg-white'} ${innerClasses}`}>
                                 {space.type === 'property' && (
                                     <div className={`absolute ${index > 10 && index < 20 ? 'right-0 top-0 bottom-0 w-2 sm:w-3' : index > 30 ? 'left-0 top-0 bottom-0 w-2 sm:w-3' : index > 20 && index < 30 ? 'bottom-0 left-0 right-0 h-2 sm:h-3' : 'top-0 left-0 right-0 h-2 sm:h-3'} ${space.color} border-slate-800 ${index > 10 && index < 20 ? 'border-l' : index > 30 ? 'border-r' : index > 20 && index < 30 ? 'border-t' : 'border-b'}`}></div>
                                 )}
                                 
-                                <div className={`z-10 w-full flex-1 flex flex-col items-center justify-center uppercase ${space.type === 'corner' ? 'text-xs sm:text-base font-black' : 'leading-tight px-0.5'}`}>
+                                <div className={`z-10 w-full h-full flex-1 flex flex-col items-center justify-center uppercase ${space.type === 'corner' ? 'font-black' : 'leading-none px-0.5'}`}>
                                     
-                                    {/* ICONOS DE LAS 4 ESQUINAS */}
-                                    {space.id === 0 && <ArrowRight className="w-5 h-5 sm:w-8 sm:h-8 text-red-600 mb-0.5" />}
-                                    {space.id === 10 && <Lock className="w-5 h-5 sm:w-8 sm:h-8 text-orange-600 mb-0.5" />}
-                                    {space.id === 20 && <Car className="w-5 h-5 sm:w-8 sm:h-8 text-blue-600 mb-0.5" />}
-                                    {space.id === 30 && <Siren className="w-5 h-5 sm:w-8 sm:h-8 text-red-600 mb-0.5 animate-pulse" />}
-                                    
-                                    <span className="text-center">{space.name}</span>
-
-                                    {/* ETIQUETA "EN VENTA" O NOMBRE DEL DUEÑO */}
-                                    {(space.type === 'property' || space.type === 'station' || space.type === 'utility') && (
-                                        <div className={`mt-0.5 text-[5px] sm:text-[7px] px-1 py-[1px] rounded shadow-sm font-bold tracking-wide w-[90%] truncate text-center ${owner ? 'bg-slate-800 text-white' : 'bg-green-100 text-green-700 border border-green-300'}`}>
-                                            {owner ? owner.name : 'EN VENTA'}
+                                    {/* SALIDA */}
+                                    {space.id === 0 && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-1 w-full h-full">
+                                            <span className="text-[3vw] sm:text-[2vw] md:text-xl drop-shadow-md leading-none mb-1">🏁</span>
+                                            <span className="text-[1.5vw] sm:text-[1vw] md:text-[8px] font-black text-red-600 uppercase tracking-tighter leading-none w-full text-center truncate">SALIDA</span>
                                         </div>
+                                    )}
+
+                                    {/* VISITAS / CÁRCEL */}
+                                    {space.id === 10 && (
+                                        <div className="absolute inset-0 w-full h-full flex flex-col">
+                                            <div className="flex-1 flex items-center justify-center border-b-2 border-slate-800 bg-black/5">
+                                                <span className="text-[5vw] sm:text-[3vw] md:text-3xl drop-shadow-lg leading-none">⛓️</span>
+                                            </div>
+                                            <div className="flex items-center justify-center py-0.5 sm:py-1">
+                                                <span className="text-[1.5vw] sm:text-[1vw] md:text-[9px] font-black text-orange-800 uppercase tracking-widest leading-none w-full text-center">VISITAS</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* PARKING GRATUITO */}
+                                    {space.id === 20 && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-1 w-full h-full">
+                                            <span className="text-[1.2vw] sm:text-[0.8vw] md:text-[7px] font-black text-blue-700 uppercase tracking-tighter leading-none w-full text-center truncate">PARKING</span>
+                                            <span className="text-[3vw] sm:text-[2vw] md:text-xl drop-shadow-md leading-none my-0.5">🚗</span>
+                                            <span className="text-[1.2vw] sm:text-[0.8vw] md:text-[7px] font-black text-blue-700 uppercase tracking-tighter leading-none w-full text-center truncate">GRATUITO</span>
+                                        </div>
+                                    )}
+
+                                    {/* VAYA A LA CÁRCEL */}
+                                    {space.id === 30 && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-1 w-full h-full">
+                                            <span className="text-[3vw] sm:text-[2vw] md:text-xl drop-shadow-md leading-none mb-0.5">🚨</span>
+                                            <span className="text-[1.2vw] sm:text-[0.8vw] md:text-[7px] font-black text-red-700 uppercase tracking-tighter leading-none w-full text-center truncate">VAYA A LA</span>
+                                            <span className="text-[1.2vw] sm:text-[0.8vw] md:text-[7px] font-black text-red-700 uppercase tracking-tighter leading-none w-full text-center truncate">CÁRCEL</span>
+                                        </div>
+                                    )}
+
+                                    {/* Nombre genérico e iconos para casillas no-corner */}
+                                    {space.type !== 'corner' && (
+                                        <>
+                                            {space.type === 'station' && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">🚂</span>}
+                                            {space.type === 'utility' && space.id === 12 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">💡</span>}
+                                            {space.type === 'utility' && space.id === 28 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">🚰</span>}
+                                            {space.type === 'tax' && space.id === 4 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">💰</span>}
+                                            {space.type === 'tax' && space.id === 38 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">💎</span>}
+                                            {space.type === 'chance' && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">❓</span>}
+                                            {space.type === 'community' && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">🎁</span>}
+                                            <span className="text-center font-bold leading-none break-words max-w-full text-[0.35rem] sm:text-[7px] md:text-[8px] mt-0.5">{space.name}</span>
+                                        </>
                                     )}
                                 </div>
 
-                                {space.price > 0 && <div className="z-10 font-bold mb-0.5 opacity-70 scale-90">M{space.price}</div>}
+                                {/* ETIQUETA COMBINADA: nombre/EN VENTA (sin precio si hay dueño) */}
+                                {(space.type === 'property' || space.type === 'station' || space.type === 'utility') && (
+                                    <div className={`flex flex-col items-center justify-center px-1 sm:px-1.5 py-[1px] rounded shadow-md border transition-all ${combinedPosClass} ${owner ? 'bg-slate-800 text-white border-slate-600' : 'bg-green-400 text-green-950 border-green-500 shadow-[0_0_10px_rgba(74,222,128,0.3)]'}`}>
+                                        <span className="text-[5px] sm:text-[7px] md:text-[9px] font-black tracking-wider whitespace-nowrap leading-none">
+                                            {owner ? owner.name : 'EN VENTA'}
+                                        </span>
+                                        {!owner && space.price > 0 && (
+                                            <span className="text-[5px] sm:text-[7px] md:text-[9px] font-black px-1 py-[1px] rounded-sm leading-none whitespace-nowrap bg-green-500/20 text-green-900 border border-green-500/30">
+                                                M{space.price}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                                 
-                                {occupants.length > 0 && (
-                                    <div className="absolute inset-0 flex items-center justify-center flex-wrap gap-0.5 bg-black/10 z-20 pointer-events-none">
-                                        {occupants.map((p, i) => <span key={i} className="text-sm sm:text-xl drop-shadow-md">{p.token}</span>)}
+                                {occupants.length > 0 && space.id !== 10 && (
+                                    <div className="absolute inset-0 flex items-center justify-center flex-wrap gap-0.5 bg-black/10 z-40 pointer-events-none">
+                                        {occupants.map((p, i) => {
+                                            let tipPos = "bottom-full mb-1";
+                                            if (index > 10 && index < 20) tipPos = "left-full ml-1";
+                                            else if (index > 20 && index < 30) tipPos = "top-full mt-1";
+                                            else if (index > 30) tipPos = "right-full mr-1";
+                                            return (
+                                                <div key={i} className="relative flex flex-col items-center justify-center">
+                                                    <div className={`absolute flex items-center pointer-events-none z-40 ${tipPos}`}>
+                                                        <div className="bg-blue-700 text-white text-[6px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-md whitespace-nowrap shadow-xl border border-blue-400 leading-tight">
+                                                            {p.token} {p.name}
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-sm sm:text-xl drop-shadow-md">{p.token}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                                {occupants.length > 0 && space.id === 10 && (
+                                    <div className="absolute inset-0 flex flex-col z-40 pointer-events-none">
+                                        <div className="flex-1 flex items-center justify-center flex-wrap gap-0.5 p-1 bg-black/20">
+                                            {occupants.filter(p => p.inJail).map((p, i) => (
+                                                <div key={'jail_'+i} className="relative flex flex-col items-center justify-center">
+                                                    <div className="absolute flex items-center pointer-events-none z-40 bottom-full mb-1">
+                                                        <div className="bg-red-700 text-white text-[6px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-md whitespace-nowrap shadow-xl border border-red-400 leading-tight">
+                                                            {p.token} {p.name} (Preso)
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-sm sm:text-xl drop-shadow-md">{p.token}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="h-[35%] flex items-center justify-center flex-wrap gap-0.5 px-1 pb-1">
+                                            {occupants.filter(p => !p.inJail).map((p, i) => (
+                                                <div key={'visit_'+i} className="relative flex flex-col items-center justify-center">
+                                                    <div className="absolute flex items-center pointer-events-none z-40 left-full ml-1">
+                                                        <div className="bg-blue-700 text-white text-[6px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-md whitespace-nowrap shadow-xl border border-blue-400 leading-tight">
+                                                            {p.token} {p.name} (Visita)
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-sm sm:text-xl drop-shadow-md">{p.token}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -194,17 +537,6 @@
                     );
                 })}
 
-                <div className="bg-[#cde6d0] border border-slate-800 shadow-inner flex flex-col items-center justify-center relative p-4 sm:p-8" style={{ gridColumn: '2 / 11', gridRow: '2 / 11' }}>
-                    <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                    <div className="rotate-[-45deg] text-center">
-                        <h1 className="text-4xl sm:text-7xl font-black text-red-600 drop-shadow-sm uppercase tracking-tighter border-4 sm:border-8 border-red-600 p-2 sm:p-4 bg-white">
-                            PATOPOLY
-                        </h1>
-                        <h2 className="text-sm sm:text-2xl font-bold mt-2 text-slate-800 uppercase tracking-widest bg-white inline-block px-2 sm:px-4 py-1 border-2 border-slate-800">
-                            Barcelona
-                        </h2>
-                    </div>
-                </div>
                 </div>
             );
         }
@@ -361,8 +693,11 @@
 
             // Si todos están listos, muestra el tablero central (modo host)
             return (
-                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-                    <Board gameState={gameState} />
+                <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-2 relative overflow-hidden" style={{ backgroundImage: `url(https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_9q9p9s9q9p9s9q9p.png)` }}>
+                    <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm z-0"></div>
+                    <div className="w-full max-w-[96vh] relative z-10 drop-shadow-2xl">
+                        <Board gameState={gameState} />
+                    </div>
                 </div>
             );
         }
@@ -371,6 +706,8 @@
         function PlayerController({ gameId, user, playerId, setPlayerId }) {
             const [gameState, setGameState] = useState(null);
             const [selectedToken, setSelectedToken] = useState('');
+            const [selectedSpacePC, setSelectedSpacePC] = useState(null);
+            const [activeTab, setActiveTab] = useState('patrimonio');
             
             useEffect(() => {
                 if (!user || !gameId) return;
@@ -387,7 +724,7 @@
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), { 
                         players: updatedPlayers,
-                        logs: [...gameState.logs, `¡${gameState.players.find(p=>p.id===targetPlayerId).name} se ha unido con ${selectedToken}!`]
+                        logs: [...(gameState.logs || []), `¡${gameState.players.find(p=>p.id===targetPlayerId).name} se ha unido con ${selectedToken}!`]
                     });
                     setPlayerId(targetPlayerId);
                 } catch (error) { console.error(error); }
@@ -395,12 +732,58 @@
 
             const rollDice = async () => {
                 if (gameState.players[gameState.currentTurnIndex].id !== playerId) return; // No es tu turno
+                if (gameState.isAnimating) return; // Bloquear si hay animación en curso
                 
                 const d1 = Math.floor(Math.random() * 6) + 1;
                 const d2 = Math.floor(Math.random() * 6) + 1;
                 const totalMove = d1 + d2;
+                const isDoubles = d1 === d2;
                 
                 const me = gameState.players.find(p => p.id === playerId);
+
+                // --- JAIL LOGIC ---
+                if (me.inJail) {
+                    let newJailTurns = (me.jailTurns || 0) + 1;
+                    
+                    if (isDoubles) {
+                        let logMsg = `¡${me.name} tiró ${d1} y ${d2} (dobles) y sale de la cárcel gratis! Se mueve ${totalMove}.`;
+                        let newPos = (me.position + totalMove) % 40;
+                        const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, position: newPos } : p);
+                        
+                        let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
+                        let loopCount = 0;
+                        while (!gameState.players[nextTurn].hasJoined && loopCount < gameState.players.length) { nextTurn = (nextTurn + 1) % gameState.players.length; loopCount++; }
+                        
+                        const activeRoll = { playerId: me.id, playerName: me.name, token: me.token, d1, d2, totalMove, from: me.position, to: newPos, nextTurnIndex: nextTurn, timestamp: Date.now(), passedGo: false };
+                        try { await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), { players: updatedPlayers, activeRoll, isAnimating: true, logs: [...(gameState.logs || []), logMsg] }); } catch(e) { console.error(e); }
+                        return;
+                    } else {
+                        if (newJailTurns >= 3) {
+                            let newBalance = Math.max(0, me.balance - 50);
+                            let newPos = (me.position + totalMove) % 40;
+                            let logMsg = `¡${me.name} tiró ${d1} y ${d2}. Al ser su 3er turno, pagó M50 obligatoriamente, sale de la cárcel y mueve ${totalMove}.`;
+                            const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, balance: newBalance, position: newPos } : p);
+                            
+                            let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
+                            let loopCount = 0;
+                            while (!gameState.players[nextTurn].hasJoined && loopCount < gameState.players.length) { nextTurn = (nextTurn + 1) % gameState.players.length; loopCount++; }
+                            
+                            const activeRoll = { playerId: me.id, playerName: me.name, token: me.token, d1, d2, totalMove, from: me.position, to: newPos, nextTurnIndex: nextTurn, timestamp: Date.now(), passedGo: false };
+                            try { await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), { players: updatedPlayers, freeParkingPot: (gameState.freeParkingPot || 0) + 50, activeRoll, isAnimating: true, logs: [...(gameState.logs || []), logMsg] }); } catch(e) { console.error(e); }
+                            return;
+                        } else {
+                            let logMsg = `${me.name} tiró ${d1} y ${d2}. No sacó dobles y sigue en la cárcel (Turno ${newJailTurns}).`;
+                            const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, jailTurns: newJailTurns } : p);
+                            let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
+                            let loopCount = 0;
+                            while (!gameState.players[nextTurn].hasJoined && loopCount < gameState.players.length) { nextTurn = (nextTurn + 1) % gameState.players.length; loopCount++; }
+                            try { await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), { players: updatedPlayers, currentTurnIndex: nextTurn, logs: [...(gameState.logs || []), logMsg] }); } catch(e) { console.error(e); }
+                            return;
+                        }
+                    }
+                }
+                // --- END JAIL LOGIC ---
+
                 let newPos = me.position + totalMove;
                 let newBalance = me.balance;
                 let passedGo = false;
@@ -418,18 +801,287 @@
                     return p;
                 });
 
-                // Next turn logic (simplified: no doubles logic yet)
+                // Calculamos el siguiente turno pero NO actualizamos currentTurnIndex todavía
                 let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
+                let loopCount = 0;
+                while (!gameState.players[nextTurn].hasJoined && loopCount < gameState.players.length) {
+                    nextTurn = (nextTurn + 1) % gameState.players.length;
+                    loopCount++;
+                }
 
                 let logMsg = `${me.name} tiró ${d1} y ${d2} (${totalMove}) y cayó en ${boardSpaces[newPos].name}.`;
                 if(passedGo) logMsg += " ¡Cobró M200 por pasar por la Salida!";
 
+                const activeRoll = {
+                    playerId: me.id,
+                    playerName: me.name,
+                    token: me.token,
+                    d1, d2, totalMove,
+                    from: me.position,
+                    to: newPos,
+                    nextTurnIndex: nextTurn,
+                    timestamp: Date.now(),
+                    passedGo
+                };
+
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
                         players: updatedPlayers,
-                        currentTurnIndex: nextTurn,
-                        logs: [...gameState.logs, logMsg]
+                        activeRoll: activeRoll,
+                        isAnimating: true,
+                        logs: [...(gameState.logs || []), logMsg]
                     });
+                } catch(e) { console.error(e); }
+            };
+
+            const handleAnimationComplete = async (roll) => {
+                if (roll.playerId === playerId) {
+                    const landedSpace = boardSpaces[roll.to];
+                    const isOwnable = landedSpace && (landedSpace.type === 'property' || landedSpace.type === 'station' || landedSpace.type === 'utility');
+                    const alreadyOwned = gameState.players.some(p => p.properties && p.properties.includes(landedSpace.id));
+                    const isTax = landedSpace && landedSpace.type === 'tax';
+                    const isFreeParking = landedSpace && landedSpace.id === 20;
+                    const isGoToJail = landedSpace && landedSpace.id === 30;
+                    const isChance = landedSpace && landedSpace.type === 'chance';
+                    const isCommunity = landedSpace && landedSpace.type === 'community';
+                    
+                    if (isGoToJail) {
+                        const updatedPlayers = gameState.players.map(p => {
+                            if (p.id === playerId) return { ...p, position: 10, inJail: true, jailTurns: 0 };
+                            return p;
+                        });
+                        try {
+                            await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                                currentTurnIndex: roll.nextTurnIndex,
+                                isAnimating: false,
+                                players: updatedPlayers,
+                                logs: [...(gameState.logs || []), `¡${me.name} ha sido enviado directamente a la cárcel!`]
+                            });
+                        } catch(e) { console.error(e); }
+                    } else if (isChance || isCommunity) {
+                        const deck = isChance ? chanceCards : communityChestCards;
+                        const randomCard = deck[Math.floor(Math.random() * deck.length)];
+                        try {
+                            await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                                isAnimating: false,
+                                activeCard: { 
+                                    type: isChance ? 'chance' : 'community', 
+                                    cardId: randomCard.id, 
+                                    playerId: roll.playerId, 
+                                    nextTurnIndex: roll.nextTurnIndex 
+                                }
+                            });
+                        } catch(e) { console.error(e); }
+                    } else if (isTax) {
+                        try {
+                            await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                                isAnimating: false,
+                                awaitingTax: { playerId: roll.playerId, spaceId: roll.to, amount: landedSpace.price, nextTurnIndex: roll.nextTurnIndex }
+                            });
+                        } catch(e) { console.error(e); }
+                    } else if (isOwnable && !alreadyOwned) {
+                        try {
+                            await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                                isAnimating: false,
+                                awaitingPurchase: { playerId: roll.playerId, spaceId: roll.to, nextTurnIndex: roll.nextTurnIndex }
+                            });
+                        } catch(e) { console.error(e); }
+                    } else if (isFreeParking && (gameState.freeParkingPot || 0) > 0) {
+                        const potAmount = gameState.freeParkingPot || 0;
+                        const updatedPlayers = gameState.players.map(p => {
+                            if (p.id === playerId) return { ...p, balance: p.balance + potAmount };
+                            return p;
+                        });
+                        try {
+                            await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                                currentTurnIndex: roll.nextTurnIndex,
+                                isAnimating: false,
+                                players: updatedPlayers,
+                                freeParkingPot: 0,
+                                logs: [...(gameState.logs || []), `¡${me.name} ha caído en Parking Gratuito y se ha llevado el bote de M${potAmount}!`]
+                            });
+                        } catch(e) { console.error(e); }
+                    } else {
+                        try {
+                            await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                                currentTurnIndex: roll.nextTurnIndex,
+                                isAnimating: false
+                            });
+                        } catch(e) { console.error(e); }
+                    }
+                }
+            };
+
+            const handleUseJailCard = async () => {
+                if (gameState.players[gameState.currentTurnIndex].id !== playerId) return;
+                if (!me.inJail || !me.getOutJailFreeCards || me.getOutJailFreeCards <= 0) return;
+                
+                const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, getOutJailFreeCards: p.getOutJailFreeCards - 1 } : p);
+                const logMsg = `${me.name} usó una carta para salir gratis de la cárcel.`;
+                
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                        players: updatedPlayers,
+                        logs: [...(gameState.logs || []), logMsg]
+                    });
+                } catch (e) { console.error(e); }
+            };
+
+            const handleAcceptCard = async () => {
+                const ac = gameState.activeCard;
+                if (!ac || ac.playerId !== playerId) return;
+                
+                const deck = ac.type === 'chance' ? chanceCards : communityChestCards;
+                const card = deck.find(c => c.id === ac.cardId);
+                if (!card) return;
+
+                let updateData = { activeCard: null, currentTurnIndex: ac.nextTurnIndex };
+                let updatedPlayers = [...gameState.players];
+                let pIndex = updatedPlayers.findIndex(p => p.id === playerId);
+                let meUpdated = { ...updatedPlayers[pIndex] };
+                let newPot = gameState.freeParkingPot || 0;
+                let logMsg = `${meUpdated.name} sacó una carta: "${card.text}"`;
+
+                if (card.action === 'moveTo') {
+                    meUpdated.position = card.value;
+                    if (card.value === 0 || (card.id === 'c2' && meUpdated.position < 24)) {
+                        if (card.value < meUpdated.position && card.value !== 0) meUpdated.balance += 200;
+                        else if (card.value === 0) meUpdated.balance += 200;
+                    }
+                    updateData.activeRoll = { playerId: meUpdated.id, playerName: meUpdated.name, token: meUpdated.token, d1: 0, d2: 0, totalMove: 0, from: meUpdated.position, to: card.value, nextTurnIndex: ac.nextTurnIndex, timestamp: Date.now(), passedGo: false };
+                    updateData.isAnimating = true;
+                    delete updateData.currentTurnIndex; 
+                } else if (card.action === 'moveRelative') {
+                    let newPos = meUpdated.position + card.value;
+                    if (newPos < 0) newPos += 40;
+                    meUpdated.position = newPos;
+                    updateData.activeRoll = { playerId: meUpdated.id, playerName: meUpdated.name, token: meUpdated.token, d1: 0, d2: 0, totalMove: 0, from: meUpdated.position, to: newPos, nextTurnIndex: ac.nextTurnIndex, timestamp: Date.now(), passedGo: false };
+                    updateData.isAnimating = true;
+                    delete updateData.currentTurnIndex; 
+                } else if (card.action === 'goToJail') {
+                    meUpdated.position = 10;
+                    meUpdated.inJail = true;
+                    meUpdated.jailTurns = 0;
+                } else if (card.action === 'payBank') {
+                    meUpdated.balance -= card.value;
+                    newPot += card.value;
+                    updateData.freeParkingPot = newPot;
+                } else if (card.action === 'receiveBank') {
+                    meUpdated.balance += card.value;
+                } else if (card.action === 'payPlayers') {
+                    updatedPlayers = updatedPlayers.map(p => p.id === playerId ? { ...p, balance: p.balance - (card.value * (updatedPlayers.length - 1)) } : { ...p, balance: p.balance + card.value });
+                    meUpdated = updatedPlayers[pIndex];
+                } else if (card.action === 'receivePlayers') {
+                    updatedPlayers = updatedPlayers.map(p => p.id === playerId ? { ...p, balance: p.balance + (card.value * (updatedPlayers.length - 1)) } : { ...p, balance: p.balance - card.value });
+                    meUpdated = updatedPlayers[pIndex];
+                } else if (card.action === 'jailFree') {
+                    meUpdated.getOutJailFreeCards = (meUpdated.getOutJailFreeCards || 0) + 1;
+                } else if (card.action === 'repairs') {
+                    let cost = (meUpdated.properties ? meUpdated.properties.length : 0) * card.value;
+                    meUpdated.balance -= cost;
+                    newPot += cost;
+                    updateData.freeParkingPot = newPot;
+                    logMsg += ` (Pagó M${cost})`;
+                }
+
+                updatedPlayers[pIndex] = meUpdated;
+                updateData.players = updatedPlayers;
+                updateData.logs = [...(gameState.logs || []), logMsg];
+
+                try { await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updateData); } catch(e) { console.error(e); }
+            };
+
+            const handlePayJail = async () => {
+                if (gameState.players[gameState.currentTurnIndex].id !== playerId) return;
+                if (!me.inJail || me.balance < 50) return;
+                
+                const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, balance: p.balance - 50 } : p);
+                const logMsg = `${me.name} pagó M50 para salir de la cárcel.`;
+                
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                        players: updatedPlayers,
+                        freeParkingPot: (gameState.freeParkingPot || 0) + 50,
+                        logs: [...(gameState.logs || []), logMsg]
+                    });
+                } catch (e) { console.error(e); }
+            };
+
+            const handleBuyProperty = async (accept) => {
+                const ap = gameState.awaitingPurchase;
+                if (!ap || ap.playerId !== playerId) return;
+                const space = boardSpaces[ap.spaceId];
+                let updateData = {
+                    awaitingPurchase: null,
+                    currentTurnIndex: ap.nextTurnIndex
+                };
+                if (accept && me.balance >= space.price) {
+                    updateData.players = gameState.players.map(p => {
+                        if (p.id === playerId) {
+                            return { ...p, balance: p.balance - space.price, properties: [...(p.properties || []), space.id] };
+                        }
+                        return p;
+                    });
+                    updateData.logs = [...(gameState.logs || []), `${me.name} ha comprado ${space.name} por M${space.price}.`];
+                }
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updateData);
+                } catch(e) { console.error(e); }
+            };
+
+            const handlePayTax = async () => {
+                const at = gameState.awaitingTax;
+                if (!at || at.playerId !== playerId) return;
+                const updatedPlayers = gameState.players.map(p => {
+                    if (p.id === playerId) return { ...p, balance: Math.max(0, p.balance - at.amount) };
+                    return p;
+                });
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                        awaitingTax: null,
+                        currentTurnIndex: at.nextTurnIndex,
+                        players: updatedPlayers,
+                        freeParkingPot: (gameState.freeParkingPot || 0) + at.amount,
+                        logs: [...(gameState.logs || []), `${me.name} pagó M${at.amount} de impuestos que van al bote.`]
+                    });
+                } catch(e) { console.error(e); }
+            };
+
+            const handleMortgage = async (spaceId) => {
+                const space = boardSpaces[spaceId];
+                const mortgageVal = space.mortgage || Math.floor(space.price / 2);
+                const updatedPlayers = gameState.players.map(p => {
+                    if (p.id === playerId) {
+                        return { ...p, balance: p.balance + mortgageVal, mortgaged: [...(p.mortgaged || []), spaceId] };
+                    }
+                    return p;
+                });
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                        players: updatedPlayers,
+                        logs: [...(gameState.logs || []), `${me.name} hipotecó ${space.name} y cobró M${mortgageVal}.`]
+                    });
+                    setSelectedSpacePC(null);
+                } catch(e) { console.error(e); }
+            };
+
+            const handleUnmortgage = async (spaceId) => {
+                const space = boardSpaces[spaceId];
+                const mortgageVal = space.mortgage || Math.floor(space.price / 2);
+                const unmortgageVal = Math.floor(mortgageVal * 1.1);
+                if (me.balance < unmortgageVal) return;
+                const updatedPlayers = gameState.players.map(p => {
+                    if (p.id === playerId) {
+                        return { ...p, balance: p.balance - unmortgageVal, mortgaged: (p.mortgaged || []).filter(id => id !== spaceId) };
+                    }
+                    return p;
+                });
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                        players: updatedPlayers,
+                        logs: [...(gameState.logs || []), `${me.name} deshipotecó ${space.name} pagando M${unmortgageVal}.`]
+                    });
+                    setSelectedSpacePC(null);
                 } catch(e) { console.error(e); }
             };
 
@@ -438,40 +1090,52 @@
             const me = gameState.players.find(p => p.id === playerId);
 
             // PANTALLA DE SELECCIÓN DE FICHA
-            if (!me) {
+            if (!me || !me.hasJoined) {
                 const availablePlayers = gameState.players.filter(p => !p.hasJoined);
                 const takenTokens = gameState.players.filter(p => p.hasJoined).map(p => p.token);
                 
                 if (availablePlayers.length === 0) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-red-500 font-bold">Sala llena</div>;
 
                 return (
-                    <div className="min-h-screen bg-slate-900 bg-cover bg-center flex flex-col items-center p-6" style={{ backgroundImage: `url(${BACKGROUND_URL})` }}>
-                        <div className="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl border border-white/10 mt-10">
-                            <h1 className="text-3xl font-black text-center text-white mb-8">Unirse a la Partida</h1>
+                    <div className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center p-4 relative" style={{ backgroundImage: `url(https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_9q9p9s9q9p9s9q9p.png)` }}>
+                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-0"></div>
+                        <div className="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl border border-white/10 relative z-10">
                             
-                            <h2 className="font-bold text-slate-300 mb-4">1. ¿Quién eres?</h2>
-                            <div className="space-y-3 mb-8">
-                                {availablePlayers.map(p => (
-                                    <button key={p.id} onClick={() => setPlayerId(p.id)} className={`w-full text-left p-4 rounded-xl border-2 font-medium transition flex items-center ${playerId === p.id ? 'border-blue-500 bg-blue-500/20 text-white' : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500'}`}>
-                                        <UserCircle2 className="w-5 h-5 mr-3 opacity-70" /> {p.name}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {playerId && (
+                            {!playerId ? (
                                 <div className="animate-fade-in">
-                                    <h2 className="font-bold text-slate-300 mb-4">2. Elige tu ficha</h2>
-                                    <div className="grid grid-cols-3 gap-3 mb-8">
+                                    <h1 className="text-3xl font-black text-center text-white mb-2">Unirse a la Partida</h1>
+                                    <p className="text-slate-300 text-center mb-8">¿Quién eres?</p>
+                                    <div className="space-y-3">
+                                        {availablePlayers.map(p => (
+                                            <button key={p.id} onClick={() => setPlayerId(p.id)} className="w-full text-left p-4 rounded-xl border-2 border-slate-700 bg-slate-800/50 text-slate-200 hover:bg-slate-700 hover:border-slate-500 font-medium transition flex items-center group">
+                                                <UserCircle2 className="w-6 h-6 mr-3 opacity-50 group-hover:opacity-100 group-hover:text-blue-400 transition" /> 
+                                                <span className="text-lg">{p.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="animate-fade-in flex flex-col h-full">
+                                    <button onClick={() => setPlayerId('')} className="text-slate-400 hover:text-white flex items-center gap-2 mb-6 text-sm font-bold uppercase tracking-wider transition w-fit">
+                                        <ArrowRight className="w-4 h-4 rotate-180" /> Volver
+                                    </button>
+                                    <h1 className="text-2xl font-black text-center text-white mb-2">Elige tu Ficha</h1>
+                                    <p className="text-slate-300 text-center mb-8">Selecciona la ficha con la que jugarás</p>
+                                    
+                                    <div className="grid grid-cols-2 gap-4 mb-8">
                                         {availableTokens.map(token => {
-                                            const isTaken = takenTokens.includes(token);
+                                            const isTaken = takenTokens.includes(token.emoji);
+                                            const isSelected = selectedToken === token.emoji;
                                             return (
-                                                <button key={token} disabled={isTaken} onClick={() => setSelectedToken(token)} className={`text-4xl p-4 rounded-xl border-2 transition ${isTaken ? 'opacity-20 cursor-not-allowed border-slate-800' : selectedToken === token ? 'border-green-500 bg-green-500/20' : 'border-slate-700 bg-slate-800/50 hover:border-slate-500'}`}>
-                                                    {token}
+                                                <button key={token.emoji} disabled={isTaken} onClick={() => setSelectedToken(token.emoji)} className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${isTaken ? 'opacity-30 cursor-not-allowed border-slate-800 bg-slate-900/50' : isSelected ? 'border-green-500 bg-green-500/20 scale-105 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'border-slate-700 bg-slate-800/50 hover:border-slate-500 hover:bg-slate-700'}`}>
+                                                    <span className="text-5xl mb-2 drop-shadow-lg">{token.emoji}</span>
+                                                    <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${isSelected ? 'text-green-400' : 'text-slate-300'}`}>{token.name}</span>
+                                                    {isTaken && <span className="text-[10px] text-red-400 mt-1 uppercase font-black">Ocupada</span>}
                                                 </button>
                                             );
                                         })}
                                     </div>
-                                    <button onClick={() => handleJoin(playerId)} disabled={!selectedToken} className="w-full bg-gradient-to-r from-green-500 to-green-600 disabled:opacity-50 text-white font-black py-4 rounded-xl shadow-lg transition text-lg uppercase tracking-wide">Entrar al Juego</button>
+                                    <button onClick={() => handleJoin(playerId)} disabled={!selectedToken} className="w-full bg-gradient-to-r from-green-500 to-green-600 disabled:opacity-50 text-white font-black py-4 rounded-xl shadow-lg transition-all text-lg uppercase tracking-wide hover:from-green-400 hover:to-green-500 transform active:scale-95 disabled:active:scale-100 mt-auto">Entrar al Tablero</button>
                                 </div>
                             )}
                         </div>
@@ -481,74 +1145,309 @@
 
             // PANTALLA PRINCIPAL DE JUGADOR (TABLERO + CONTROLES)
             const isMyTurn = gameState.players[gameState.currentTurnIndex].id === playerId;
+            const myPurchase = gameState.awaitingPurchase && gameState.awaitingPurchase.playerId === playerId ? gameState.awaitingPurchase : null;
 
             return (
-                <div className="min-h-screen bg-slate-900 flex flex-col md:flex-row pb-safe text-white">
+                <div className="min-h-screen lg:h-screen flex flex-col lg:flex-row pb-safe text-white lg:overflow-hidden bg-cover bg-center relative" style={{ backgroundImage: `url(https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_9q9p9s9q9p9s9q9p.png)` }}>
+                    {/* TARJETA DE PROPIEDAD DESDE PANEL */}
+                    {selectedSpacePC && (() => {
+                        const pcOwner = gameState.players.find(p => p.properties?.includes(selectedSpacePC.id));
+                        const pcIsOwner = pcOwner?.id === playerId;
+                        const pcIsMortgaged = pcOwner?.mortgaged?.includes(selectedSpacePC.id) || false;
+                        return (
+                            <PropertyCard
+                                space={selectedSpacePC}
+                                owner={pcOwner}
+                                isMortgaged={pcIsMortgaged}
+                                isOwner={pcIsOwner}
+                                onMortgage={() => handleMortgage(selectedSpacePC.id)}
+                                onUnmortgage={() => handleUnmortgage(selectedSpacePC.id)}
+                                onClose={() => setSelectedSpacePC(null)}
+                            />
+                        );
+                    })()}
+                    {/* MODAL IMPUESTO */}
+                    {gameState.awaitingTax && gameState.awaitingTax.playerId === playerId && (() => {
+                        const taxSpace = boardSpaces[gameState.awaitingTax.spaceId];
+                        return (
+                            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                                <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-5">
+                                    <div className="text-6xl">💸</div>
+                                    <h2 className="text-2xl font-black text-white text-center uppercase tracking-wider">{taxSpace.name}</h2>
+                                    <p className="text-slate-400 text-sm text-center">Debes pagar al banco</p>
+                                    <div className="bg-slate-800 rounded-2xl px-8 py-4 text-center border border-slate-700">
+                                        <p className="text-4xl font-black text-red-400">M{gameState.awaitingTax.amount}</p>
+                                    </div>
+                                    <button onClick={handlePayTax} className="w-full py-4 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black text-lg transition border border-red-500 shadow-lg uppercase tracking-wider">Pagar</button>
+                                </div>
+                            </div>
+                        );
+                    })()}
+                    {/* MODAL COMPRA DE PROPIEDAD */}
+                    {myPurchase && (() => {
+                        const space = boardSpaces[myPurchase.spaceId];
+                        const canAfford = me.balance >= space.price;
+                        return (
+                            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                                <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-5">
+                                    <div className={`w-full h-3 rounded-t-xl ${space.color || 'bg-gray-400'}`}></div>
+                                    <div className="text-5xl">{me.token}</div>
+                                    <h2 className="text-2xl font-black text-white text-center uppercase tracking-wider">{space.name}</h2>
+                                    <p className="text-slate-400 text-sm text-center">Has caído en esta propiedad. ¿Deseas comprarla?</p>
+                                    <div className="bg-slate-800 rounded-2xl px-8 py-4 text-center border border-slate-700">
+                                        <p className="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Precio</p>
+                                        <p className="text-4xl font-black text-yellow-400">M{space.price}</p>
+                                        {!canAfford && <p className="text-red-400 text-xs mt-1 font-bold">No tienes suficiente dinero</p>}
+                                    </div>
+                                    <div className="flex gap-3 w-full">
+                                        <button onClick={() => handleBuyProperty(false)} className="flex-1 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-black text-lg transition border border-slate-600">Pasar</button>
+                                        <button onClick={() => handleBuyProperty(true)} disabled={!canAfford} className={`flex-1 py-3 rounded-xl font-black text-lg transition ${canAfford ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.3)]' : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'}`}>Comprar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
+
+                    {/* MODAL DE CARTA (SUERTE / COMUNIDAD) */}
+                    {(() => {
+                        const ac = gameState.activeCard;
+                        if (!ac) return null;
+                        const isMyTurnForCard = ac.playerId === playerId;
+                        const deck = ac.type === 'chance' ? chanceCards : communityChestCards;
+                        const card = deck.find(c => c.id === ac.cardId);
+                        if (!card) return null;
+                        
+                        return (
+                            <div className="absolute inset-0 z-[110] flex items-center justify-center p-4">
+                                <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => {}} />
+                                <div className={`relative w-full max-w-sm rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 ${ac.type === 'chance' ? 'bg-orange-50 border-orange-500' : 'bg-blue-50 border-blue-500'}`}>
+                                    <div className="text-6xl mb-4 drop-shadow-md">
+                                        {ac.type === 'chance' ? '❓' : '🎁'}
+                                    </div>
+                                    <h2 className={`text-2xl font-black uppercase tracking-widest mb-6 ${ac.type === 'chance' ? 'text-orange-600' : 'text-blue-600'}`}>
+                                        {ac.type === 'chance' ? 'Suerte' : 'Caja de Comunidad'}
+                                    </h2>
+                                    
+                                    <div className="text-center bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-inner w-full mb-6">
+                                        <p className="text-xl font-bold text-slate-800 leading-snug">
+                                            {card.text}
+                                        </p>
+                                    </div>
+                                    
+                                    {isMyTurnForCard ? (
+                                        <button onClick={handleAcceptCard} className={`w-full py-4 rounded-xl font-black text-xl text-white shadow-lg transition active:scale-95 ${ac.type === 'chance' ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400' : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500'}`}>
+                                            Aceptar
+                                        </button>
+                                    ) : (
+                                        <div className="w-full py-4 rounded-xl bg-slate-200 text-slate-500 font-bold text-center border border-slate-300">
+                                            Esperando a {gameState.players.find(p => p.id === ac.playerId)?.name}...
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })()}
+
+                    <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm z-0"></div>
+                    
                     {/* PANEL IZQUIERDO: TABLERO */}
-                    <div className="w-full md:w-[60%] lg:w-[70%] p-4 md:p-8 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-800 bg-slate-950">
-                        <Board gameState={gameState} />
+                    <div className="w-full lg:w-[70%] h-full p-2 lg:p-6 flex items-center justify-center border-b lg:border-b-0 lg:border-r border-slate-800/50 bg-slate-950/40 lg:overflow-hidden relative z-10">
+                        <div className="w-full max-w-[95vmin] lg:max-w-[96vh] drop-shadow-2xl flex-shrink-0">
+                            <Board gameState={gameState} onAnimationComplete={handleAnimationComplete} />
+                        </div>
                     </div>
 
                     {/* PANEL DERECHO: CONTROLES DEL JUGADOR */}
-                    <div className="w-full md:w-[40%] lg:w-[30%] flex flex-col h-full bg-slate-900 overflow-y-auto">
-                        <div className="p-6 bg-slate-800 border-b border-slate-700 shadow-lg relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4 opacity-10"><UserCircle2 className="w-32 h-32" /></div>
-                            <div className="flex justify-between items-center mb-6 relative z-10">
-                                <div>
-                                    <h2 className="text-2xl font-black">{me.name}</h2>
-                                    <p className={`text-sm font-bold ${isMyTurn ? 'text-green-400' : 'text-slate-400'}`}>{isMyTurn ? '¡Es tu turno!' : 'Esperando...'}</p>
+                    <div className="w-full lg:w-[30%] flex flex-col h-full bg-slate-900 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] relative z-20 overflow-hidden">
+                        
+                        {/* TOP SECTION: Jugador + Acciones */}
+                        <div className="p-4 sm:p-5 bg-slate-800 border-b border-slate-700 shadow-md relative z-10 flex flex-col gap-4">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-3xl bg-slate-900/50 w-12 h-12 rounded-full flex items-center justify-center border border-white/10 shadow-inner">{me.token}</div>
+                                    <div>
+                                        <h2 className="text-xl font-black text-white leading-tight truncate max-w-[150px]">{me.name}</h2>
+                                        <div className="flex items-center gap-1.5 mt-0.5">
+                                            <div className={`w-2 h-2 rounded-full ${isMyTurn ? 'bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-slate-600'}`}></div>
+                                            <p className={`text-[10px] font-bold uppercase tracking-wider ${isMyTurn ? 'text-green-400' : 'text-slate-400'}`}>
+                                                {isMyTurn ? 'Tu turno' : 'Esperando'}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="text-6xl drop-shadow-md">{me.token}</div>
-                            </div>
-                            <div className="bg-slate-900/50 rounded-2xl p-5 border border-white/5 relative z-10">
-                                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Tu Saldo</p>
-                                <div className="text-5xl font-black text-green-400 tracking-tight">M{me.balance}</div>
+                                <div className="flex gap-2">
+                                    {isMyTurn && me.inJail && (
+                                        <button 
+                                            onClick={handlePayJail}
+                                            disabled={me.balance < 50 || gameState.isAnimating}
+                                            className="p-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md bg-gradient-to-br from-red-600 to-orange-700 hover:from-red-500 hover:to-orange-600 active:scale-95 border border-red-400/30">
+                                            <span className="font-bold text-xs uppercase hidden xl:inline text-white">Pagar M50</span>
+                                        </button>
+                                    )}
+                                    <button 
+                                        onClick={rollDice}
+                                        disabled={!isMyTurn || gameState.isAnimating}
+                                        className={`p-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md ${isMyTurn && !gameState.isAnimating ? (me.inJail ? 'bg-gradient-to-br from-purple-600 to-pink-700 hover:from-purple-500 hover:to-pink-600 active:scale-95 border border-purple-400/30 text-white' : 'bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 active:scale-95 border border-blue-400/30 text-white') : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'}`}>
+                                        <Dices className="w-5 h-5" />
+                                        <span className="font-bold text-xs uppercase hidden xl:inline">{me.inJail ? 'Tirar (Dobles)' : 'Tirar Dados'}</span>
+                                    </button>
+                                    <button className="p-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md bg-slate-700/50 hover:bg-slate-700 border border-slate-600 group">
+                                        <ArrowRightLeft className="w-4 h-4 text-orange-400 group-hover:rotate-180 transition-transform duration-500" />
+                                        <span className="font-bold text-xs uppercase hidden xl:inline text-slate-300 group-hover:text-white">Trueque</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="p-6 space-y-4">
-                            <button 
-                                onClick={rollDice}
-                                disabled={!isMyTurn}
-                                className={`w-full p-5 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all transform ${isMyTurn ? 'bg-blue-600 hover:bg-blue-500 active:scale-95' : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'}`}>
-                                <Dices className="w-8 h-8" />
-                                <span className="font-black text-xl tracking-wide uppercase">Tirar Dados</span>
-                            </button>
-
-                            <button className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white p-4 rounded-xl flex items-center justify-center gap-3 transition">
-                                <ArrowRightLeft className="w-5 h-5 text-orange-400" />
-                                <span className="font-bold text-sm">Proponer Trueque</span>
-                            </button>
+                        {/* MIDDLE SECTION: Balance */}
+                        <div className="py-4 bg-transparent border-b border-slate-800/50 shadow-inner flex flex-col items-center justify-center relative">
+                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.3em] mb-1">Balance</p>
+                            <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-500 tracking-tighter drop-shadow-lg flex items-baseline">
+                                <span className="text-2xl mr-1 text-emerald-500/80">M</span>{me.balance}
+                            </div>
                         </div>
 
-                        <div className="px-6 pb-8 flex-1">
-                            <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-2">
-                                <h3 className="font-bold text-slate-300 flex items-center gap-2 uppercase tracking-wide text-sm">
-                                    <Building2 className="w-4 h-4 text-slate-500" /> Patrimonio
-                                </h3>
-                                <span className="bg-slate-800 text-slate-400 text-xs font-bold px-3 py-1 rounded-full">{me.properties.length}</span>
+                        {/* BOTTOM SECTION: Patrimonio y Mercado */}
+                        <div className="flex-1 flex flex-col bg-slate-950 p-4 sm:p-6 overflow-hidden">
+                            <div className="flex items-center gap-2 mb-4 bg-slate-900 rounded-xl p-1 border border-slate-800 shadow-inner">
+                                <button onClick={() => setActiveTab('patrimonio')} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${activeTab === 'patrimonio' ? 'bg-slate-700 text-white shadow-md' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'}`}>
+                                    <Building2 className="w-4 h-4" /> Patrimonio ({(me.properties || []).length})
+                                </button>
+                                <button onClick={() => setActiveTab('venta')} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${activeTab === 'venta' ? 'bg-green-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'}`}>
+                                    <Building2 className="w-4 h-4" /> En Venta
+                                </button>
                             </div>
 
-                            {me.properties.length === 0 ? (
-                                <div className="bg-slate-800/50 rounded-2xl p-8 text-center border border-dashed border-slate-700">
-                                    <p className="text-slate-500 font-medium">No tienes propiedades.</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {me.properties.map((propId, idx) => {
-                                        const propData = boardSpaces.find(s => s.id === propId);
-                                        return (
-                                            <div key={idx} className="bg-slate-800 rounded-xl p-3 border border-slate-700 flex items-center gap-4">
-                                                <div className={`w-3 h-10 rounded-full ${propData.color || 'bg-gray-400'}`}></div>
-                                                <div>
-                                                    <h4 className="font-bold text-white text-sm">{propData.name}</h4>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{propData.type}</p>
+                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
+                                {activeTab === 'patrimonio' ? (
+                                    ((!me.properties || me.properties.length === 0) && (!me.getOutJailFreeCards || me.getOutJailFreeCards === 0)) ? (
+                                        <div className="h-full flex flex-col items-center justify-center opacity-50">
+                                            <Building2 className="w-12 h-12 text-slate-700 mb-3" />
+                                            <p className="text-slate-400 font-medium text-xs">Sin propiedades ni cartas</p>
+                                        </div>
+                                    ) : (
+                                        <React.Fragment>
+                                            {me.getOutJailFreeCards > 0 && (
+                                                <div className="mb-4">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <div className="w-3 h-3 rounded-full border border-white/20 bg-yellow-500"></div>
+                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Cartas Especiales</span>
+                                                        <div className="flex-1 h-px bg-slate-800"></div>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
+                                                        <div className="relative rounded-lg overflow-hidden shadow-lg border-2 border-yellow-400/50 bg-gradient-to-br from-yellow-100 to-orange-100 p-3 flex flex-col items-center justify-center text-center">
+                                                            <span className="text-2xl drop-shadow-md mb-1">🗝️</span>
+                                                            <p className="text-[7px] font-black uppercase tracking-[0.15em] text-orange-800 mb-0.5 leading-none">CARTA DE SUERTE / COMUNIDAD</p>
+                                                            <h4 className="font-black text-orange-900 text-[10px] sm:text-xs leading-tight uppercase">Quedas libre de la cárcel</h4>
+                                                            <div className="mt-2 bg-yellow-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">
+                                                                X {me.getOutJailFreeCards}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {(() => {
+                                        const typePriority = { station: 0, utility: 1, property: 2 };
+                                        const propDatas = (me.properties || [])
+                                            .map(id => boardSpaces.find(s => s.id === id))
+                                            .filter(Boolean)
+                                            .sort((a, b) => {
+                                                const tp = (typePriority[a.type] ?? 3) - (typePriority[b.type] ?? 3);
+                                                return tp !== 0 ? tp : a.id - b.id;
+                                            });
+                                        const groups = {};
+                                        propDatas.forEach(p => {
+                                            const key = p.type === 'property' ? (p.color || 'other') : p.type;
+                                            if (!groups[key]) groups[key] = { label: p.type === 'station' ? '🚂 Estaciones' : p.type === 'utility' ? '⚡ Servicios' : null, colorHex: p.colorHex, items: [] };
+                                            groups[key].items.push(p);
+                                        });
+                                        return Object.entries(groups).map(([key, group]) => (
+                                            <div key={key}>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    {group.colorHex ? <div className="w-3 h-3 rounded-full border border-white/20" style={{backgroundColor: group.colorHex}}></div> : null}
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{group.label || group.items[0]?.name.split(' ')[0]}</span>
+                                                    <div className="flex-1 h-px bg-slate-800"></div>
+                                                </div>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
+                                                    {group.items.map((propData, idx) => {
+                                                        const isMort = me.mortgaged?.includes(propData.id) || false;
+                                                        return (
+                                                            <div key={idx} onClick={() => setSelectedSpacePC(propData)}
+                                                                className="relative rounded-lg overflow-hidden cursor-pointer shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all border-2 border-white/20"
+                                                                style={{ backgroundColor: propData.colorHex || (propData.type === 'station' ? '#374151' : '#4b5563') }}>
+                                                                <div className="px-2 py-2 flex flex-col items-center justify-center text-center min-h-[52px]">
+                                                                    <p className="text-[6px] font-black uppercase tracking-[0.15em] text-white/80 mb-0.5 leading-none">TÍTULO DE PROPIEDAD</p>
+                                                                    <h4 className="font-black text-white text-[10px] sm:text-xs leading-tight uppercase">{propData.name}</h4>
+                                                                </div>
+                                                                {isMort && (
+                                                                    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
+                                                                        <span className="text-red-400 font-black text-2xl leading-none">✕</span>
+                                                                        <span className="text-red-400 font-black text-[8px] uppercase tracking-widest mt-0.5">Hipotecada</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
+                                        ));
+                                    })()}
+                                        </React.Fragment>
+                                    )
+                                ) : (
+                                    (() => {
+                                        const ownedIds = new Set(gameState.players.flatMap(p => p.properties || []));
+                                        const availableProps = boardSpaces.filter(s => (s.type === 'property' || s.type === 'station' || s.type === 'utility') && !ownedIds.has(s.id));
+                                        
+                                        if (availableProps.length === 0) {
+                                            return (
+                                                <div className="h-full flex flex-col items-center justify-center opacity-50">
+                                                    <Building2 className="w-12 h-12 text-slate-700 mb-3" />
+                                                    <p className="text-slate-400 font-medium text-xs">No hay propiedades en venta</p>
+                                                </div>
+                                            );
+                                        }
+
+                                        const typePriority = { station: 0, utility: 1, property: 2 };
+                                        availableProps.sort((a, b) => {
+                                            const tp = (typePriority[a.type] ?? 3) - (typePriority[b.type] ?? 3);
+                                            return tp !== 0 ? tp : a.id - b.id;
+                                        });
+
+                                        const groups = {};
+                                        availableProps.forEach(p => {
+                                            const key = p.type === 'property' ? (p.color || 'other') : p.type;
+                                            if (!groups[key]) groups[key] = { label: p.type === 'station' ? '🚂 Estaciones' : p.type === 'utility' ? '⚡ Servicios' : null, colorHex: p.colorHex, items: [] };
+                                            groups[key].items.push(p);
+                                        });
+
+                                        return Object.entries(groups).map(([key, group]) => (
+                                            <div key={key}>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    {group.colorHex ? <div className="w-3 h-3 rounded-full border border-white/20" style={{backgroundColor: group.colorHex}}></div> : null}
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{group.label || group.items[0]?.name.split(' ')[0]}</span>
+                                                    <div className="flex-1 h-px bg-slate-800"></div>
+                                                </div>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
+                                                    {group.items.map((propData, idx) => (
+                                                        <div key={idx} onClick={() => setSelectedSpacePC(propData)}
+                                                            className="relative rounded-lg overflow-hidden cursor-pointer shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all border-2 border-white/20 flex flex-col"
+                                                            style={{ backgroundColor: propData.colorHex || (propData.type === 'station' ? '#374151' : '#4b5563') }}>
+                                                            <div className="px-2 pt-2 pb-1 flex flex-col items-center justify-center text-center flex-1">
+                                                                <p className="text-[6px] font-black uppercase tracking-[0.15em] text-white/80 mb-0.5 leading-none">EN VENTA</p>
+                                                                <h4 className="font-black text-white text-[10px] sm:text-xs leading-tight uppercase">{propData.name}</h4>
+                                                            </div>
+                                                            <div className="bg-black/30 w-full py-1 text-center border-t border-white/10">
+                                                                <span className="text-[10px] font-black text-yellow-400">M{propData.price}</span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ));
+                                    })()
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
