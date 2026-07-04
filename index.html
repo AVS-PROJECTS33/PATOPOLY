@@ -238,6 +238,7 @@
         // --- COMPONENTE PRINCIPAL ---
         function PatopolyApp() {
             const [user, setUser] = useState(null);
+            const [authError, setAuthError] = useState(null);
             const [isPlayerView, setIsPlayerView] = useState(false);
             const [gameId, setGameId] = useState('');
             const [playerId, setPlayerId] = useState('');
@@ -252,10 +253,24 @@
                     setGameId(urlGameId);
                 }
 
-                signInAnonymously(auth).catch(console.error);
+                signInAnonymously(auth).catch(e => {
+                    console.error("Firebase Auth Error:", e);
+                    setAuthError(e.message);
+                });
                 const unsubscribe = onAuthStateChanged(auth, setUser);
                 return () => unsubscribe();
             }, []);
+
+            if (authError) {
+                return (
+                    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-8 text-center">
+                        <div className="text-6xl mb-4">⚠️</div>
+                        <h1 className="text-2xl font-black mb-2 text-red-500 uppercase tracking-widest">Error de Conexión</h1>
+                        <p className="text-slate-300 max-w-md">{authError}</p>
+                        <p className="text-slate-400 mt-4 text-sm font-bold">Si abriste el archivo haciendo doble clic, prueba usar Live Server (VSCode) o un servidor local, ya que algunos navegadores bloquean la conexión de Firebase desde archivos locales.</p>
+                    </div>
+                );
+            }
 
             if (!user) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Conectando...</div>;
 
@@ -810,16 +825,15 @@
                                         <h3 className="font-bold text-lg">Modo Online</h3>
                                         <p className="text-xs text-slate-400 mt-2">Cada jugador en su pantalla</p>
                                     </button>
-                                    <button disabled className="group glass-panel opacity-50 p-6 rounded-2xl flex flex-col items-center relative overflow-hidden">
-                                        <Users className="w-12 h-12 text-green-400 mb-3" />
+                                    <button onClick={() => setSetupMode('family')} className="group glass-panel hover:bg-slate-800/80 p-6 rounded-2xl transition transform hover:scale-105 flex flex-col items-center relative overflow-hidden">
+                                        <Users className="w-12 h-12 text-green-400 mb-3 group-hover:text-green-300" />
                                         <h3 className="font-bold text-lg">Modo Familia</h3>
-                                        <p className="text-xs text-slate-400 mt-2">Próximamente</p>
-                                        <div className="absolute top-3 right-[-30px] bg-red-500 text-[10px] font-black uppercase px-10 py-1 rotate-45">WIP</div>
+                                        <p className="text-xs text-slate-400 mt-2 text-center">Un tablero en TV,<br/>todos juegan desde el móvil</p>
                                     </button>
                                 </div>
                             )}
 
-                            {setupMode === 'online' && setupStep === 0 && (
+                            {(setupMode === 'online' || setupMode === 'family') && setupStep === 0 && (
                                 <div className="space-y-6 animate-fade-in">
                                     <p className="text-slate-300">¿Cuántos inversores van a jugar hoy?</p>
                                     <div className="flex justify-center items-center space-x-6">
@@ -834,7 +848,7 @@
                                 </div>
                             )}
 
-                            {setupMode === 'online' && setupStep === 1 && (
+                            {(setupMode === 'online' || setupMode === 'family') && setupStep === 1 && (
                                 <div className="space-y-4 animate-fade-in">
                                     <p className="text-slate-300">Configura los nombres</p>
                                     {playerNames.map((name, i) => (
@@ -855,16 +869,32 @@
             const allJoined = gameState.players.every(p => p.hasJoined);
             
             if (!allJoined) {
+                const joinUrlObj = new URL(window.location.href);
+                joinUrlObj.searchParams.set('gameId', activeGameId);
+                joinUrlObj.searchParams.set('role', 'player');
+                const lobbyUrl = joinUrlObj.toString();
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(lobbyUrl)}&margin=10`;
                 return (
                     <div className="min-h-screen bg-slate-900 bg-cover bg-center flex items-center justify-center p-8" style={{ backgroundImage: `url(${BACKGROUND_URL})` }}>
                         <div className="glass-panel rounded-3xl p-8 max-w-md w-full text-center text-white shadow-2xl">
                             <h2 className="text-3xl font-black uppercase mb-2">Sala Creada</h2>
-                            <p className="text-slate-300 mb-8">Envía este enlace a los demás jugadores para que se unan.</p>
                             
-                            <button onClick={copyJoinUrl} className={`w-full flex items-center justify-center gap-3 p-4 rounded-xl font-bold text-lg transition-all duration-300 ${copied ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-white text-slate-900 hover:bg-slate-100 shadow-xl'}`}>
-                                {copied ? <CheckCircle2 className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-                                {copied ? '¡Enlace Copiado!' : 'Copiar Enlace de Invitación'}
-                            </button>
+                            {gameState.mode === 'family' ? (
+                                <div className="mb-8 flex flex-col items-center">
+                                    <p className="text-slate-300 mb-4 text-lg font-medium">Escanea este código con tu móvil para unirte</p>
+                                    <div className="bg-white p-3 rounded-2xl shadow-xl shadow-green-500/20 border-4 border-green-500">
+                                        <img src={qrUrl} alt="QR para unirse" className="w-48 h-48" />
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <p className="text-slate-300 mb-8">Envía este enlace a los demás jugadores para que se unan.</p>
+                                    <button onClick={copyJoinUrl} className={`w-full flex items-center justify-center gap-3 p-4 rounded-xl font-bold text-lg transition-all duration-300 ${copied ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-white text-slate-900 hover:bg-slate-100 shadow-xl'}`}>
+                                        {copied ? <CheckCircle2 className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
+                                        {copied ? '¡Enlace Copiado!' : 'Copiar Enlace de Invitación'}
+                                    </button>
+                                </>
+                            )}
 
                             <div className="mt-8 text-left glass-panel rounded-xl p-4">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">Jugadores ({gameState.players.filter(p=>p.hasJoined).length}/{gameState.players.length})</p>
@@ -2590,13 +2620,16 @@
                             </div>
                         )}
 
-                        <div className="w-full max-w-[95vmin] lg:max-w-[96vh] drop-shadow-2xl flex-shrink-0">
-                            <Board gameState={gameState} onAnimationComplete={handleAnimationComplete} />
-                        </div>
+                        {/* TABLERO (Oculto en Modo Familia) */}
+                        {gameState.mode !== 'family' && (
+                            <div className="w-full max-w-[95vmin] lg:max-w-[96vh] drop-shadow-2xl flex-shrink-0">
+                                <Board gameState={gameState} onAnimationComplete={handleAnimationComplete} />
+                            </div>
+                        )}
                     </div>
 
                     {/* PANEL DERECHO: CONTROLES DEL JUGADOR */}
-                    <div className="w-full lg:w-[30%] flex flex-col h-full bg-slate-900 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] relative z-20 overflow-hidden">
+                    <div className={`w-full ${gameState.mode === 'family' ? 'flex-1' : 'lg:w-[30%]'} flex flex-col h-full bg-slate-900 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] relative z-20 overflow-hidden`}>
                         
                         {/* TOP SECTION: Jugador + Acciones */}
                         <div className="p-4 sm:p-5 bg-slate-800 border-b border-slate-700 shadow-md relative z-10 flex flex-col gap-4">
