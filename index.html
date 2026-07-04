@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Patopoly</title>
-    <!-- Tailwind CSS para el diseÃ±o -->
+    <!-- Tailwind CSS para el diseño -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Babel para compilar React en el navegador -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -38,7 +38,7 @@
 <body class="bg-slate-900">
     <div id="root"></div>
 
-    <!-- Script principal con React, Firebase y nuestra lÃ³gica -->
+    <!-- Script principal con React, Firebase y nuestra lógica -->
     <script type="text/babel" data-type="module">
         // 1. Importaciones desde la nube (CDNs)
         import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18.2.0';
@@ -47,10 +47,10 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js';
         
-        // AÃ‘ADIDOS LOS ICONOS: Car, Siren, Lock, ArrowRight
+        // AÑADIDOS LOS ICONOS: Car, Siren, Lock, ArrowRight
         import { QrCode, Monitor, Smartphone, ArrowRightLeft, Dices, Building2, UserCircle2, Copy, CheckCircle2, Globe2, Users, Car, Siren, Lock, ArrowRight } from 'https://esm.sh/lucide-react@0.344.0';
 
-        // 2. ConfiguraciÃ³n de Firebase (Tu base de datos real)
+        // 2. Configuración de Firebase (Tu base de datos real)
         const firebaseConfig = {
             apiKey: "AIzaSyD8tlu9iTYAuer1ghMQi9buEw_u-mRyj20",
             authDomain: "patopoly.firebaseapp.com",
@@ -70,39 +70,39 @@
             { id: 0, name: "SALIDA", type: "corner", bg: "bg-red-100" },
             { id: 1, name: "Ronda de Valencia", type: "property", color: "bg-amber-800", colorHex: "#92400e", price: 60, rent: [2,4,10,30,90,160,250], houseCost: 50, mortgage: 30 },
             { id: 2, name: "Caja de Comunidad", type: "community", bg: "bg-blue-50" },
-            { id: 3, name: "Plaza LavapiÃ©s", type: "property", color: "bg-amber-800", colorHex: "#92400e", price: 60, rent: [4,8,20,60,180,320,450], houseCost: 50, mortgage: 30 },
+            { id: 3, name: "Plaza Lavapiés", type: "property", color: "bg-amber-800", colorHex: "#92400e", price: 60, rent: [4,8,20,60,180,320,450], houseCost: 50, mortgage: 30 },
             { id: 4, name: "Impuesto", type: "tax", price: 200, bg: "bg-gray-200" },
-            { id: 5, name: "EstaciÃ³n de Goya", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
+            { id: 5, name: "Estación de Goya", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
             { id: 6, name: "Glorieta Cuatro Caminos", type: "property", color: "bg-sky-300", colorHex: "#7dd3fc", price: 100, rent: [6,12,30,90,270,400,550], houseCost: 50, mortgage: 50 },
             { id: 7, name: "Suerte", type: "chance", bg: "bg-orange-50" },
             { id: 8, name: "Avenida Reina Victoria", type: "property", color: "bg-sky-300", colorHex: "#7dd3fc", price: 100, rent: [6,12,30,90,270,400,550], houseCost: 50, mortgage: 50 },
             { id: 9, name: "Calle Bravo Murillo", type: "property", color: "bg-sky-300", colorHex: "#7dd3fc", price: 120, rent: [8,16,40,100,300,450,600], houseCost: 50, mortgage: 60 },
-            { id: 10, name: "CÃRCEL", type: "corner", bg: "bg-orange-100" },
+            { id: 10, name: "CÁRCEL", type: "corner", bg: "bg-orange-100" },
             { id: 11, name: "Glorieta de Bilbao", type: "property", color: "bg-pink-500", colorHex: "#ec4899", price: 140, rent: [10,20,50,150,450,625,750], houseCost: 100, mortgage: 70 },
-            { id: 12, name: "CompaÃ±Ã­a de Electricidad", type: "utility", price: 150, bg: "bg-yellow-50", mortgage: 75 },
+            { id: 12, name: "Compañía de Electricidad", type: "utility", price: 150, bg: "bg-yellow-50", mortgage: 75 },
             { id: 13, name: "Calle Alberto Aguilera", type: "property", color: "bg-pink-500", colorHex: "#ec4899", price: 140, rent: [10,20,50,150,450,625,750], houseCost: 100, mortgage: 70 },
             { id: 14, name: "Calle Fuencarral", type: "property", color: "bg-pink-500", colorHex: "#ec4899", price: 160, rent: [12,24,60,180,500,700,900], houseCost: 100, mortgage: 80 },
-            { id: 15, name: "EstaciÃ³n de las Delicias", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
+            { id: 15, name: "Estación de las Delicias", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
             { id: 16, name: "Avenida de Felipe II", type: "property", color: "bg-orange-500", colorHex: "#f97316", price: 180, rent: [14,28,70,200,550,750,950], houseCost: 100, mortgage: 90 },
             { id: 17, name: "Caja de Comunidad", type: "community", bg: "bg-blue-50" },
-            { id: 18, name: "Calle VelÃ¡zquez", type: "property", color: "bg-orange-500", colorHex: "#f97316", price: 180, rent: [14,28,70,200,550,750,950], houseCost: 100, mortgage: 90 },
+            { id: 18, name: "Calle Velázquez", type: "property", color: "bg-orange-500", colorHex: "#f97316", price: 180, rent: [14,28,70,200,550,750,950], houseCost: 100, mortgage: 90 },
             { id: 19, name: "Calle Serrano", type: "property", color: "bg-orange-500", colorHex: "#f97316", price: 200, rent: [16,32,80,220,600,800,1000], houseCost: 100, mortgage: 100 },
             { id: 20, name: "PARKING", type: "corner", bg: "bg-blue-100" },
-            { id: 21, name: "Avenida de AmÃ©rica", type: "property", color: "bg-red-500", colorHex: "#ef4444", price: 220, rent: [18,36,90,250,700,875,1050], houseCost: 150, mortgage: 110 },
+            { id: 21, name: "Avenida de América", type: "property", color: "bg-red-500", colorHex: "#ef4444", price: 220, rent: [18,36,90,250,700,875,1050], houseCost: 150, mortgage: 110 },
             { id: 22, name: "Suerte", type: "chance", bg: "bg-orange-50" },
-            { id: 23, name: "Calle MarÃ­a de Molina", type: "property", color: "bg-red-500", colorHex: "#ef4444", price: 220, rent: [18,36,90,250,700,875,1050], houseCost: 150, mortgage: 110 },
-            { id: 24, name: "Calle Cea BermÃºdez", type: "property", color: "bg-red-500", colorHex: "#ef4444", price: 240, rent: [20,40,100,300,750,925,1100], houseCost: 150, mortgage: 120 },
-            { id: 25, name: "EstaciÃ³n del MediodÃ­a", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
-            { id: 26, name: "Avenida de los Reyes CatÃ³licos", type: "property", color: "bg-yellow-400", colorHex: "#facc15", price: 260, rent: [22,44,110,330,800,975,1150], houseCost: 150, mortgage: 130 },
-            { id: 27, name: "Calle BailÃ©n", type: "property", color: "bg-yellow-400", colorHex: "#facc15", price: 260, rent: [22,44,110,330,800,975,1150], houseCost: 150, mortgage: 130 },
-            { id: 28, name: "CompaÃ±Ã­a de Aguas", type: "utility", price: 150, bg: "bg-blue-50", mortgage: 75 },
-            { id: 29, name: "Plaza de EspaÃ±a", type: "property", color: "bg-yellow-400", colorHex: "#facc15", price: 280, rent: [24,48,120,360,850,1025,1200], houseCost: 150, mortgage: 140 },
-            { id: 30, name: "IR A CÃRCEL", type: "corner", bg: "bg-gray-300" },
+            { id: 23, name: "Calle María de Molina", type: "property", color: "bg-red-500", colorHex: "#ef4444", price: 220, rent: [18,36,90,250,700,875,1050], houseCost: 150, mortgage: 110 },
+            { id: 24, name: "Calle Cea Bermúdez", type: "property", color: "bg-red-500", colorHex: "#ef4444", price: 240, rent: [20,40,100,300,750,925,1100], houseCost: 150, mortgage: 120 },
+            { id: 25, name: "Estación del Mediodía", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
+            { id: 26, name: "Avenida de los Reyes Católicos", type: "property", color: "bg-yellow-400", colorHex: "#facc15", price: 260, rent: [22,44,110,330,800,975,1150], houseCost: 150, mortgage: 130 },
+            { id: 27, name: "Calle Bailén", type: "property", color: "bg-yellow-400", colorHex: "#facc15", price: 260, rent: [22,44,110,330,800,975,1150], houseCost: 150, mortgage: 130 },
+            { id: 28, name: "Compañía de Aguas", type: "utility", price: 150, bg: "bg-blue-50", mortgage: 75 },
+            { id: 29, name: "Plaza de España", type: "property", color: "bg-yellow-400", colorHex: "#facc15", price: 280, rent: [24,48,120,360,850,1025,1200], houseCost: 150, mortgage: 140 },
+            { id: 30, name: "IR A CÁRCEL", type: "corner", bg: "bg-gray-300" },
             { id: 31, name: "Puerta del Sol", type: "property", color: "bg-green-500", colorHex: "#22c55e", price: 300, rent: [26,52,130,390,900,1100,1275], houseCost: 200, mortgage: 150 },
-            { id: 32, name: "Calle AlcalÃ¡", type: "property", color: "bg-green-500", colorHex: "#22c55e", price: 300, rent: [26,52,130,390,900,1100,1275], houseCost: 200, mortgage: 150 },
+            { id: 32, name: "Calle Alcalá", type: "property", color: "bg-green-500", colorHex: "#22c55e", price: 300, rent: [26,52,130,390,900,1100,1275], houseCost: 200, mortgage: 150 },
             { id: 33, name: "Caja de Comunidad", type: "community", bg: "bg-blue-50" },
-            { id: 34, name: "Gran VÃ­a", type: "property", color: "bg-green-500", colorHex: "#22c55e", price: 320, rent: [28,56,150,450,1000,1200,1400], houseCost: 200, mortgage: 160 },
-            { id: 35, name: "EstaciÃ³n del Norte", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
+            { id: 34, name: "Gran Vía", type: "property", color: "bg-green-500", colorHex: "#22c55e", price: 320, rent: [28,56,150,450,1000,1200,1400], houseCost: 200, mortgage: 160 },
+            { id: 35, name: "Estación del Norte", type: "station", price: 200, bg: "bg-gray-100", rent: [25,50,100,200], mortgage: 100 },
             { id: 36, name: "Suerte", type: "chance", bg: "bg-orange-50" },
             { id: 37, name: "Paseo de la Castellana", type: "property", color: "bg-blue-800", colorHex: "#1e40af", price: 350, rent: [35,70,175,500,1100,1300,1500], houseCost: 200, mortgage: 175 },
             { id: 38, name: "Impuesto Lujo", type: "tax", price: 100, bg: "bg-gray-200" },
@@ -111,11 +111,11 @@
 
         const chanceCards = [
             { id: 'c1', text: "Avanza hasta la Salida (Cobra M200)", action: "moveTo", value: 0 },
-            { id: 'c2', text: "Avanza hasta la Calle Cea BermÃºdez. Si pasas por la Salida, cobra M200", action: "moveTo", value: 24 },
-            { id: 'c3', text: "Ve a la cÃ¡rcel. Ve directamente sin pasar por la Salida y sin cobrar M200", action: "goToJail" },
+            { id: 'c2', text: "Avanza hasta la Calle Cea Bermúdez. Si pasas por la Salida, cobra M200", action: "moveTo", value: 24 },
+            { id: 'c3', text: "Ve a la cárcel. Ve directamente sin pasar por la Salida y sin cobrar M200", action: "goToJail" },
             { id: 'c4', text: "Retrocede 3 casillas", action: "moveRelative", value: -3 },
             { id: 'c5', text: "La banca te paga un dividendo de M50", action: "receiveBank", value: 50 },
-            { id: 'c6', text: "Quedas libre de la cÃ¡rcel. Esta carta puede conservarse hasta que se utilice.", action: "jailFree" },
+            { id: 'c6', text: "Quedas libre de la cárcel. Esta carta puede conservarse hasta que se utilice.", action: "jailFree" },
             { id: 'c7', text: "Paga una multa por exceso de velocidad de M15", action: "payBank", value: 15 },
             { id: 'c8', text: "Avanza hasta el Paseo del Prado", action: "moveTo", value: 39 },
             { id: 'c9', text: "Haz reparaciones en tus propiedades: paga M25 por cada una", action: "repairs", value: 25 },
@@ -124,22 +124,22 @@
 
         const communityChestCards = [
             { id: 'cc1', text: "Avanza hasta la Salida (Cobra M200)", action: "moveTo", value: 0 },
-            { id: 'cc2', text: "Error de cÃ¡lculo a tu favor en el banco. Cobra M200", action: "receiveBank", value: 200 },
-            { id: 'cc3', text: "Gastos mÃ©dicos. Paga M50", action: "payBank", value: 50 },
-            { id: 'cc4', text: "Quedas libre de la cÃ¡rcel. Esta carta puede conservarse hasta que se utilice.", action: "jailFree" },
-            { id: 'cc5', text: "Ve a la cÃ¡rcel. Ve directamente sin pasar por la Salida y sin cobrar M200", action: "goToJail" },
-            { id: 'cc6', text: "Es tu cumpleaÃ±os. Cobra M10 de cada jugador", action: "receivePlayers", value: 10 },
-            { id: 'cc7', text: "Paga tu pÃ³liza de seguro vitalicio: M50", action: "payBank", value: 50 },
+            { id: 'cc2', text: "Error de cálculo a tu favor en el banco. Cobra M200", action: "receiveBank", value: 200 },
+            { id: 'cc3', text: "Gastos médicos. Paga M50", action: "payBank", value: 50 },
+            { id: 'cc4', text: "Quedas libre de la cárcel. Esta carta puede conservarse hasta que se utilice.", action: "jailFree" },
+            { id: 'cc5', text: "Ve a la cárcel. Ve directamente sin pasar por la Salida y sin cobrar M200", action: "goToJail" },
+            { id: 'cc6', text: "Es tu cumpleaños. Cobra M10 de cada jugador", action: "receivePlayers", value: 10 },
+            { id: 'cc7', text: "Paga tu póliza de seguro vitalicio: M50", action: "payBank", value: 50 },
             { id: 'cc8', text: "Paga la factura del hospital: M100", action: "payBank", value: 100 },
             { id: 'cc9', text: "Recibes por servicios M25", action: "receiveBank", value: 25 },
             { id: 'cc10', text: "Ganas el segundo premio de belleza. Cobra M10", action: "receiveBank", value: 10 }
         ];
 
         const availableTokens = [
-            { id: 'coche', emoji: 'ðŸŽï¸', name: 'Coche' },
-            { id: 'sombrero', emoji: 'ðŸŽ©', name: 'Sombrero' },
-            { id: 'perrito', emoji: 'ðŸ•', name: 'Perrito' },
-            { id: 'barco', emoji: 'ðŸš¢', name: 'Barco' }
+            { id: 'coche', emoji: '🏎️', name: 'Coche' },
+            { id: 'sombrero', emoji: '🎩', name: 'Sombrero' },
+            { id: 'perrito', emoji: '🐕', name: 'Perrito' },
+            { id: 'barco', emoji: '🚢', name: 'Barco' }
         ];
 
         const TokenIcon = ({ tokenId, className }) => {
@@ -147,7 +147,7 @@
             return (
                 <svg className={className} viewBox="0 0 100 100">
                     <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" fontSize="75">
-                        {token ? token.emoji : 'â“'}
+                        {token ? token.emoji : '❓'}
                     </text>
                 </svg>
             );
@@ -264,10 +264,10 @@
             if (authError) {
                 return (
                     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-8 text-center">
-                        <div className="text-6xl mb-4">âš ï¸</div>
-                        <h1 className="text-2xl font-black mb-2 text-red-500 uppercase tracking-widest">Error de ConexiÃ³n</h1>
+                        <div className="text-6xl mb-4">⚠️</div>
+                        <h1 className="text-2xl font-black mb-2 text-red-500 uppercase tracking-widest">Error de Conexión</h1>
                         <p className="text-slate-300 max-w-md">{authError}</p>
-                        <p className="text-slate-400 mt-4 text-sm font-bold">Si abriste el archivo haciendo doble clic, prueba usar Live Server (VSCode) o un servidor local, ya que algunos navegadores bloquean la conexiÃ³n de Firebase desde archivos locales.</p>
+                        <p className="text-slate-400 mt-4 text-sm font-bold">Si abriste el archivo haciendo doble clic, prueba usar Live Server (VSCode) o un servidor local, ya que algunos navegadores bloquean la conexión de Firebase desde archivos locales.</p>
                     </div>
                 );
             }
@@ -287,7 +287,7 @@
             const isProperty = space.type === 'property';
             const isStation = space.type === 'station';
             const isUtility = space.type === 'utility';
-            const houseIcons = ['ðŸ ','ðŸ ðŸ ','ðŸ ðŸ ðŸ ','ðŸ ðŸ ðŸ ðŸ ','ðŸ¨'];
+            const houseIcons = ['🏠','🏠🏠','🏠🏠🏠','🏠🏠🏠🏠','🏨'];
             const mortgageVal = space.mortgage || Math.floor(space.price / 2);
             const unmortgageVal = Math.floor(mortgageVal * 1.1);
             return (
@@ -296,7 +296,7 @@
                         {/* HEADER */}
                         <div className="px-4 py-3 text-center border-b-4 border-slate-800 relative" style={{ backgroundColor: space.colorHex || '#6b7280' }}>
                             {isMortgaged && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-red-400 font-black text-lg uppercase tracking-widest rotate-[-12deg] border-2 border-red-400 px-3 py-1">HIPOTECADA</span></div>}
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 mb-1">TÃTULO DE PROPIEDAD</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 mb-1">TÍTULO DE PROPIEDAD</p>
                             <h2 className="text-xl font-black text-white uppercase leading-tight drop-shadow">{space.name}</h2>
                         </div>
 
@@ -304,7 +304,7 @@
                         <div className="px-4 py-3 font-mono text-slate-900">
                             {isMortgaged ? (
                                 <div className="text-center py-4">
-                                    <p className="text-slate-600 text-xs mb-3">Esta propiedad estÃ¡ hipotecada y no genera alquiler.</p>
+                                    <p className="text-slate-600 text-xs mb-3">Esta propiedad está hipotecada y no genera alquiler.</p>
                                     {isOwner && (
                                         <button onClick={onUnmortgage} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-black py-3 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-green-400 active:scale-95 transition">
                                             Paga M{unmortgageVal} para deshipotecar
@@ -316,16 +316,16 @@
                                     {isProperty && space.rent && (
                                         <>
                                             <div className="flex justify-between text-xs border-b border-slate-300 pb-1 mb-1 items-center">
-                                                <span className="flex items-center gap-1">Alquiler {owner && buildings === 0 && !hasAllColors && !isMortgaged ? <span className="bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] ml-1 shadow-sm">âœ“</span> : null}</span><span className="font-black">M{space.rent[0]}</span>
+                                                <span className="flex items-center gap-1">Alquiler {owner && buildings === 0 && !hasAllColors && !isMortgaged ? <span className="bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] ml-1 shadow-sm">✓</span> : null}</span><span className="font-black">M{space.rent[0]}</span>
                                             </div>
                                             <div className="flex justify-between text-xs border-b border-slate-300 pb-1 mb-1 items-center">
-                                                <span className="flex items-center gap-1">Alquiler con grupo de color {owner && buildings === 0 && hasAllColors && !isMortgaged ? <span className="bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] ml-1 shadow-sm">âœ“</span> : null}</span><span className="font-black">M{space.rent[1]}</span>
+                                                <span className="flex items-center gap-1">Alquiler con grupo de color {owner && buildings === 0 && hasAllColors && !isMortgaged ? <span className="bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] ml-1 shadow-sm">✓</span> : null}</span><span className="font-black">M{space.rent[1]}</span>
                                             </div>
                                             {space.rent.slice(2).map((r, i) => {
                                                 const isActive = owner && !isMortgaged && buildings === i + 1;
                                                 return (
                                                 <div key={i} className="flex justify-between text-xs border-b border-slate-300 pb-1 mb-1 items-center">
-                                                    <span className="flex items-center gap-1">Alquiler con <span className="text-sm">{houseIcons[i]}</span> {isActive ? <span className="bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] ml-1 shadow-sm">âœ“</span> : null}</span>
+                                                    <span className="flex items-center gap-1">Alquiler con <span className="text-sm">{houseIcons[i]}</span> {isActive ? <span className="bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] ml-1 shadow-sm">✓</span> : null}</span>
                                                     <span className="font-black">M{r}</span>
                                                 </div>
                                             )})}
@@ -334,7 +334,7 @@
                                                     <span>Cada Casa cuesta</span><span className="font-black">M{space.houseCost}</span>
                                                 </div>
                                                 <div className="flex justify-between text-xs">
-                                                    <span>Cada Hotel cuesta</span><span className="font-black">M{space.houseCost} <span className="text-[9px] text-slate-500">(mÃ¡s 4 casas)</span></span>
+                                                    <span>Cada Hotel cuesta</span><span className="font-black">M{space.houseCost} <span className="text-[9px] text-slate-500">(más 4 casas)</span></span>
                                                 </div>
                                             </div>
                                         </>
@@ -344,7 +344,7 @@
                                             <div className="text-[10px] text-slate-500 italic mb-2">Si posees:</div>
                                             {space.rent.map((r, i) => (
                                                 <div key={i} className="flex justify-between text-xs border-b border-slate-300 pb-1 mb-1">
-                                                    <span>{i+1} EstaciÃ³n{i>0?'es':''}</span><span className="font-black">M{r}</span>
+                                                    <span>{i+1} Estación{i>0?'es':''}</span><span className="font-black">M{r}</span>
                                                 </div>
                                             ))}
                                         </>
@@ -358,7 +358,7 @@
                                     </div>
                                     {isOwner && canMortgage && (
                                         <button onClick={onMortgage} className="w-full mt-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-orange-400 active:scale-95 transition">
-                                            Hipotecar â€“ cobrar M{mortgageVal}
+                                            Hipotecar – cobrar M{mortgageVal}
                                         </button>
                                     )}
                                     {isOwner && (canBuild || canSellBuild) && (
@@ -378,11 +378,11 @@
                         {/* FOOTER */}
                         <div className="bg-slate-800 px-3 py-1.5 flex justify-between items-center">
                             {owner ? (
-                                <span className="text-xs text-green-400 font-black flex items-center gap-1">âš« <TokenIcon tokenId={owner.token} className="w-3 h-3" /> {owner.name}</span>
+                                <span className="text-xs text-green-400 font-black flex items-center gap-1">⚫ <TokenIcon tokenId={owner.token} className="w-3 h-3" /> {owner.name}</span>
                             ) : (
-                                <span className="text-xs text-yellow-400 font-black">âœ¨ EN VENTA â€“ M{space.price}</span>
+                                <span className="text-xs text-yellow-400 font-black">✨ EN VENTA – M{space.price}</span>
                             )}
-                            <button onClick={onClose} className="text-white/60 hover:text-white text-xs font-bold transition">âœ• Cerrar</button>
+                            <button onClick={onClose} className="text-white/60 hover:text-white text-xs font-bold transition">✕ Cerrar</button>
                         </div>
                     </div>
                 </div>
@@ -492,7 +492,7 @@
                     
                     {/* BOTE DE PARKING GRATUITO */}
                     <div className="absolute top-8 sm:top-12 left-8 sm:left-12 bg-white/80 backdrop-blur-md border-2 border-blue-500 rounded-2xl p-2 sm:p-4 shadow-xl flex flex-col items-center justify-center z-10 rotate-[-15deg] min-w-[60px] sm:min-w-[100px]">
-                        <span className="text-xl sm:text-4xl mb-1">ðŸš˜</span>
+                        <span className="text-xl sm:text-4xl mb-1">🚘</span>
                         <span className="text-[6px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 mb-1 leading-none text-center">Bote<br/>Parking</span>
                         <span className="text-sm sm:text-2xl font-black text-green-600">M{gameState?.freeParkingPot || 0}</span>
                     </div>
@@ -522,9 +522,9 @@
                                         <div className="bg-black/50 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-xl border border-yellow-500/30">{currentRoll.d2}</div>
                                     </div>
                                     {currentRoll.isJailFail ? (
-                                        <div className="mt-3 sm:mt-5 text-lg sm:text-2xl font-bold text-red-400 uppercase">Â¡Mala Suerte!</div>
+                                        <div className="mt-3 sm:mt-5 text-lg sm:text-2xl font-bold text-red-400 uppercase">¡Mala Suerte!</div>
                                     ) : (
-                                        <div className="mt-3 sm:mt-5 text-lg sm:text-2xl font-bold text-slate-300">Â¡Avanza <span className="text-white text-2xl sm:text-3xl">{currentRoll.totalMove}</span> casillas!</div>
+                                        <div className="mt-3 sm:mt-5 text-lg sm:text-2xl font-bold text-slate-300">¡Avanza <span className="text-white text-2xl sm:text-3xl">{currentRoll.totalMove}</span> casillas!</div>
                                     )}
                                 </div>
                             </div>
@@ -536,8 +536,8 @@
                 {showPassGo && (
                     <div className="absolute inset-0 z-[60] flex items-center justify-center pointer-events-none">
                         <div className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl border-2 border-green-300 animate-bounce text-center">
-                            <div className="text-3xl sm:text-5xl mb-1">ðŸ</div>
-                            <p className="font-black text-sm sm:text-xl uppercase tracking-widest leading-tight">Â¡Has pasado por la</p>
+                            <div className="text-3xl sm:text-5xl mb-1">🏁</div>
+                            <p className="font-black text-sm sm:text-xl uppercase tracking-widest leading-tight">¡Has pasado por la</p>
                             <p className="font-black text-lg sm:text-3xl uppercase">Casilla Salida!</p>
                             <p className="font-black text-2xl sm:text-4xl text-yellow-300 mt-1">+M200</p>
                         </div>
@@ -581,7 +581,7 @@
                         return pos === index;
                     });
                     
-                    // BUSCAMOS SI LA CASILLA TIENE DUEÃ‘O
+                    // BUSCAMOS SI LA CASILLA TIENE DUEÑO
                     const owner = gameState?.players?.find(p => p.properties?.includes(space.id));
 
                     return (
@@ -592,8 +592,8 @@
                                     const isVertical = index > 10 && index < 20 || index > 30;
                                     return (
                                         <div className={`absolute flex items-center justify-center ${index > 10 && index < 20 ? 'right-0 top-0 bottom-0 w-3 sm:w-4' : index > 30 ? 'left-0 top-0 bottom-0 w-3 sm:w-4' : index > 20 && index < 30 ? 'bottom-0 left-0 right-0 h-3 sm:h-4' : 'top-0 left-0 right-0 h-3 sm:h-4'} ${space.color} border-slate-800 ${index > 10 && index < 20 ? 'border-l' : index > 30 ? 'border-r' : index > 20 && index < 30 ? 'border-t' : 'border-b'} z-20 overflow-hidden`}>
-                                            {bCount > 0 && bCount < 5 && <span className={`text-[6px] sm:text-[8px] drop-shadow-md leading-none flex items-center ${isVertical ? 'rotate-90' : ''}`}>ðŸ {bCount > 1 && <span className="font-black text-white ml-px">+{bCount}</span>}</span>}
-                                            {bCount === 5 && <span className={`text-[6px] sm:text-[8px] drop-shadow-md leading-none ${isVertical ? 'rotate-90' : ''}`}>ðŸ¨</span>}
+                                            {bCount > 0 && bCount < 5 && <span className={`text-[6px] sm:text-[8px] drop-shadow-md leading-none flex items-center ${isVertical ? 'rotate-90' : ''}`}>🏠{bCount > 1 && <span className="font-black text-white ml-px">+{bCount}</span>}</span>}
+                                            {bCount === 5 && <span className={`text-[6px] sm:text-[8px] drop-shadow-md leading-none ${isVertical ? 'rotate-90' : ''}`}>🏨</span>}
                                         </div>
                                     );
                                 })()}
@@ -603,18 +603,18 @@
                                     {/* SALIDA */}
                                     {space.id === 0 && (
                                         <div className="absolute inset-0 flex flex-col items-center justify-center p-1 w-full h-full">
-                                            <span className="text-[3vw] sm:text-[2vw] md:text-xl drop-shadow-md leading-none mb-1">ðŸ</span>
+                                            <span className="text-[3vw] sm:text-[2vw] md:text-xl drop-shadow-md leading-none mb-1">🏁</span>
                                             <span className="text-[1.5vw] sm:text-[1vw] md:text-[8px] font-black text-red-600 uppercase tracking-tighter leading-none w-full text-center truncate">SALIDA</span>
                                         </div>
                                     )}
 
-                                    {/* VISITAS / CÃRCEL */}
+                                    {/* VISITAS / CÁRCEL */}
                                     {space.id === 10 && (
                                         <div className="absolute inset-0 w-full h-full flex flex-col">
                                             <div className="flex-1 flex items-center justify-center border-b-2 border-slate-800 bg-black/10 relative overflow-hidden">
-                                                {/* Persona en la cÃ¡rcel */}
-                                                <span className="text-[4vw] sm:text-[2vw] md:text-2xl drop-shadow-md z-0 text-slate-300">ðŸ‘¤</span>
-                                                {/* Rejas de la cÃ¡rcel */}
+                                                {/* Persona en la cárcel */}
+                                                <span className="text-[4vw] sm:text-[2vw] md:text-2xl drop-shadow-md z-0 text-slate-300">👤</span>
+                                                {/* Rejas de la cárcel */}
                                                 <div className="absolute inset-0 flex justify-evenly pointer-events-none border-x-4 border-slate-700">
                                                     <div className="w-[10%] bg-slate-700 h-full shadow-inner border-r border-slate-600/50"></div>
                                                     <div className="w-[10%] bg-slate-700 h-full shadow-inner border-r border-slate-600/50"></div>
@@ -632,36 +632,36 @@
                                     {space.id === 20 && (
                                         <div className="absolute inset-0 flex flex-col items-center justify-center p-1 w-full h-full">
                                             <span className="text-[1.2vw] sm:text-[0.8vw] md:text-[7px] font-black text-blue-700 uppercase tracking-tighter leading-none w-full text-center truncate">PARKING</span>
-                                            <span className="text-[3vw] sm:text-[2vw] md:text-xl drop-shadow-md leading-none my-0.5">ðŸš—</span>
+                                            <span className="text-[3vw] sm:text-[2vw] md:text-xl drop-shadow-md leading-none my-0.5">🚗</span>
                                             <span className="text-[1.2vw] sm:text-[0.8vw] md:text-[7px] font-black text-blue-700 uppercase tracking-tighter leading-none w-full text-center truncate">GRATUITO</span>
                                         </div>
                                     )}
 
-                                    {/* VAYA A LA CÃRCEL */}
+                                    {/* VAYA A LA CÁRCEL */}
                                     {space.id === 30 && (
                                         <div className="absolute inset-0 flex flex-col items-center justify-center p-1 w-full h-full">
-                                            <span className="text-[3vw] sm:text-[2vw] md:text-xl drop-shadow-md leading-none mb-0.5">ðŸš¨</span>
+                                            <span className="text-[3vw] sm:text-[2vw] md:text-xl drop-shadow-md leading-none mb-0.5">🚨</span>
                                             <span className="text-[1.2vw] sm:text-[0.8vw] md:text-[7px] font-black text-red-700 uppercase tracking-tighter leading-none w-full text-center truncate">VAYA A LA</span>
-                                            <span className="text-[1.2vw] sm:text-[0.8vw] md:text-[7px] font-black text-red-700 uppercase tracking-tighter leading-none w-full text-center truncate">CÃRCEL</span>
+                                            <span className="text-[1.2vw] sm:text-[0.8vw] md:text-[7px] font-black text-red-700 uppercase tracking-tighter leading-none w-full text-center truncate">CÁRCEL</span>
                                         </div>
                                     )}
 
-                                    {/* Nombre genÃ©rico e iconos para casillas no-corner */}
+                                    {/* Nombre genérico e iconos para casillas no-corner */}
                                     {space.type !== 'corner' && (
                                         <>
-                                            {space.type === 'station' && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">ðŸš‚</span>}
-                                            {space.type === 'utility' && space.id === 12 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">ðŸ’¡</span>}
-                                            {space.type === 'utility' && space.id === 28 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">ðŸš°</span>}
-                                            {space.type === 'tax' && space.id === 4 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">ðŸ’°</span>}
-                                            {space.type === 'tax' && space.id === 38 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">ðŸ’Ž</span>}
-                                            {space.type === 'chance' && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">â“</span>}
-                                            {space.type === 'community' && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">ðŸŽ</span>}
+                                            {space.type === 'station' && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">🚂</span>}
+                                            {space.type === 'utility' && space.id === 12 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">💡</span>}
+                                            {space.type === 'utility' && space.id === 28 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">🚰</span>}
+                                            {space.type === 'tax' && space.id === 4 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">💰</span>}
+                                            {space.type === 'tax' && space.id === 38 && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">💎</span>}
+                                            {space.type === 'chance' && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">❓</span>}
+                                            {space.type === 'community' && <span className="text-[2.5vw] sm:text-[1.5vw] md:text-base drop-shadow-sm mb-0.5 leading-none">🎁</span>}
                                             <span className="text-center font-bold leading-none break-words max-w-full text-[0.35rem] sm:text-[7px] md:text-[8px] mt-0.5">{space.name}</span>
                                         </>
                                     )}
                                 </div>
 
-                                {/* ETIQUETA COMBINADA: nombre/EN VENTA (sin precio si hay dueÃ±o) */}
+                                {/* ETIQUETA COMBINADA: nombre/EN VENTA (sin precio si hay dueño) */}
                                 {(space.type === 'property' || space.type === 'station' || space.type === 'utility') && (() => {
                                     const isMortgaged = owner?.mortgaged?.includes(space.id);
                                     return (
@@ -816,12 +816,11 @@
                         
                         return (
                             <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-                                <div className={
-elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 }>
+                                <div className={`relative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 ${ac.type === 'chance' ? 'bg-orange-50 border-orange-500' : 'bg-blue-50 border-blue-500'}`}>
                                     <div className="text-7xl mb-6 drop-shadow-md">
                                         {ac.type === 'chance' ? '?' : '??'}
                                     </div>
-                                    <h2 className={	ext-4xl font-black uppercase tracking-widest mb-8 }>
+                                    <h2 className={`text-4xl font-black uppercase tracking-widest mb-8 ${ac.type === 'chance' ? 'text-orange-600' : 'text-blue-600'}`}>
                                         {ac.type === 'chance' ? 'Suerte' : 'Caja de Comunidad'}
                                     </h2>
                                     <div className="text-center bg-white p-8 rounded-2xl border-2 border-slate-200 shadow-inner w-full mb-8">
@@ -874,7 +873,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     mode: setupMode,
                     players: initialPlayers,
                     currentTurnIndex: 0,
-                    logs: ['Sala creada. Â¡Esperando a los jugadores!']
+                    logs: ['Sala creada. ¡Esperando a los jugadores!']
                 };
 
                 try {
@@ -896,7 +895,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 setTimeout(() => setCopied(false), 2000);
             };
 
-            // MenÃº de Inicio
+            // Menú de Inicio
             if (!activeGameId || !gameState) {
                 return (
                     <div className="min-h-screen bg-slate-900 bg-cover bg-center flex items-center justify-center p-8" style={{ backgroundImage: `url(${BACKGROUND_URL})` }}>
@@ -906,7 +905,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
 
                             {fbError && (
                                 <div className="bg-red-500/90 text-white p-4 rounded-xl mb-6 text-sm font-bold border border-red-400 text-left">
-                                    âš ï¸ ERROR DE PERMISOS: Tienes que ir a Firebase &gt; Firestore Database &gt; Reglas. Borra todo y pega:<br/><br/>
+                                    ⚠️ ERROR DE PERMISOS: Tienes que ir a Firebase &gt; Firestore Database &gt; Reglas. Borra todo y pega:<br/><br/>
                                     <code className="bg-black/30 p-2 block rounded font-mono text-xs mt-2">rules_version = '2';<br/>service cloud.firestore &#123;<br/>&nbsp;&nbsp;match /databases/&#123;database&#125;/documents &#123;<br/>&nbsp;&nbsp;&nbsp;&nbsp;match /&#123;document=**&#125; &#123;<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read, write: if true;<br/>&nbsp;&nbsp;&nbsp;&nbsp;&#125;<br/>&nbsp;&nbsp;&#125;<br/>&#125;</code>
                                 </div>
                             )}
@@ -921,21 +920,21 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                     <button onClick={() => setSetupMode('family')} className="group glass-panel hover:bg-slate-800/80 p-6 rounded-2xl transition transform hover:scale-105 flex flex-col items-center relative overflow-hidden">
                                         <Users className="w-12 h-12 text-green-400 mb-3 group-hover:text-green-300" />
                                         <h3 className="font-bold text-lg">Modo Familia</h3>
-                                        <p className="text-xs text-slate-400 mt-2 text-center">Un tablero en TV,<br/>todos juegan desde el mÃ³vil</p>
+                                        <p className="text-xs text-slate-400 mt-2 text-center">Un tablero en TV,<br/>todos juegan desde el móvil</p>
                                     </button>
                                 </div>
                             )}
 
                             {(setupMode === 'online' || setupMode === 'family') && setupStep === 0 && (
                                 <div className="space-y-6 animate-fade-in">
-                                    <p className="text-slate-300">Â¿CuÃ¡ntos inversores van a jugar hoy?</p>
+                                    <p className="text-slate-300">¿Cuántos inversores van a jugar hoy?</p>
                                     <div className="flex justify-center items-center space-x-6">
                                         <button onClick={() => setPlayerCount(Math.max(2, playerCount - 1))} className="w-12 h-12 rounded-full glass-panel hover:bg-white/10 text-2xl font-bold transition">-</button>
                                         <span className="text-4xl font-black">{playerCount}</span>
                                         <button onClick={() => setPlayerCount(Math.min(6, playerCount + 1))} className="w-12 h-12 rounded-full glass-panel hover:bg-white/10 text-2xl font-bold transition">+</button>
                                     </div>
                                     <div className="flex gap-4 pt-4">
-                                        <button onClick={() => setSetupMode('')} className="w-1/3 glass-panel hover:bg-white/10 font-bold py-4 rounded-xl transition">AtrÃ¡s</button>
+                                        <button onClick={() => setSetupMode('')} className="w-1/3 glass-panel hover:bg-white/10 font-bold py-4 rounded-xl transition">Atrás</button>
                                         <button onClick={() => { setPlayerNames(Array(playerCount).fill('')); setSetupStep(1); }} className="w-2/3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 font-bold py-4 rounded-xl shadow-lg transition">Siguiente</button>
                                     </div>
                                 </div>
@@ -948,8 +947,8 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                         <input key={i} type="text" placeholder={`Nombre Jugador ${i + 1}`} value={name} onChange={(e) => { const newNames = [...playerNames]; newNames[i] = e.target.value; setPlayerNames(newNames); }} className="w-full p-4 glass-panel border border-white/20 rounded-xl focus:border-blue-400 focus:ring-0 outline-none text-lg text-white placeholder-slate-500" />
                                     ))}
                                     <div className="flex gap-4 pt-4">
-                                        <button onClick={() => setSetupStep(0)} className="w-1/3 glass-panel hover:bg-white/10 font-bold py-4 rounded-xl transition">AtrÃ¡s</button>
-                                        <button onClick={handleCreateGame} className="w-2/3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 font-bold py-4 rounded-xl shadow-lg transition">Â¡Crear Sala!</button>
+                                        <button onClick={() => setSetupStep(0)} className="w-1/3 glass-panel hover:bg-white/10 font-bold py-4 rounded-xl transition">Atrás</button>
+                                        <button onClick={handleCreateGame} className="w-2/3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 font-bold py-4 rounded-xl shadow-lg transition">¡Crear Sala!</button>
                                     </div>
                                 </div>
                             )}
@@ -972,22 +971,23 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         <div className="glass-panel rounded-3xl p-8 max-w-md w-full text-center text-white shadow-2xl">
                             <h2 className="text-3xl font-black uppercase mb-2">Sala Creada</h2>
                             
-                            {gameState.mode === 'family' ? (
-                                <div className="mb-8 flex flex-col items-center">
-                                    <p className="text-slate-300 mb-4 text-lg font-medium">Escanea este cÃ³digo con tu mÃ³vil para unirte</p>
-                                    <div className="bg-white p-3 rounded-2xl shadow-xl shadow-green-500/20 border-4 border-green-500">
-                                        <img src={qrUrl} alt="QR para unirse" className="w-48 h-48" />
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <p className="text-slate-300 mb-8">EnvÃ­a este enlace a los demÃ¡s jugadores para que se unan.</p>
-                                    <button onClick={copyJoinUrl} className={`w-full flex items-center justify-center gap-3 p-4 rounded-xl font-bold text-lg transition-all duration-300 ${copied ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-white text-slate-900 hover:bg-slate-100 shadow-xl'}`}>
-                                        {copied ? <CheckCircle2 className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-                                        {copied ? 'Â¡Enlace Copiado!' : 'Copiar Enlace de InvitaciÃ³n'}
-                                    </button>
-                                </>
-                            )}
+                                                        <div className="mb-8 flex flex-col items-center">
+                                {gameState.mode === 'family' && (
+                                    <>
+                                        <p className="text-slate-300 mb-4 text-lg font-medium">Escanea este código con tu móvil para unirte</p>
+                                        <div className="bg-white p-3 rounded-2xl shadow-xl shadow-green-500/20 border-4 border-green-500 mb-6">
+                                            <img src={qrUrl} alt="QR para unirse" className="w-48 h-48" />
+                                        </div>
+                                    </>
+                                )}
+                                {gameState.mode !== 'family' && (
+                                    <p className="text-slate-300 mb-4">Envía este enlace a los demás jugadores para que se unan.</p>
+                                )}
+                                <button onClick={copyJoinUrl} className={`w-full flex items-center justify-center gap-3 p-4 rounded-xl font-bold text-lg transition-all duration-300 ${copied ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-white text-slate-900 hover:bg-slate-100 shadow-xl'}`}>
+                                    {copied ? <CheckCircle2 className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
+                                    {copied ? '¡Enlace Copiado!' : 'Copiar Enlace de Invitación'}
+                                </button>
+                            </div>
 
                             <div className="mt-8 text-left glass-panel rounded-xl p-4">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">Jugadores ({gameState.players.filter(p=>p.hasJoined).length}/{gameState.players.length})</p>
@@ -1014,8 +1014,8 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-8" style={{ backgroundImage: `url(${BACKGROUND_URL})` }}>
                         <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-0"></div>
                         <div className="glass-panel rounded-3xl p-8 max-w-lg w-full text-center text-white shadow-2xl relative z-10">
-                            <div className="text-5xl mb-4">ðŸŽ²</div>
-                            <h2 className="text-3xl font-black uppercase mb-2">Â¡Todos Listos!</h2>
+                            <div className="text-5xl mb-4">🎲</div>
+                            <h2 className="text-3xl font-black uppercase mb-2">¡Todos Listos!</h2>
                             <p className="text-slate-300 mb-8">Cada jugador lanza los dados para determinar el orden de juego.</p>
                             
                             <div className="flex flex-col gap-3 mb-6">
@@ -1038,8 +1038,8 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                                 </div>
                                                 {roll ? (
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-2xl">{roll.d1 === 1 ? 'âš€' : roll.d1 === 2 ? 'âš' : roll.d1 === 3 ? 'âš‚' : roll.d1 === 4 ? 'âšƒ' : roll.d1 === 5 ? 'âš„' : 'âš…'}</span>
-                                                        <span className="text-2xl">{roll.d2 === 1 ? 'âš€' : roll.d2 === 2 ? 'âš' : roll.d2 === 3 ? 'âš‚' : roll.d2 === 4 ? 'âšƒ' : roll.d2 === 5 ? 'âš„' : 'âš…'}</span>
+                                                        <span className="text-2xl">{roll.d1 === 1 ? '⚀' : roll.d1 === 2 ? '⚁' : roll.d1 === 3 ? '⚂' : roll.d1 === 4 ? '⚃' : roll.d1 === 5 ? '⚄' : '⚅'}</span>
+                                                        <span className="text-2xl">{roll.d2 === 1 ? '⚀' : roll.d2 === 2 ? '⚁' : roll.d2 === 3 ? '⚂' : roll.d2 === 4 ? '⚃' : roll.d2 === 5 ? '⚄' : '⚅'}</span>
                                                         <span className="font-black text-xl text-green-400 ml-1">= {total}</span>
                                                     </div>
                                                 ) : (
@@ -1052,8 +1052,8 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
 
                             {allRolled && (
                                 <div className="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-center">
-                                    <p className="text-yellow-400 font-black text-lg">ðŸ† Â¡Empieza {[...gameState.players].sort((a,b) => ((initRolls[b.id]?.d1||0)+(initRolls[b.id]?.d2||0))-((initRolls[a.id]?.d1||0)+(initRolls[a.id]?.d2||0)))[0]?.name}!</p>
-                                    <p className="text-slate-200 text-sm mt-2 font-bold animate-pulse">Â¡Mirad vuestros mÃ³viles y dadle a ACEPTAR para empezar la partida!</p>
+                                    <p className="text-yellow-400 font-black text-lg">🏆 ¡Empieza {[...gameState.players].sort((a,b) => ((initRolls[b.id]?.d1||0)+(initRolls[b.id]?.d2||0))-((initRolls[a.id]?.d1||0)+(initRolls[a.id]?.d2||0)))[0]?.name}!</p>
+                                    <p className="text-slate-200 text-sm mt-2 font-bold animate-pulse">¡Mirad vuestros móviles y dadle a ACEPTAR para empezar la partida!</p>
                                 </div>
                             )}
                         </div>
@@ -1061,7 +1061,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 );
             }
 
-            // Si todos estÃ¡n listos y la partida ha empezado, muestra el tablero central (modo host)
+            // Si todos están listos y la partida ha empezado, muestra el tablero central (modo host)
             return (
                 <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-2 relative overflow-hidden" style={{ backgroundImage: `url(https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_9q9p9s9q9p9s9q9p.png)` }}>
                     <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm z-0"></div>
@@ -1176,16 +1176,16 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         });
 
                         updates.activeTrade = null;
-                        updates.tradeAlert = { message: `Â¡Enhorabuena! Trueque aceptado.`, type: 'success', timestamp: Date.now() };
+                        updates.tradeAlert = { message: `¡Enhorabuena! Trueque aceptado.`, type: 'success', timestamp: Date.now() };
                         updates.players = newPlayers;
-                        updates.logs = [...(gameState.logs || []), `Â¡Trueque completado entre ${me.name} y ${them.name}!`];
+                        updates.logs = [...(gameState.logs || []), `¡Trueque completado entre ${me.name} y ${them.name}!`];
                         
                         if (gameState.awaitingRent && 
                            ((gameState.awaitingRent.playerId === trade.p1Id && gameState.awaitingRent.toPlayerId === trade.p2Id) || 
                             (gameState.awaitingRent.playerId === trade.p2Id && gameState.awaitingRent.toPlayerId === trade.p1Id))) {
                             updates.awaitingRent = null;
                             updates.currentTurnIndex = gameState.awaitingRent.nextTurnIndex;
-                            updates.logs.push(`Â¡La deuda de alquiler fue saldada con el trueque!`);
+                            updates.logs.push(`¡La deuda de alquiler fue saldada con el trueque!`);
                         }
 
                         await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updates);
@@ -1215,7 +1215,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                     className={`relative rounded-lg border-2 p-1 text-center select-none overflow-hidden flex flex-col justify-center min-h-[40px] shadow-sm ${isMe ? 'cursor-pointer hover:scale-105 active:scale-95 transition-all' : ''} ${isSelected ? 'border-green-400 ring-2 ring-green-400 ring-offset-1 ring-offset-slate-900 opacity-100' : 'border-white/20 opacity-40 hover:opacity-80'}`}
                                     style={{ backgroundColor: p.colorHex || (p.type === 'station' ? '#374151' : '#4b5563') }}>
                                     <div className="text-[9px] sm:text-[10px] font-black uppercase leading-tight text-white drop-shadow-md z-10">{p.name}</div>
-                                    {isSelected && <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-lg shadow-md z-20 flex items-center justify-center">âœ“</div>}
+                                    {isSelected && <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-lg shadow-md z-20 flex items-center justify-center">✓</div>}
                                     {!isSelected && isMe && <div className="absolute inset-0 bg-black/40 z-0 pointer-events-none"></div>}
                                 </div>
                             );
@@ -1246,7 +1246,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                     </div>
                                     
                                     <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                                        <p className="text-xs text-slate-400 uppercase tracking-widest font-bold border-b border-slate-800 pb-1">Calles (Selecciona para aÃ±adir)</p>
+                                        <p className="text-xs text-slate-400 uppercase tracking-widest font-bold border-b border-slate-800 pb-1">Calles (Selecciona para añadir)</p>
                                         {renderProps(myOffer.properties, me.properties, true, me)}
                                     </div>
                                     
@@ -1284,12 +1284,12 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         ) : (
                             // REVIEW PHASE
                             <div className="flex-1 p-4 sm:p-8 flex flex-col items-center justify-center text-center">
-                                <h3 className="text-2xl font-black text-white uppercase mb-2">RevisiÃ³n de Oferta Final</h3>
-                                <p className="text-slate-400 mb-8">Ambos jugadores han fijado sus ofertas. Si ambos aceptan, el trato se cerrarÃ¡ inmediatamente.</p>
+                                <h3 className="text-2xl font-black text-white uppercase mb-2">Revisión de Oferta Final</h3>
+                                <p className="text-slate-400 mb-8">Ambos jugadores han fijado sus ofertas. Si ambos aceptan, el trato se cerrará inmediatamente.</p>
                                 
                                 <div className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl mb-8">
                                     <div className="flex-1 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-                                        <h4 className="font-black text-orange-400 uppercase border-b border-slate-700 pb-2 mb-2">TÃº das:</h4>
+                                        <h4 className="font-black text-orange-400 uppercase border-b border-slate-700 pb-2 mb-2">Tú das:</h4>
                                         {myOffer.properties.length > 0 ? (
                                             <div className="flex flex-wrap gap-1 justify-center mb-3">
                                                 {myOffer.properties.map(id => {
@@ -1353,7 +1353,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         }
                         return p;
                     }),
-                    logs: [...(gameState.logs || []), `ðŸš¨ Â¡${me.name} SE HA DECLARADO EN BANCARROTA Y QUEDA ELIMINADO!`]
+                    logs: [...(gameState.logs || []), `🚨 ¡${me.name} SE HA DECLARADO EN BANCARROTA Y QUEDA ELIMINADO!`]
                 };
 
                 // Clear any active states
@@ -1453,7 +1453,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), { 
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `Â¡${gameState.players.find(p=>p.id===targetPlayerId).name} se ha unido con ${selectedToken}!`]
+                        logs: [...(gameState.logs || []), `¡${gameState.players.find(p=>p.id===targetPlayerId).name} se ha unido con ${selectedToken}!`]
                     });
                     setPlayerId(targetPlayerId);
                     localStorage.setItem(`patopoly_playerId_${gameId}`, targetPlayerId);
@@ -1463,7 +1463,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
             const rollDice = async () => {
                 SoundFX.dice();
                 if (gameState.players[gameState.currentTurnIndex].id !== playerId) return; // No es tu turno
-                if (gameState.isAnimating) return; // Bloquear si hay animaciÃ³n en curso
+                if (gameState.isAnimating) return; // Bloquear si hay animación en curso
                 
                 const d1 = Math.floor(Math.random() * 6) + 1;
                 const d2 = Math.floor(Math.random() * 6) + 1;
@@ -1477,7 +1477,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     let newJailTurns = (me.jailTurns || 0) + 1;
                     
                     if (isDoubles) {
-                        let logMsg = `Â¡${me.name} tirÃ³ ${d1} y ${d2} (dobles) y sale de la cÃ¡rcel gratis! Se mueve ${totalMove}.`;
+                        let logMsg = `¡${me.name} tiró ${d1} y ${d2} (dobles) y sale de la cárcel gratis! Se mueve ${totalMove}.`;
                         let newPos = (me.position + totalMove) % 40;
                         const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, position: newPos } : p);
                         
@@ -1492,7 +1492,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         if (newJailTurns >= 3) {
                             let newBalance = Math.max(0, me.balance - 50);
                             let newPos = (me.position + totalMove) % 40;
-                            let logMsg = `Â¡${me.name} tirÃ³ ${d1} y ${d2}. Al ser su 3er turno, pagÃ³ M50 obligatoriamente, sale de la cÃ¡rcel y mueve ${totalMove}.`;
+                            let logMsg = `¡${me.name} tiró ${d1} y ${d2}. Al ser su 3er turno, pagó M50 obligatoriamente, sale de la cárcel y mueve ${totalMove}.`;
                             const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, balance: newBalance, position: newPos } : p);
                             
                             let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
@@ -1503,7 +1503,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                             try { await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), { players: updatedPlayers, freeParkingPot: (gameState.freeParkingPot || 0) + 50, activeRoll, isAnimating: true, logs: [...(gameState.logs || []), logMsg] }); } catch(e) { console.error(e); }
                             return;
                         } else {
-                            let logMsg = `${me.name} tirÃ³ ${d1} y ${d2}. No sacÃ³ dobles y sigue en la cÃ¡rcel (Turno ${newJailTurns}).`;
+                            let logMsg = `${me.name} tiró ${d1} y ${d2}. No sacó dobles y sigue en la cárcel (Turno ${newJailTurns}).`;
                             const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, jailTurns: newJailTurns } : p);
                             let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
                             let loopCount = 0;
@@ -1532,7 +1532,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     return p;
                 });
 
-                // Calculamos el siguiente turno pero NO actualizamos currentTurnIndex todavÃ­a
+                // Calculamos el siguiente turno pero NO actualizamos currentTurnIndex todavía
                 let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
                 let loopCount = 0;
                 while ((!gameState.players[nextTurn].hasJoined || gameState.players[nextTurn].isBankrupt) && loopCount < gameState.players.length) {
@@ -1540,7 +1540,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     loopCount++;
                 }
 
-                let logMsg = `${me.name} tirÃ³ ${d1} y ${d2} (${totalMove}) y cayÃ³ en ${boardSpaces[newPos].name}.`;
+                let logMsg = `${me.name} tiró ${d1} y ${d2} (${totalMove}) y cayó en ${boardSpaces[newPos].name}.`;
 
                 const activeRoll = {
                     playerId: me.id,
@@ -1576,7 +1576,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                 activeRoll: null,
                                 awaitingUtilityRoll: null,
                                 awaitingRent: { playerId: roll.playerId, spaceId, amount: rentAmount, toPlayerId, nextTurnIndex, houses: 0 },
-                                logs: [...(gameState.logs || []), `${gameState.players.find(p=>p.id===roll.playerId).name} sacÃ³ un ${total} en los dados. Debe pagar M${rentAmount}.`]
+                                logs: [...(gameState.logs || []), `${gameState.players.find(p=>p.id===roll.playerId).name} sacó un ${total} en los dados. Debe pagar M${rentAmount}.`]
                             });
                         } catch(e) { console.error(e); }
                         return;
@@ -1587,7 +1587,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     if (roll.passedGo) {
                         SoundFX.applause();
                         updatedPlayers = updatedPlayers.map(p => p.id === playerId ? { ...p, balance: p.balance + 200 } : p);
-                        passGoLogMsg = `Â¡${gameState.players.find(p=>p.id===playerId).name} cobrÃ³ M200 por pasar por la Salida!`;
+                        passGoLogMsg = `¡${gameState.players.find(p=>p.id===playerId).name} cobró M200 por pasar por la Salida!`;
                     }
 
                     const landedSpace = boardSpaces[roll.to];
@@ -1607,7 +1607,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                 isAnimating: false,
                                 awaitingGoToJail: { playerId: roll.playerId, nextTurnIndex: roll.nextTurnIndex },
                                 players: updatedPlayers,
-                                logs: [...(gameState.logs || []), ...logsToAppend, `Â¡${gameState.players.find(p=>p.id===playerId).name} ha caÃ­do en Vaya a la CÃ¡rcel!`]
+                                logs: [...(gameState.logs || []), ...logsToAppend, `¡${gameState.players.find(p=>p.id===playerId).name} ha caído en Vaya a la Cárcel!`]
                             });
                         } catch(e) { console.error(e); }
                     } else if (isChance || isCommunity) {
@@ -1673,7 +1673,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                         isAnimating: false,
                                         awaitingUtilityRoll: { playerId: roll.playerId, spaceId: roll.to, toPlayerId: owner.id, multiplier, nextTurnIndex: roll.nextTurnIndex },
                                         players: updatedPlayers,
-                                        ...(logsToAppend.length ? { logs: [...(gameState.logs || []), ...logsToAppend, `${gameState.players.find(p=>p.id===playerId).name} debe tirar los dados para pagar la CompaÃ±Ã­a.`] } : {})
+                                        ...(logsToAppend.length ? { logs: [...(gameState.logs || []), ...logsToAppend, `${gameState.players.find(p=>p.id===playerId).name} debe tirar los dados para pagar la Compañía.`] } : {})
                                     });
                                 } catch(e) { console.error(e); }
                                 return;
@@ -1725,7 +1725,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 if (!me.inJail || !me.getOutJailFreeCards || me.getOutJailFreeCards <= 0) return;
                 
                 const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, getOutJailFreeCards: p.getOutJailFreeCards - 1 } : p);
-                const logMsg = `${me.name} usÃ³ una carta para salir gratis de la cÃ¡rcel.`;
+                const logMsg = `${me.name} usó una carta para salir gratis de la cárcel.`;
                 
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
@@ -1748,7 +1748,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 let pIndex = updatedPlayers.findIndex(p => p.id === playerId);
                 let meUpdated = { ...updatedPlayers[pIndex] };
                 let newPot = gameState.freeParkingPot || 0;
-                let logMsg = `${meUpdated.name} sacÃ³ una carta: "${card.text}"`;
+                let logMsg = `${meUpdated.name} sacó una carta: "${card.text}"`;
 
                 if (card.action === 'moveTo') {
                     const oldPos = meUpdated.position;
@@ -1808,7 +1808,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     meUpdated.balance -= cost;
                     newPot += cost;
                     updateData.freeParkingPot = newPot;
-                    logMsg += ` (PagÃ³ M${cost})`;
+                    logMsg += ` (Pagó M${cost})`;
                 }
 
                 updatedPlayers[pIndex] = meUpdated;
@@ -1846,7 +1846,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         },
                         isAnimating: true,
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `Â¡${me.name} fue llevado a la cÃ¡rcel!`]
+                        logs: [...(gameState.logs || []), `¡${me.name} fue llevado a la cárcel!`]
                     });
                 } catch(e) { console.error(e); }
             };
@@ -1856,7 +1856,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 if (!me.inJail || me.balance < 50) return;
                 
                 const updatedPlayers = gameState.players.map(p => p.id === playerId ? { ...p, inJail: false, jailTurns: 0, balance: p.balance - 50 } : p);
-                const logMsg = `${me.name} pagÃ³ M50 para salir de la cÃ¡rcel.`;
+                const logMsg = `${me.name} pagó M50 para salir de la cárcel.`;
                 
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
@@ -1905,7 +1905,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         freeParkingPot: (gameState.freeParkingPot || 0) + amount,
                         currentTurnIndex: nextTurnIndex,
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `${me.name} pagÃ³ M${amount} de impuestos.`]
+                        logs: [...(gameState.logs || []), `${me.name} pagó M${amount} de impuestos.`]
                     });
                 } catch(e) { console.error(e); }
             };
@@ -1923,7 +1923,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         freeParkingPot: 0,
                         currentTurnIndex: nextTurnIndex,
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `Â¡${me.name} reclamÃ³ el bote del Parking Gratuito de M${amount}!`]
+                        logs: [...(gameState.logs || []), `¡${me.name} reclamó el bote del Parking Gratuito de M${amount}!`]
                     });
                 } catch(e) { console.error(e); }
             };
@@ -1947,7 +1947,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         rentReceivedAlert: { playerId: toPlayerId, fromName: me.name, amount, spaceName, houses },
                         currentTurnIndex: nextTurnIndex,
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `${me.name} pagÃ³ M${amount} de alquiler a ${receiver?.name} por caer en ${spaceName}.`]
+                        logs: [...(gameState.logs || []), `${me.name} pagó M${amount} de alquiler a ${receiver?.name} por caer en ${spaceName}.`]
                     });
                 } catch(e) { console.error(e); }
             };
@@ -1967,7 +1967,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `${me.name} hipotecÃ³ ${space.name} y obtuvo M${mortgageVal}.`]
+                        logs: [...(gameState.logs || []), `${me.name} hipotecó ${space.name} y obtuvo M${mortgageVal}.`]
                     });
                     setSelectedSpacePC(null);
                 } catch(e) { console.error(e); }
@@ -1987,7 +1987,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `${me.name} deshipotecÃ³ ${space.name} pagando M${unmortgageVal}.`]
+                        logs: [...(gameState.logs || []), `${me.name} deshipotecó ${space.name} pagando M${unmortgageVal}.`]
                     });
                     setSelectedSpacePC(null);
                 } catch(e) { console.error(e); }
@@ -2015,7 +2015,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `${me.name} construyÃ³ ${buildName} en ${space.name} por M${totalCost}.`]
+                        logs: [...(gameState.logs || []), `${me.name} construyó ${buildName} en ${space.name} por M${totalCost}.`]
                     });
                     setSelectedSpacePC(null); // Force close to refresh or we can leave it open but it doesn't auto-update the modal easily unless we wait for snapshot
                 } catch(e) { console.error(e); }
@@ -2041,7 +2041,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `${me.name} vendiÃ³ ${buildName} en ${space.name} y obtuvo M${sellPrice}.`]
+                        logs: [...(gameState.logs || []), `${me.name} vendió ${buildName} en ${space.name} y obtuvo M${sellPrice}.`]
                     });
                     setSelectedSpacePC(null);
                 } catch(e) { console.error(e); }
@@ -2051,7 +2051,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
 
             const me = gameState.players.find(p => p.id === playerId);
 
-            // PANTALLA DE SELECCIÃ“N DE FICHA
+            // PANTALLA DE SELECCIÓN DE FICHA
             if (!me || !me.hasJoined) {
                 const availablePlayers = gameState.players.filter(p => !p.hasJoined);
                 const takenTokens = gameState.players.filter(p => p.hasJoined).map(p => p.token);
@@ -2064,7 +2064,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                             {!playerId ? (
                                 <div className="animate-fade-in">
                                     <h1 className="text-3xl font-black text-center text-white mb-2">Unirse a la Partida</h1>
-                                    <p className="text-slate-300 text-center mb-8">Â¿QuiÃ©n eres?</p>
+                                    <p className="text-slate-300 text-center mb-8">¿Quién eres?</p>
                                     <div className="space-y-3">
                                         {gameState.players.map(p => {
                                             const localId = localStorage.getItem(`patopoly_playerId_${gameId}`);
@@ -2095,7 +2095,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                         <ArrowRight className="w-4 h-4 rotate-180" /> Volver
                                     </button>
                                     <h1 className="text-2xl font-black text-center text-white mb-2">Elige tu Ficha</h1>
-                                    <p className="text-slate-300 text-center mb-8">Selecciona la ficha con la que jugarÃ¡s</p>
+                                    <p className="text-slate-300 text-center mb-8">Selecciona la ficha con la que jugarás</p>
                                     
                                     <div className="grid grid-cols-2 gap-4 mb-8">
                                         {availableTokens.map(token => {
@@ -2118,7 +2118,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 );
             }
 
-            // PANTALLA DE ESPERA: jugador ya se uniÃ³ pero no todos han entrado aÃºn
+            // PANTALLA DE ESPERA: jugador ya se unió pero no todos han entrado aún
             const allJoinedPC = gameState.players.every(p => p.hasJoined);
             if (!allJoinedPC) {
                 const joinedCount = gameState.players.filter(p => p.hasJoined).length;
@@ -2128,7 +2128,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         <div className="glass-panel w-full max-w-sm rounded-3xl p-8 shadow-2xl border border-white/10 relative z-10 flex flex-col items-center gap-6 text-white text-center">
                             <div className="relative">
                                 <div className="w-16 h-16 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin"></div>
-                                <div className="absolute inset-0 flex items-center justify-center text-2xl">â³</div>
+                                <div className="absolute inset-0 flex items-center justify-center text-2xl">⏳</div>
                             </div>
                             <div>
                                 <h2 className="text-2xl font-black uppercase mb-1">Esperando Jugadores</h2>
@@ -2139,7 +2139,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                     <div key={i} className="flex items-center justify-between bg-white/5 px-4 py-2 rounded-lg border border-white/10">
                                         <span className="font-medium text-slate-200">{p.name}</span>
                                         {p.hasJoined
-                                            ? <span className="text-green-400 font-bold flex items-center gap-2"><TokenIcon tokenId={p.token} className="w-5 h-5" /> âœ“ Listo</span>
+                                            ? <span className="text-green-400 font-bold flex items-center gap-2"><TokenIcon tokenId={p.token} className="w-5 h-5" /> ✓ Listo</span>
                                             : <span className="text-slate-500 italic text-sm">Esperando...</span>}
                                     </div>
                                 ))}
@@ -2176,10 +2176,10 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         <div className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center p-4 relative" style={{ backgroundImage: `url(https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_9q9p9s9q9p9s9q9p.png)` }}>
                             <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-0"></div>
                             <div className="glass-panel w-full max-w-sm rounded-3xl p-8 shadow-2xl border border-white/10 relative z-10 flex flex-col items-center gap-6 text-white text-center">
-                                <div className="text-5xl">ðŸ†</div>
+                                <div className="text-5xl">🏆</div>
                                 <div>
                                     <h2 className="text-2xl font-black uppercase mb-1">Orden de Juego</h2>
-                                    <p className="text-slate-300 text-sm">Este es el orden en el que jugarÃ©is</p>
+                                    <p className="text-slate-300 text-sm">Este es el orden en el que jugaréis</p>
                                 </div>
                                 <div className="w-full flex flex-col gap-2 mt-2">
                                     {sortedPlayers.map((p, i) => {
@@ -2191,9 +2191,9 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                                     <span className="font-black text-slate-400 w-4 text-left">{i + 1}</span>
                                                     <TokenIcon tokenId={p.token} className="w-5 h-5" />
                                                     <span className="font-medium text-slate-200">{p.name}</span>
-                                                    {total > 0 && <span className="ml-1 text-[10px] font-black text-yellow-400 bg-yellow-400/10 px-1.5 py-0.5 rounded border border-yellow-400/20">ðŸŽ² {total}</span>}
+                                                    {total > 0 && <span className="ml-1 text-[10px] font-black text-yellow-400 bg-yellow-400/10 px-1.5 py-0.5 rounded border border-yellow-400/20">🎲 {total}</span>}
                                                 </div>
-                                                {initRollsAccepted[p.id] ? <span className="text-green-400 text-xs font-black">âœ“ LISTO</span> : <span className="text-slate-500 text-xs italic">Esperando...</span>}
+                                                {initRollsAccepted[p.id] ? <span className="text-green-400 text-xs font-black">✓ LISTO</span> : <span className="text-slate-500 text-xs italic">Esperando...</span>}
                                             </div>
                                         );
                                     })}
@@ -2203,7 +2203,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                         Aceptar y Empezar
                                     </button>
                                 ) : (
-                                    <p className="text-slate-400 text-sm mt-2">Esperando a que los demÃ¡s acepten...</p>
+                                    <p className="text-slate-400 text-sm mt-2">Esperando a que los demás acepten...</p>
                                 )}
                             </div>
                         </div>
@@ -2211,7 +2211,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                 }
 
                 const handleInitRoll = async () => {
-                    if (myInitRoll) return; // Ya tirÃ©
+                    if (myInitRoll) return; // Ya tiré
                     const d1 = Math.floor(Math.random() * 6) + 1;
                     const d2 = Math.floor(Math.random() * 6) + 1;
                     const newInitRolls = { ...initRolls, [playerId]: { d1, d2 } };
@@ -2220,7 +2220,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     const updateData = { [`initRolls.${playerId}`]: { d1, d2 } };
 
                     if (allNowRolled) {
-                        // Ordenar jugadores por puntuaciÃ³n descendente
+                        // Ordenar jugadores por puntuación descendente
                         const sorted = [...gameState.players].sort((a, b) => {
                             const ra = newInitRolls[a.id]; const rb = newInitRolls[b.id];
                             return (rb.d1 + rb.d2) - (ra.d1 + ra.d2);
@@ -2229,7 +2229,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         updateData.players = sortedPlayers;
                         updateData.currentTurnIndex = 0;
                         updateData.status = 'init_results';
-                        updateData.logs = [...(gameState.logs || []), `Â¡Orden decidido! Empieza ${sortedPlayers[0].name} con ${newInitRolls[sortedPlayers[0].id].d1 + newInitRolls[sortedPlayers[0].id].d2} puntos.`];
+                        updateData.logs = [...(gameState.logs || []), `¡Orden decidido! Empieza ${sortedPlayers[0].name} con ${newInitRolls[sortedPlayers[0].id].d1 + newInitRolls[sortedPlayers[0].id].d2} puntos.`];
                     }
                     try { await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updateData); } catch(e) { console.error(e); }
                 };
@@ -2238,24 +2238,24 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     <div className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center p-4 relative" style={{ backgroundImage: `url(https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_9q9p9s9q9p9s9q9p.png)` }}>
                         <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-0"></div>
                         <div className="glass-panel w-full max-w-sm rounded-3xl p-8 shadow-2xl border border-white/10 relative z-10 flex flex-col items-center gap-6 text-white text-center">
-                            <div className="text-5xl">ðŸŽ²</div>
+                            <div className="text-5xl">🎲</div>
                             <div>
-                                <h2 className="text-2xl font-black uppercase mb-1">Â¡Todos Listos!</h2>
+                                <h2 className="text-2xl font-black uppercase mb-1">¡Todos Listos!</h2>
                                 <p className="text-slate-300 text-sm">Lanza los dados para determinar el orden de juego</p>
                             </div>
 
                             {!myInitRoll ? (
                                 <button onClick={handleInitRoll} className="w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white font-black text-xl shadow-lg transition-all active:scale-95 uppercase tracking-wider">
-                                    ðŸŽ² Â¡Tirar Dados!
+                                    🎲 ¡Tirar Dados!
                                 </button>
                             ) : (
                                 <div className="flex flex-col items-center gap-2">
                                     <div className="flex items-center gap-3 text-5xl">
-                                        <span>{myInitRoll.d1 === 1 ? 'âš€' : myInitRoll.d1 === 2 ? 'âš' : myInitRoll.d1 === 3 ? 'âš‚' : myInitRoll.d1 === 4 ? 'âšƒ' : myInitRoll.d1 === 5 ? 'âš„' : 'âš…'}</span>
-                                        <span>{myInitRoll.d2 === 1 ? 'âš€' : myInitRoll.d2 === 2 ? 'âš' : myInitRoll.d2 === 3 ? 'âš‚' : myInitRoll.d2 === 4 ? 'âšƒ' : myInitRoll.d2 === 5 ? 'âš„' : 'âš…'}</span>
+                                        <span>{myInitRoll.d1 === 1 ? '⚀' : myInitRoll.d1 === 2 ? '⚁' : myInitRoll.d1 === 3 ? '⚂' : myInitRoll.d1 === 4 ? '⚃' : myInitRoll.d1 === 5 ? '⚄' : '⚅'}</span>
+                                        <span>{myInitRoll.d2 === 1 ? '⚀' : myInitRoll.d2 === 2 ? '⚁' : myInitRoll.d2 === 3 ? '⚂' : myInitRoll.d2 === 4 ? '⚃' : myInitRoll.d2 === 5 ? '⚄' : '⚅'}</span>
                                     </div>
                                     <p className="text-2xl font-black text-green-400">Total: {myInitRoll.d1 + myInitRoll.d2}</p>
-                                    <p className="text-slate-400 text-sm mt-2">{allRolledPC ? 'Preparando resultados...' : 'Esperando a los demÃ¡s...'}</p>
+                                    <p className="text-slate-400 text-sm mt-2">{allRolledPC ? 'Preparando resultados...' : 'Esperando a los demás...'}</p>
                                 </div>
                             )}
 
@@ -2288,8 +2288,8 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     <div className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center p-4 relative" style={{ backgroundImage: `url(https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_9q9p9s9q9p9s9q9p.png)` }}>
                         <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md z-0"></div>
                         <div className="relative z-10 flex flex-col items-center text-center animate-fade-in-up">
-                            <div className="text-8xl mb-6">ðŸ‘‘</div>
-                            <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 uppercase tracking-widest drop-shadow-[0_0_30px_rgba(250,204,21,0.5)]">Â¡GANADOR!</h1>
+                            <div className="text-8xl mb-6">👑</div>
+                            <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 uppercase tracking-widest drop-shadow-[0_0_30px_rgba(250,204,21,0.5)]">¡GANADOR!</h1>
                             <h2 className="text-4xl md:text-5xl font-black text-white mt-6">{winner.name}</h2>
                             <div className="mt-8 flex gap-4 bg-slate-800/50 p-6 rounded-3xl border border-yellow-500/30">
                                 <TokenIcon tokenId={winner.token} className="w-16 h-16" />
@@ -2318,9 +2318,9 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                             <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl w-full max-w-sm p-6 flex flex-col">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="text-xl font-black text-white uppercase flex items-center gap-2"><ArrowRightLeft className="text-orange-400 w-5 h-5"/> Nuevo Trueque</h3>
-                                    <button onClick={() => setShowTradeSelector(false)} className="text-slate-500 hover:text-white">âœ•</button>
+                                    <button onClick={() => setShowTradeSelector(false)} className="text-slate-500 hover:text-white">✕</button>
                                 </div>
-                                <p className="text-slate-400 text-sm mb-4">Â¿Con quÃ© jugador quieres negociar un trueque?</p>
+                                <p className="text-slate-400 text-sm mb-4">¿Con qué jugador quieres negociar un trueque?</p>
                                 <div className="flex flex-col gap-2">
                                     {gameState.players.filter(p => p.hasJoined && p.id !== playerId).map(p => (
                                         <button key={p.id} onClick={async () => {
@@ -2355,8 +2355,8 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     {showTurnSplash && (
                         <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
                             <div className="bg-slate-900 border border-green-500/50 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.3)] w-full max-w-lg p-10 flex flex-col items-center gap-6 text-center animate-pulse">
-                                <div className="text-7xl">ðŸŽ²</div>
-                                <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 uppercase tracking-widest drop-shadow-sm">Â¡Es Tu Turno!</h1>
+                                <div className="text-7xl">🎲</div>
+                                <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 uppercase tracking-widest drop-shadow-sm">¡Es Tu Turno!</h1>
                                 <p className="text-slate-300 text-lg">Es el momento de jugar.</p>
                                 <div className="flex gap-4 mt-4 w-full">
                                     <button onClick={() => setShowTurnSplash(false)} className="flex-1 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm transition border border-slate-600 uppercase">
@@ -2374,7 +2374,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                     {gameState.tradeAlert && (
                         <div className="fixed inset-0 z-[350] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
                             <div className={`bg-slate-900 border rounded-3xl shadow-2xl w-full max-w-lg p-8 flex flex-col items-center gap-6 text-center transition-all scale-100 ${gameState.tradeAlert.type === 'success' ? 'border-green-500 shadow-[0_0_50px_rgba(34,197,94,0.3)]' : 'border-red-500 shadow-[0_0_50px_rgba(239,68,68,0.3)]'}`}>
-                                <div className="text-6xl">{gameState.tradeAlert.type === 'success' ? 'ðŸ¤' : 'âŒ'}</div>
+                                <div className="text-6xl">{gameState.tradeAlert.type === 'success' ? '🤝' : '❌'}</div>
                                 <h2 className={`text-3xl font-black uppercase tracking-wider ${gameState.tradeAlert.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
                                     {gameState.tradeAlert.message}
                                 </h2>
@@ -2455,7 +2455,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                             return (
                                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
                                     <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-5">
-                                        <div className="text-6xl">ðŸ’¸</div>
+                                        <div className="text-6xl">💸</div>
                                         <h2 className="text-2xl font-black text-white text-center uppercase tracking-wider">{taxSpace.name}</h2>
                                         <p className="text-slate-400 text-sm text-center">Debes pagar al banco</p>
                                         <div className="bg-slate-800 rounded-2xl px-8 py-4 text-center border border-slate-700">
@@ -2482,9 +2482,9 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                             return (
                                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
                                     <div className="bg-slate-900 border border-red-500/30 rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-5">
-                                        <div className="text-6xl">ðŸ’¸</div>
+                                        <div className="text-6xl">💸</div>
                                         <div className="text-center">
-                                            <h2 className="text-xl font-bold text-slate-300">Has caÃ­do en</h2>
+                                            <h2 className="text-xl font-bold text-slate-300">Has caído en</h2>
                                             <h1 className="text-3xl font-black text-white uppercase tracking-wider">{rentSpace.name}</h1>
                                             {rentSpace.type === 'property' && <p className="text-slate-400 text-sm mt-1">{hText}</p>}
                                         </div>
@@ -2513,7 +2513,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                                 }} className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-black text-sm transition border border-orange-500 shadow-lg uppercase tracking-wider active:scale-95 animate-pulse">
                                                     Proponer Trueque
                                                 </button>
-                                                <p className="text-[10px] text-orange-300 mt-1 font-bold">Ofrece propiedades al dueÃ±o para saldar la deuda.</p>
+                                                <p className="text-[10px] text-orange-300 mt-1 font-bold">Ofrece propiedades al dueño para saldar la deuda.</p>
                                             </div>
                                         )}
                                     </div>
@@ -2521,13 +2521,13 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                             );
                         })()}
 
-                        {/* MODAL TIRAR DADOS COMPAÃ‘ÃA */}
+                        {/* MODAL TIRAR DADOS COMPAÑÍA */}
                         {gameState.awaitingUtilityRoll && gameState.awaitingUtilityRoll.playerId === playerId && !gameState.isAnimating && (
                             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300">
                                 <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center">
-                                    <div className="text-6xl mb-4">ðŸŽ²</div>
+                                    <div className="text-6xl mb-4">🎲</div>
                                     <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-2">Pago de Servicio</h2>
-                                    <p className="text-slate-300 text-sm mb-6">El propietario tiene {gameState.awaitingUtilityRoll.multiplier === 10 ? '2 servicios' : '1 servicio'}. El alquiler serÃ¡ <strong className="text-white text-lg">x{gameState.awaitingUtilityRoll.multiplier}</strong> el resultado de los dados.</p>
+                                    <p className="text-slate-300 text-sm mb-6">El propietario tiene {gameState.awaitingUtilityRoll.multiplier === 10 ? '2 servicios' : '1 servicio'}. El alquiler será <strong className="text-white text-lg">x{gameState.awaitingUtilityRoll.multiplier}</strong> el resultado de los dados.</p>
                                     <button onClick={async () => {
                                         SoundFX.dice();
                                         const d1 = Math.floor(Math.random() * 6) + 1;
@@ -2558,9 +2558,9 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         {gameState.rentReceivedAlert && gameState.rentReceivedAlert.playerId === playerId && (
                             <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in zoom-in duration-300">
                                 <div className="bg-slate-900 border border-green-500/50 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.3)] w-full max-w-sm p-8 flex flex-col items-center gap-6 text-center">
-                                    <div className="text-7xl animate-bounce">ðŸ¤‘</div>
+                                    <div className="text-7xl animate-bounce">🤑</div>
                                     <div>
-                                        <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 uppercase tracking-widest drop-shadow-sm mb-2">Â¡Ingreso!</h1>
+                                        <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 uppercase tracking-widest drop-shadow-sm mb-2">¡Ingreso!</h1>
                                         <p className="text-slate-300 text-base">Has recibido dinero de <strong className="text-white">{gameState.rentReceivedAlert.fromName}</strong> por caer en <strong className="text-white">{gameState.rentReceivedAlert.spaceName}</strong>.</p>
                                     </div>
                                     <div className="bg-green-500/10 rounded-2xl px-8 py-4 text-center border border-green-500/30 w-full">
@@ -2579,10 +2579,10 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                         {gameState.freeParkingClaim && (
                             <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in zoom-in duration-300">
                                 <div className="bg-slate-900 border border-blue-500/50 rounded-3xl shadow-[0_0_50px_rgba(59,130,246,0.3)] w-full max-w-sm p-8 flex flex-col items-center gap-6 text-center">
-                                    <div className="text-7xl animate-bounce">ðŸš—ðŸ’¨</div>
+                                    <div className="text-7xl animate-bounce">🚗💨</div>
                                     <div>
                                         <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 uppercase tracking-widest drop-shadow-sm mb-2">
-                                            {gameState.freeParkingClaim.playerId === playerId ? 'Â¡Felicidades!' : 'Â¡Bote Entregado!'}
+                                            {gameState.freeParkingClaim.playerId === playerId ? '¡Felicidades!' : '¡Bote Entregado!'}
                                         </h1>
                                         <p className="text-slate-300 text-base">
                                             {gameState.freeParkingClaim.playerId === playerId ? 
@@ -2613,7 +2613,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                         <div className={`w-full h-3 rounded-t-xl ${space.color || 'bg-gray-400'}`}></div>
                                         <div className="flex justify-center"><TokenIcon tokenId={me.token} className="w-16 h-16" /></div>
                                         <h2 className="text-2xl font-black text-white text-center uppercase tracking-wider">{space.name}</h2>
-                                        <p className="text-slate-400 text-sm text-center">Has caÃ­do en esta propiedad. Â¿Deseas comprarla?</p>
+                                        <p className="text-slate-400 text-sm text-center">Has caído en esta propiedad. ¿Deseas comprarla?</p>
                                         <div className="bg-slate-800 rounded-2xl px-8 py-4 text-center border border-slate-700">
                                             <p className="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Precio</p>
                                             <p className="text-4xl font-black text-yellow-400">M{space.price}</p>
@@ -2648,7 +2648,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => {}} />
                                     <div className={`relative w-full max-w-sm rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 ${ac.type === 'chance' ? 'bg-orange-50 border-orange-500' : 'bg-blue-50 border-blue-500'}`}>
                                         <div className="text-6xl mb-4 drop-shadow-md">
-                                            {ac.type === 'chance' ? 'â“' : 'ðŸŽ'}
+                                            {ac.type === 'chance' ? '❓' : '🎁'}
                                         </div>
                                         <h2 className={`text-2xl font-black uppercase tracking-widest mb-6 ${ac.type === 'chance' ? 'text-orange-600' : 'text-blue-600'}`}>
                                             {ac.type === 'chance' ? 'Suerte' : 'Caja de Comunidad'}
@@ -2681,20 +2681,20 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                             );
                         })()}
 
-                        {/* MODAL VAYA A LA CÃRCEL */}
+                        {/* MODAL VAYA A LA CÁRCEL */}
                         {gameState.awaitingGoToJail && (
                             <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
                                 <div className="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
                                 <div className="relative w-full max-w-md rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(239,68,68,0.3)] border-4 bg-slate-900 border-red-500 text-center">
-                                    <div className="text-6xl mb-4 animate-bounce">ðŸš”</div>
-                                    <h2 className="text-3xl font-black uppercase tracking-widest mb-4 text-red-500 drop-shadow-md">Vas a la CÃ¡rcel</h2>
+                                    <div className="text-6xl mb-4 animate-bounce">🚔</div>
+                                    <h2 className="text-3xl font-black uppercase tracking-widest mb-4 text-red-500 drop-shadow-md">Vas a la Cárcel</h2>
                                     
                                     <div className="bg-slate-800 p-6 rounded-2xl border-2 border-slate-700 shadow-inner w-full mb-6">
                                         <p className="text-lg font-bold text-slate-300 leading-snug">
-                                            Debes ir directamente a la cÃ¡rcel sin pasar por la salida y sin cobrar M200.
+                                            Debes ir directamente a la cárcel sin pasar por la salida y sin cobrar M200.
                                         </p>
                                         <p className="text-xl font-black text-white mt-4 bg-red-900/50 p-3 rounded-lg border border-red-500/30">
-                                            EstarÃ¡s 3 turnos sin tirar o hasta que pagues M50 o saques dobles.
+                                            Estarás 3 turnos sin tirar o hasta que pagues M50 o saques dobles.
                                         </p>
                                     </div>
                                     
@@ -2827,9 +2827,9 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                                     </div>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
                                                         <div className="relative rounded-lg overflow-hidden shadow-lg border-2 border-yellow-400/50 bg-gradient-to-br from-yellow-100 to-orange-100 p-3 flex flex-col items-center justify-center text-center">
-                                                            <span className="text-2xl drop-shadow-md mb-1">ðŸ—ï¸</span>
+                                                            <span className="text-2xl drop-shadow-md mb-1">🗝️</span>
                                                             <p className="text-[7px] font-black uppercase tracking-[0.15em] text-orange-800 mb-0.5 leading-none">CARTA DE SUERTE / COMUNIDAD</p>
-                                                            <h4 className="font-black text-orange-900 text-[10px] sm:text-xs leading-tight uppercase">Quedas libre de la cÃ¡rcel</h4>
+                                                            <h4 className="font-black text-orange-900 text-[10px] sm:text-xs leading-tight uppercase">Quedas libre de la cárcel</h4>
                                                             <div className="mt-2 bg-yellow-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">
                                                                 X {me.getOutJailFreeCards}
                                                             </div>
@@ -2849,7 +2849,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                         const groups = {};
                                         propDatas.forEach(p => {
                                             const key = p.type === 'property' ? (p.color || 'other') : p.type;
-                                            if (!groups[key]) groups[key] = { label: p.type === 'station' ? 'ðŸš‚ Estaciones' : p.type === 'utility' ? 'âš¡ Servicios' : null, colorHex: p.colorHex, items: [] };
+                                            if (!groups[key]) groups[key] = { label: p.type === 'station' ? '🚂 Estaciones' : p.type === 'utility' ? '⚡ Servicios' : null, colorHex: p.colorHex, items: [] };
                                             groups[key].items.push(p);
                                         });
                                         return Object.entries(groups).map(([key, group]) => (
@@ -2867,12 +2867,12 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                                                 className="relative rounded-lg overflow-hidden cursor-pointer shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all border-2 border-white/20"
                                                                 style={{ backgroundColor: propData.colorHex || (propData.type === 'station' ? '#374151' : '#4b5563') }}>
                                                                 <div className="px-2 py-2 flex flex-col items-center justify-center text-center min-h-[52px]">
-                                                                    <p className="text-[6px] font-black uppercase tracking-[0.15em] text-white/80 mb-0.5 leading-none">TÃTULO DE PROPIEDAD</p>
+                                                                    <p className="text-[6px] font-black uppercase tracking-[0.15em] text-white/80 mb-0.5 leading-none">TÍTULO DE PROPIEDAD</p>
                                                                     <h4 className="font-black text-white text-[10px] sm:text-xs leading-tight uppercase">{propData.name}</h4>
                                                                 </div>
                                                                 {isMort && (
                                                                     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
-                                                                        <span className="text-red-400 font-black text-2xl leading-none">âœ•</span>
+                                                                        <span className="text-red-400 font-black text-2xl leading-none">✕</span>
                                                                         <span className="text-red-400 font-black text-[8px] uppercase tracking-widest mt-0.5">Hipotecada</span>
                                                                     </div>
                                                                 )}
@@ -2908,7 +2908,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                         const groups = {};
                                         availableProps.forEach(p => {
                                             const key = p.type === 'property' ? (p.color || 'other') : p.type;
-                                            if (!groups[key]) groups[key] = { label: p.type === 'station' ? 'ðŸš‚ Estaciones' : p.type === 'utility' ? 'âš¡ Servicios' : null, colorHex: p.colorHex, items: [] };
+                                            if (!groups[key]) groups[key] = { label: p.type === 'station' ? '🚂 Estaciones' : p.type === 'utility' ? '⚡ Servicios' : null, colorHex: p.colorHex, items: [] };
                                             groups[key].items.push(p);
                                         });
 
@@ -2940,13 +2940,13 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
                                 )}
                             </div>
 
-                            {/* MODAL DE CONFIRMACIÃ“N DE BANCARROTA */}
+                            {/* MODAL DE CONFIRMACIÓN DE BANCARROTA */}
                             {showBankruptcyConfirm && (
                                 <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in zoom-in duration-300">
                                     <div className="bg-slate-900 border border-red-500/50 p-8 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.3)] w-full max-w-sm text-center flex flex-col items-center">
-                                        <div className="text-6xl mb-4 animate-bounce">ðŸ’€</div>
-                                        <h2 className="text-2xl font-black text-red-500 uppercase tracking-widest mb-4 drop-shadow-md">Â¿EstÃ¡s seguro?</h2>
-                                        <p className="text-slate-300 text-sm mb-8">Al declarar la bancarrota quedarÃ¡s <strong className="text-red-400">eliminado</strong> de la partida. Todas tus propiedades, casas y hoteles volverÃ¡n al banco y podrÃ¡n ser compradas por otros jugadores. Esta acciÃ³n no se puede deshacer.</p>
+                                        <div className="text-6xl mb-4 animate-bounce">💀</div>
+                                        <h2 className="text-2xl font-black text-red-500 uppercase tracking-widest mb-4 drop-shadow-md">¿Estás seguro?</h2>
+                                        <p className="text-slate-300 text-sm mb-8">Al declarar la bancarrota quedarás <strong className="text-red-400">eliminado</strong> de la partida. Todas tus propiedades, casas y hoteles volverán al banco y podrán ser compradas por otros jugadores. Esta acción no se puede deshacer.</p>
                                         <div className="flex gap-4 w-full">
                                             <button onClick={() => setShowBankruptcyConfirm(false)} className="flex-1 bg-slate-800 text-white font-black py-4 rounded-xl border border-slate-600 hover:bg-slate-700 transition uppercase active:scale-95">Cancelar</button>
                                             <button onClick={handleBankruptcy} className="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-black py-4 rounded-xl shadow-[0_0_15px_rgba(239,68,68,0.5)] transition uppercase active:scale-95 border border-red-500">Confirmar</button>
@@ -2961,7 +2961,7 @@ elative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20p
             );
         }
 
-        // Renderizar la aplicaciÃ³n
+        // Renderizar la aplicación
         const root = createRoot(document.getElementById('root'));
         root.render(<PatopolyApp />);
     </script>
