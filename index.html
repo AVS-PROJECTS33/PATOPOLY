@@ -249,6 +249,7 @@
                 const params = new URLSearchParams(window.location.search);
                 const urlGameId = params.get('gameId');
                 const urlRole = params.get('role');
+                const urlPlayerId = params.get('playerId');
 
                 if (urlGameId && urlRole === 'player') {
                     setIsPlayerView(true);
@@ -278,7 +279,7 @@
 
             return (
                 <div className="min-h-screen font-sans selection:bg-green-300">
-                    {isPlayerView ? <PlayerController gameId={gameId} user={user} playerId={playerId} setPlayerId={setPlayerId} /> : <TVBoard user={user} />}
+                    {isPlayerView ? <PlayerController gameId={gameId} user={user} playerId={playerId} setPlayerId={setPlayerId} /> : <TVBoard user={user} onStartPlayerView={(gId, pId) => { setGameId(gId); setPlayerId(pId); setIsPlayerView(true); }} />}
                 </div>
             );
         }
@@ -842,12 +843,73 @@
         }
 
         // --- HOST / TV VIEW ---
-        function TVBoard({ user }) {
+        function TVBoard({ user, onStartPlayerView }) {
             const [gameState, setGameState] = useState(null);
             const [setupMode, setSetupMode] = useState(''); // '', 'online', 'family'
             const [setupStep, setSetupStep] = useState(0); 
             const [playerCount, setPlayerCount] = useState(2);
-            const [playerNames, setPlayerNames] = useState(['', '']);
+            const [playerNames, setPlayerNames] = useState(['', ''])
+            const [hostName, setHostName] = useState('');
+            const [joinCode, setJoinCode] = useState('');
+            const [joinName, setJoinName] = useState('');
+            const [joinError, setJoinError] = useState('');
+            const [myPlayerId, setMyPlayerId] = useState(() => window.sessionStorage.getItem('patopoly_playerId') || '');
+            
+            // Generate a random 4-digit code
+            const generateRoomCode = () => Math.floor(1000 + Math.random() * 9000).toString();
+
+            const handleCreateOnlineGame = async () => {
+                if (!hostName.trim()) return;
+                const newGameId = generateRoomCode();
+                const newGameState = {
+                    status: 'waiting_for_players',
+                    mode: 'online',
+                    players: [{ id: 'p0', name: hostName, token: null, balance: 1500, position: 0, properties: [], hasJoined: false }],
+                    currentTurnIndex: 0,
+                    logs: ['Sala creada. ¡Esperando a los jugadores!']
+                };
+                try {
+                    const gameRef = doc(db, 'artifacts', appId, 'games', newGameId);
+                    await setDoc(gameRef, newGameState);
+                    window.sessionStorage.setItem('patopoly_playerId', 'p0');
+                    setMyPlayerId('p0');
+                    setActiveGameId(newGameId);
+                } catch (error) {
+                    console.error("Firebase Error:", error);
+                    setFbError(true);
+                }
+            };
+
+            const handleJoinOnlineGame = async () => {
+                if (!joinCode.trim() || !joinName.trim()) return;
+                try {
+                    const gameRef = doc(db, 'artifacts', appId, 'games', joinCode);
+                    const snap = await (await import('https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js')).getDoc(gameRef);
+                    if (!snap.exists()) {
+                        setJoinError('Sala no encontrada');
+                        return;
+                    }
+                    const data = snap.data();
+                    if (data.status !== 'waiting_for_players') {
+                        setJoinError('La partida ya ha empezado');
+                        return;
+                    }
+                    if (data.players.length >= 6) {
+                        setJoinError('La sala está llena (máximo 6)');
+                        return;
+                    }
+                    const newPlayerId = `p${data.players.length}`;
+                    const updatedPlayers = [...data.players, { id: newPlayerId, name: joinName, token: null, balance: 1500, position: 0, properties: [], hasJoined: false }];
+                    await updateDoc(gameRef, { players: updatedPlayers });
+                    window.sessionStorage.setItem('patopoly_playerId', newPlayerId);
+                    setMyPlayerId(newPlayerId);
+                    setActiveGameId(joinCode);
+                } catch (e) {
+                    console.error(e);
+                    setJoinError('Error de conexión');
+                }
+            
+            };
             const [activeGameId, setActiveGameId] = useState(null);
             const [copied, setCopied] = useState(false);
             const [fbError, setFbError] = useState(false);
@@ -856,14 +918,23 @@
                 if (!user || !activeGameId) return;
                 const gameRef = doc(db, 'artifacts', appId, 'games', activeGameId);
                 const unsubscribe = onSnapshot(gameRef, (docSnap) => {
-                    if (docSnap.exists()) setGameState(docSnap.data());
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        setGameState(data);
+                        if (data.mode === 'online' && data.status !== 'waiting_for_players') {
+                            const localId = window.sessionStorage.getItem('patopoly_playerId');
+                            if (localId && onStartPlayerView) {
+                                onStartPlayerView(activeGameId, localId);
+                            }
+                        }
+                    }
                 }, (error) => {
                     console.error("Error sincronizando:", error);
                     setFbError(true);
                 });
                 return () => unsubscribe();
-            }, [user, activeGameId]);
-
+            }, [user, activeGameId, onStartPlayerView]);
+            
             const handleCreateGame = async () => {
                 const newGameId = `patopoly_${Math.random().toString(36).substring(2, 8)}`;
                 const initialPlayers = playerNames.map((name, index) => ({
@@ -914,7 +985,7 @@
 
                             {setupMode === '' && (
                                 <div className="grid grid-cols-2 gap-4">
-                                    <button onClick={() => setSetupMode('online')} className="group glass-panel hover:bg-slate-800/80 p-6 rounded-2xl transition transform hover:scale-105 flex flex-col items-center">
+                                    <button onClick={() => setSetupMode('online_choice')} className="group glass-panel hover:bg-slate-800/80 p-6 rounded-2xl transition transform hover:scale-105 flex flex-col items-center">
                                         <Globe2 className="w-12 h-12 text-blue-400 mb-3 group-hover:text-blue-300" />
                                         <h3 className="font-bold text-lg">Modo Online</h3>
                                         <p className="text-xs text-slate-400 mt-2">Cada jugador en su pantalla</p>
@@ -927,7 +998,7 @@
                                 </div>
                             )}
 
-                            {(setupMode === 'online' || setupMode === 'family') && setupStep === 0 && (
+                            {setupMode === 'family' && setupStep === 0 && (
                                 <div className="space-y-6 animate-fade-in">
                                     <p className="text-slate-300">¿Cuántos inversores van a jugar hoy?</p>
                                     <div className="flex justify-center items-center space-x-6">
@@ -942,7 +1013,7 @@
                                 </div>
                             )}
 
-                            {(setupMode === 'online' || setupMode === 'family') && setupStep === 1 && (
+                            {setupMode === 'family' && setupStep === 1 && (
                                 <div className="space-y-4 animate-fade-in">
                                     <p className="text-slate-300">Configura los nombres</p>
                                     {playerNames.map((name, i) => (
@@ -954,52 +1025,154 @@
                                     </div>
                                 </div>
                             )}
+                            
+                            {setupMode === 'online_choice' && (
+                                <div className="space-y-4 animate-fade-in">
+                                    <button onClick={() => setSetupMode('online_create')} className="w-full bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/50 text-blue-100 font-black py-5 rounded-xl shadow-lg transition text-xl backdrop-blur-md">
+                                        Crear Sala
+                                    </button>
+                                    <button onClick={() => setSetupMode('online_join')} className="w-full bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/50 text-purple-100 font-black py-5 rounded-xl shadow-lg transition text-xl backdrop-blur-md">
+                                        Unirse a Sala
+                                    </button>
+                                    <button onClick={() => setSetupMode('')} className="w-full mt-4 glass-panel hover:bg-white/10 font-bold py-4 rounded-xl transition">Atrás</button>
+                                </div>
+                            )}
+                            
+                            {setupMode === 'online_create' && (
+                                <div className="space-y-4 animate-fade-in">
+                                    <p className="text-slate-300 font-bold">Tu nombre de jugador</p>
+                                    <input type="text" placeholder="Ej: Patol" value={hostName} onChange={(e) => setHostName(e.target.value)} className="w-full p-4 glass-panel border border-white/20 rounded-xl focus:border-blue-400 focus:ring-0 outline-none text-lg text-white placeholder-slate-500 text-center font-bold" />
+                                    <div className="flex gap-4 pt-4">
+                                        <button onClick={() => setSetupMode('online_choice')} className="w-1/3 glass-panel hover:bg-white/10 font-bold py-4 rounded-xl transition">Atrás</button>
+                                        <button onClick={handleCreateOnlineGame} disabled={!hostName.trim()} className="w-2/3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 font-bold py-4 rounded-xl shadow-lg transition disabled:opacity-50">¡Crear Sala!</button>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {setupMode === 'online_join' && (
+                                <div className="space-y-4 animate-fade-in">
+                                    <p className="text-slate-300 font-bold">Código de Sala (4 dígitos)</p>
+                                    <input type="text" placeholder="Ej: 1234" maxLength="4" value={joinCode} onChange={(e) => setJoinCode(e.target.value.replace(/[^0-9]/g, ''))} className="w-full p-4 glass-panel border border-white/20 rounded-xl focus:border-purple-400 focus:ring-0 outline-none text-2xl tracking-[0.5em] text-white placeholder-slate-500 text-center font-black" />
+                                    
+                                    <p className="text-slate-300 font-bold mt-4">Tu nombre de jugador</p>
+                                    <input type="text" placeholder="Ej: Juan" value={joinName} onChange={(e) => setJoinName(e.target.value)} className="w-full p-4 glass-panel border border-white/20 rounded-xl focus:border-purple-400 focus:ring-0 outline-none text-lg text-white placeholder-slate-500 text-center font-bold" />
+                                    
+                                    {joinError && <p className="text-red-400 font-bold text-sm bg-red-900/40 p-2 rounded">{joinError}</p>}
+                                    
+                                    <div className="flex gap-4 pt-4">
+                                        <button onClick={() => { setSetupMode('online_choice'); setJoinError(''); }} className="w-1/3 glass-panel hover:bg-white/10 font-bold py-4 rounded-xl transition">Atrás</button>
+                                        <button onClick={handleJoinOnlineGame} disabled={!joinCode.trim() || !joinName.trim()} className="w-2/3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 font-bold py-4 rounded-xl shadow-lg transition disabled:opacity-50">¡Unirse!</button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 );
             }
-
-            // Sala de Espera (Lobby)
-            const allJoined = gameState.players.every(p => p.hasJoined);
             
-            if (!allJoined) {
+            // Sala de Espera (Lobby)
+            if (gameState.mode === 'online' && gameState.status !== 'waiting_for_players') {
+                return <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white font-bold text-2xl gap-4"><div className="w-12 h-12 border-4 border-t-blue-500 rounded-full animate-spin"></div>Cargando partida...</div>;
+            }
+
+            const allJoined = gameState.mode === 'family' ? gameState.players.every(p => p.hasJoined) : false;
+            const isOnlineLobby = gameState.mode === 'online' && gameState.status === 'waiting_for_players';
+            
+            if ((!allJoined && gameState.mode === 'family') || isOnlineLobby) {
                 const joinUrlObj = new URL(window.location.href);
                 joinUrlObj.searchParams.set('gameId', activeGameId);
                 joinUrlObj.searchParams.set('role', 'player');
                 const lobbyUrl = joinUrlObj.toString();
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(lobbyUrl)}&margin=10`;
+                
+                const isHost = myPlayerId === 'p0';
+                const canStart = gameState.players.length >= 2;
+
+                const handleStartOnlineGame = async () => {
+                    try {
+                        const gameRef = doc(db, 'artifacts', appId, 'games', activeGameId);
+                        await updateDoc(gameRef, { status: 'setup_tokens' });
+                    } catch (e) {
+                        console.error(e);
+                    }
+                };
+
                 return (
-                    <div className="min-h-screen bg-slate-900 bg-cover bg-center flex items-center justify-center p-8" style={{ backgroundImage: `url(${BACKGROUND_URL})` }}>
-                        <div className="glass-panel rounded-3xl p-8 max-w-md w-full text-center text-white shadow-2xl">
-                            <h2 className="text-3xl font-black uppercase mb-2">Sala Creada</h2>
+                    <div className="min-h-screen bg-slate-900 bg-cover bg-center flex items-center justify-center p-4 sm:p-8" style={{ backgroundImage: `url(${BACKGROUND_URL})` }}>
+                        <div className="bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl w-full max-w-5xl mx-auto flex flex-col border border-white/10 relative overflow-hidden h-[80vh] min-h-[500px]">
                             
-                                                        <div className="mb-8 flex flex-col items-center">
+                            {/* CABECERA */}
+                            <div className="flex flex-col md:flex-row justify-between items-center mb-8 sm:mb-12 gap-4 bg-slate-800/50 p-6 rounded-2xl border border-white/5 shadow-inner">
+                                <div className="text-center md:text-left">
+                                    <h2 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-wider mb-2">Sala de Espera</h2>
+                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-sm flex items-center justify-center md:justify-start gap-2">
+                                        {gameState.mode === 'family' ? <><QrCode className="w-4 h-4" /> Escanea para unirte</> : <><Users className="w-4 h-4" /> Código de Sala: <span className="text-2xl text-purple-400 ml-2 tracking-widest">{activeGameId}</span></>}
+                                    </p>
+                                </div>
                                 {gameState.mode === 'family' && (
-                                    <>
-                                        <p className="text-slate-300 mb-4 text-lg font-medium">Escanea este código con tu móvil para unirte</p>
-                                        <div className="bg-white p-3 rounded-2xl shadow-xl shadow-green-500/20 border-4 border-green-500 mb-6">
-                                            <img src={qrUrl} alt="QR para unirse" className="w-48 h-48" />
+                                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                                        <div className="bg-white p-3 rounded-xl shadow-lg border-4 border-slate-700 hover:scale-105 transition-transform">
+                                            <img src={qrUrl} alt="QR Code" className="w-24 h-24 sm:w-32 sm:h-32 rounded" />
                                         </div>
-                                    </>
+                                        <div className="flex flex-col gap-2 w-full sm:w-auto">
+                                            <button onClick={copyJoinUrl} className={`px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg border ${copied ? 'bg-green-500 hover:bg-green-400 border-green-400 text-white shadow-green-900/50' : 'bg-slate-700 hover:bg-slate-600 border-slate-500 text-white hover:scale-105'}`}>
+                                                {copied ? <CheckCircle2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                                                {copied ? '¡Copiado!' : 'Copiar Enlace'}
+                                            </button>
+                                            <span className="text-xs text-slate-500 text-center font-bold">ID: {activeGameId.split('_')[1] || activeGameId}</span>
+                                        </div>
+                                    </div>
                                 )}
-                                {gameState.mode !== 'family' && (
-                                    <p className="text-slate-300 mb-4">Envía este enlace a los demás jugadores para que se unan.</p>
-                                )}
-                                <button onClick={copyJoinUrl} className={`w-full flex items-center justify-center gap-3 p-4 rounded-xl font-bold text-lg transition-all duration-300 ${copied ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-white text-slate-900 hover:bg-slate-100 shadow-xl'}`}>
-                                    {copied ? <CheckCircle2 className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-                                    {copied ? '¡Enlace Copiado!' : 'Copiar Enlace de Invitación'}
-                                </button>
                             </div>
 
-                            <div className="mt-8 text-left glass-panel rounded-xl p-4">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">Jugadores ({gameState.players.filter(p=>p.hasJoined).length}/{gameState.players.length})</p>
-                                <div className="flex flex-col gap-2">
-                                    {gameState.players.map((p, i) => (
-                                        <div key={i} className="flex justify-between items-center bg-white/5 px-4 py-2 rounded-lg">
-                                            <span className="font-medium text-slate-200">{p.name}</span>
-                                            {p.hasJoined ? <span className="text-green-400 font-bold bg-green-400/10 px-2 py-1 rounded flex items-center gap-2"><TokenIcon tokenId={p.token} className="w-4 h-4" /> Listo</span> : <span className="text-slate-500 italic text-sm">Esperando...</span>}
+                            <div className="flex-1 flex flex-col md:flex-row gap-8 overflow-hidden">
+                                <div className="flex-1 overflow-y-auto custom-scrollbar pr-4">
+                                    <h3 className="text-xl font-black text-white uppercase tracking-wider mb-4 pb-2 border-b border-slate-700/50 flex justify-between items-center">
+                                        <span>Jugadores</span>
+                                        <span className="bg-slate-800 text-slate-300 text-sm py-1 px-3 rounded-full border border-slate-700">{gameState.mode === 'family' ? gameState.players.filter(p=>p.hasJoined).length : gameState.players.length}/{gameState.mode === 'family' ? gameState.players.length : '6'}</span>
+                                    </h3>
+                                    <div className="grid gap-3">
+                                        {gameState.players.map((p, i) => (
+                                            <div key={i} className={`p-4 rounded-xl flex items-center gap-4 transition-all ${p.hasJoined || gameState.mode === 'online' ? 'bg-slate-800/80 border border-slate-700 shadow-lg' : 'bg-slate-800/30 border border-slate-700/50 opacity-60'}`}>
+                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-slate-900 border ${p.hasJoined || gameState.mode === 'online' ? 'border-white/20' : 'border-dashed border-white/20'}`}>
+                                                    {p.hasJoined ? <TokenIcon tokenId={p.token} className="w-8 h-8" /> : (gameState.mode === 'online' ? '👤' : <span className="text-slate-600">?</span>)}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-bold text-lg text-white truncate">{p.name}</p>
+                                                    <p className="text-xs text-slate-400 uppercase tracking-wider font-bold">
+                                                        {p.hasJoined ? 'Listo para jugar' : (gameState.mode === 'online' ? 'En la sala' : 'Esperando jugador...')}
+                                                    </p>
+                                                </div>
+                                                {p.hasJoined && <CheckCircle2 className="w-6 h-6 text-green-400" />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="md:w-[400px] flex flex-col gap-4">
+                                    <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 h-full flex flex-col justify-center items-center text-center">
+                                        <div className="w-24 h-24 mb-6 rounded-full bg-slate-900 flex items-center justify-center border-4 border-slate-700 shadow-inner relative">
+                                            <div className="absolute inset-0 border-4 border-t-blue-500 rounded-full animate-spin"></div>
+                                            <span className="text-4xl">🎲</span>
                                         </div>
-                                    ))}
+                                        {gameState.mode === 'family' ? (
+                                            <>
+                                                <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-2">Preparando la mesa</h3>
+                                                <p className="text-slate-400 leading-relaxed text-sm">Escanea el código QR desde tu móvil para elegir tu ficha y unirte a la partida. El juego comenzará automáticamente cuando todos estén listos.</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <h3 className="text-2xl font-black text-white uppercase tracking-wider mb-2">{isHost ? 'Comenzar Partida' : 'Esperando al anfitrión'}</h3>
+                                                <p className="text-slate-400 leading-relaxed text-sm mb-6">
+                                                    {isHost ? 'Cuando todos tus amigos estén en la sala, pulsa el botón para empezar.' : 'El anfitrión de la sala iniciará la partida en breve...'}
+                                                </p>
+                                                {isHost ? (
+                                                    <button onClick={handleStartOnlineGame} disabled={!canStart} className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-black text-xl shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        Empezar
+                                                    </button>
+                                                ) : null}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1214,7 +1387,7 @@
                             const isSelected = offerProps.includes(p.id);
                             return (
                                 <div key={p.id} onClick={() => isMe ? handleToggleProperty(p.id) : null}
-                                    className={`relative rounded-lg border-2 p-1 text-center select-none overflow-hidden flex flex-col justify-center min-h-[40px] shadow-sm ${isMe ? 'cursor-pointer hover:scale-105 active:scale-95 transition-all' : ''} ${isSelected ? 'border-green-400 ring-2 ring-green-400 ring-offset-1 ring-offset-slate-900 opacity-100' : 'border-white/20 opacity-40 hover:opacity-80'}`}
+                                    className={`relative rounded-lg border-2 p-1 text-center select-none overflow-hidden flex flex-col justify-center min-h-[40px] shadow-sm ${isMe ? 'cursor-pointer hover:scale-105 active:scale-95 transition-all' : ''} ${isSelected ? 'border-green-400 ring-2 ring-green-400 ring-offset-1 ring-offset-slate-900 opacity-100' : 'border-white/30 opacity-90 brightness-75 hover:brightness-100 hover:opacity-100'}`}
                                     style={{ backgroundColor: p.colorHex || (p.type === 'station' ? '#374151' : '#4b5563') }}>
                                     <div className="text-[9px] sm:text-[10px] font-black uppercase leading-tight text-white drop-shadow-md z-10">{p.name}</div>
                                     {isSelected && <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-lg shadow-md z-20 flex items-center justify-center">✓</div>}
@@ -1458,7 +1631,7 @@
                         logs: [...(gameState.logs || []), `¡${gameState.players.find(p=>p.id===targetPlayerId).name} se ha unido con ${selectedToken}!`]
                     });
                     setPlayerId(targetPlayerId);
-                    localStorage.setItem(`patopoly_playerId_${gameId}`, targetPlayerId);
+                    sessionStorage.setItem(`patopoly_playerId_${gameId}`, targetPlayerId);
                 } catch (error) { console.error(error); }
             };
 
@@ -2069,7 +2242,7 @@
                                     <p className="text-slate-300 text-center mb-8">¿Quién eres?</p>
                                     <div className="space-y-3">
                                         {gameState.players.map(p => {
-                                            const localId = localStorage.getItem(`patopoly_playerId_${gameId}`);
+                                            const localId = sessionStorage.getItem(`patopoly_playerId_${gameId}`);
                                             const isMeInLocal = localId === p.id;
                                             const last = gameState.lastSeen?.[p.id] || 0;
                                             const isOnline = (Date.now() - last) < 12000;
@@ -2079,7 +2252,7 @@
                                                 <button key={p.id} disabled={!canSelect} onClick={() => {
                                                     setPlayerId(p.id);
                                                     if (p.hasJoined) {
-                                                        localStorage.setItem(`patopoly_playerId_${gameId}`, p.id);
+                                                        sessionStorage.setItem(`patopoly_playerId_${gameId}`, p.id);
                                                     }
                                                 }} className={`w-full text-left p-4 rounded-xl border-2 transition flex items-center group ${canSelect ? 'border-slate-700 bg-slate-800/50 text-slate-200 hover:bg-slate-700 hover:border-slate-500 cursor-pointer' : 'border-slate-800 bg-slate-900/50 text-slate-500 cursor-not-allowed opacity-50'}`}>
                                                     <UserCircle2 className={`w-6 h-6 mr-3 transition ${canSelect ? 'opacity-50 group-hover:opacity-100 group-hover:text-blue-400' : 'opacity-20'}`} /> 
