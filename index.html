@@ -139,7 +139,9 @@
             { id: 'coche', emoji: '🏎️', name: 'Coche' },
             { id: 'sombrero', emoji: '🎩', name: 'Sombrero' },
             { id: 'perrito', emoji: '🐕', name: 'Perrito' },
-            { id: 'barco', emoji: '🚢', name: 'Barco' }
+            { id: 'barco', emoji: '🚢', name: 'Barco' },
+            { id: 'avion', emoji: '✈️', name: 'Avión' },
+            { id: 'bota', emoji: '👢', name: 'Bota' }
         ];
 
         const TokenIcon = ({ tokenId, className }) => {
@@ -2713,12 +2715,10 @@
 
                         {/* PANEL IZQUIERDO: TABLERO */}
                     <div className={`w-full lg:w-[70%] h-full p-2 lg:p-6 flex items-center justify-center border-b lg:border-b-0 lg:border-r border-slate-800/50 bg-slate-950/40 lg:overflow-hidden relative z-10 ${gameState.mode === 'family' ? 'hidden lg:flex' : ''}`}>
-                        {/* TABLERO (Oculto en Modo Familia) */}
-                        {gameState.mode !== 'family' && (
-                            <div className="w-full max-w-[95vmin] lg:max-w-[96vh] drop-shadow-2xl flex-shrink-0">
-                                <Board gameState={gameState} onAnimationComplete={handleAnimationComplete} />
-                            </div>
-                        )}
+                        {/* TABLERO (Siempre renderizado para ejecutar la lógica de final de turno, aunque oculto por CSS) */}
+                        <div className="w-full max-w-[95vmin] lg:max-w-[96vh] drop-shadow-2xl flex-shrink-0">
+                            <Board gameState={gameState} onAnimationComplete={handleAnimationComplete} />
+                        </div>
                     </div>
 
                     {/* PANEL DERECHO: CONTROLES DEL JUGADOR */}
