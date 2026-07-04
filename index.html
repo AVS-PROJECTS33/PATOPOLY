@@ -960,7 +960,7 @@
                             {allRolled && (
                                 <div className="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-center">
                                     <p className="text-yellow-400 font-black text-lg">🏆 ¡Empieza {[...gameState.players].sort((a,b) => ((initRolls[b.id]?.d1||0)+(initRolls[b.id]?.d2||0))-((initRolls[a.id]?.d1||0)+(initRolls[a.id]?.d2||0)))[0]?.name}!</p>
-                                    <p className="text-slate-400 text-xs mt-1">La partida comenzará automáticamente...</p>
+                                    <p className="text-slate-200 text-sm mt-2 font-bold animate-pulse">¡Mirad vuestros móviles y dadle a ACEPTAR para empezar la partida!</p>
                                 </div>
                             )}
                         </div>
