@@ -977,9 +977,14 @@
             
             const handleCreateGame = async () => {
                 const newGameId = `patopoly_${Math.random().toString(36).substring(2, 8)}`;
-                const initialPlayers = playerNames.map((name, index) => ({
-                    id: `p${index}`, name: name || `Jugador ${index + 1}`, token: null, balance: 1500, position: 0, properties: [], hasJoined: false
-                }));
+                
+                const initialPlayers = setupMode === 'family'
+                    ? Array.from({ length: playerCount }).map((_, index) => ({
+                        id: `p${index}`, name: `Jugador ${index + 1}`, token: null, balance: 1500, position: 0, properties: [], hasJoined: false
+                    }))
+                    : playerNames.map((name, index) => ({
+                        id: `p${index}`, name: name || `Jugador ${index + 1}`, token: null, balance: 1500, position: 0, properties: [], hasJoined: false
+                    }));
 
                 const newGameState = {
                     status: 'waiting_for_players',
@@ -1048,19 +1053,6 @@
                                     </div>
                                     <div className="flex gap-4 pt-4">
                                         <button onClick={() => setSetupMode('')} className="w-1/3 glass-panel hover:bg-white/10 font-bold py-4 rounded-xl transition">Atrás</button>
-                                        <button onClick={() => { setPlayerNames(Array(playerCount).fill('')); setSetupStep(1); }} className="w-2/3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 font-bold py-4 rounded-xl shadow-lg transition">Siguiente</button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {setupMode === 'family' && setupStep === 1 && (
-                                <div className="space-y-4 animate-fade-in">
-                                    <p className="text-slate-300">Configura los nombres</p>
-                                    {playerNames.map((name, i) => (
-                                        <input key={i} type="text" placeholder={`Nombre Jugador ${i + 1}`} value={name} onChange={(e) => { const newNames = [...playerNames]; newNames[i] = e.target.value; setPlayerNames(newNames); }} className="w-full p-4 glass-panel border border-white/20 rounded-xl focus:border-blue-400 focus:ring-0 outline-none text-lg text-white placeholder-slate-500" />
-                                    ))}
-                                    <div className="flex gap-4 pt-4">
-                                        <button onClick={() => setSetupStep(0)} className="w-1/3 glass-panel hover:bg-white/10 font-bold py-4 rounded-xl transition">Atrás</button>
                                         <button onClick={handleCreateGame} className="w-2/3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 font-bold py-4 rounded-xl shadow-lg transition">¡Crear Sala!</button>
                                     </div>
                                 </div>
@@ -1594,7 +1586,32 @@
             const [showBankruptcyConfirm, setShowBankruptcyConfirm] = useState(false);
             const [prevTurnIndex, setPrevTurnIndex] = useState(null);
             const [balanceDiff, setBalanceDiff] = useState(null);
+            const [localName, setLocalName] = useState('');
             const prevBalanceRef = useRef(null);
+
+            // Fix for race condition during init roll (has to be top level hook)
+            const initRolls = gameState?.initRolls || {};
+            const allRolledPC = gameState?.players?.length > 0 && gameState?.players?.every(p => initRolls[p.id] !== undefined);
+            
+            useEffect(() => {
+                if (allRolledPC && gameState?.status !== 'init_results' && gameState?.status !== 'playing') {
+                    if (gameState?.players[0]?.id === playerId) {
+                        const sorted = [...gameState.players].sort((a, b) => {
+                            const ra = initRolls[a.id]; const rb = initRolls[b.id];
+                            if (!ra || !rb) return 0;
+                            return (rb.d1 + rb.d2) - (ra.d1 + ra.d2);
+                        });
+                        const sortedPlayers = sorted.map(s => gameState.players.find(p => p.id === s.id));
+                        const updateData = {
+                            players: sortedPlayers,
+                            currentTurnIndex: 0,
+                            status: 'init_results',
+                            logs: [...(gameState.logs || []), `¡Orden decidido! Empieza ${sortedPlayers[0].name} con ${initRolls[sortedPlayers[0].id].d1 + initRolls[sortedPlayers[0].id].d2} puntos.`]
+                        };
+                        updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updateData).catch(console.error);
+                    }
+                }
+            }, [allRolledPC, gameState?.status, playerId, gameId, gameState?.players, initRolls]);
 
             const handleBankruptcy = async () => {
                 if (!gameState) return;
@@ -1704,11 +1721,12 @@
 
             const handleJoin = async (targetPlayerId) => {
                 if (!selectedToken) return;
-                const updatedPlayers = gameState.players.map(p => p.id === targetPlayerId ? { ...p, hasJoined: true, token: selectedToken } : p);
+                const finalName = localName.trim() || gameState.players.find(p => p.id === targetPlayerId).name;
+                const updatedPlayers = gameState.players.map(p => p.id === targetPlayerId ? { ...p, hasJoined: true, token: selectedToken, name: finalName } : p);
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), { 
                         players: updatedPlayers,
-                        logs: [...(gameState.logs || []), `¡${gameState.players.find(p=>p.id===targetPlayerId).name} se ha unido con ${selectedToken}!`]
+                        logs: [...(gameState.logs || []), `¡${finalName} se ha unido con ${selectedToken}!`]
                     });
                     setPlayerId(targetPlayerId);
                     sessionStorage.setItem(`patopoly_playerId_${gameId}`, targetPlayerId);
@@ -2331,6 +2349,7 @@
                                             return (
                                                 <button key={p.id} disabled={!canSelect} onClick={() => {
                                                     setPlayerId(p.id);
+                                                    setLocalName(p.name.startsWith('Jugador') ? '' : p.name);
                                                     if (p.hasJoined) {
                                                         sessionStorage.setItem(`patopoly_playerId_${gameId}`, p.id);
                                                     }
@@ -2349,8 +2368,16 @@
                                     <button onClick={() => setPlayerId('')} className="text-slate-400 hover:text-white flex items-center gap-2 mb-6 text-sm font-bold uppercase tracking-wider transition w-fit">
                                         <ArrowRight className="w-4 h-4 rotate-180" /> Volver
                                     </button>
-                                    <h1 className="text-2xl font-black text-center text-white mb-2">Elige tu Ficha</h1>
-                                    <p className="text-slate-300 text-center mb-8">Selecciona la ficha con la que jugarás</p>
+                                    <h1 className="text-2xl font-black text-center text-white mb-2">Configura tu perfil</h1>
+                                    <p className="text-slate-300 text-center mb-4">Elige tu nombre y tu ficha</p>
+                                    
+                                    <input 
+                                        type="text" 
+                                        placeholder="Tu nombre" 
+                                        value={localName} 
+                                        onChange={(e) => setLocalName(e.target.value)} 
+                                        className="w-full p-4 mb-6 glass-panel border border-white/20 rounded-xl focus:border-green-400 focus:ring-0 outline-none text-lg text-white placeholder-slate-500 text-center font-bold" 
+                                    />
                                     
                                     <div className="grid grid-cols-2 gap-4 mb-8">
                                         {availableTokens.map(token => {
@@ -2409,32 +2436,32 @@
             const myInitRoll = initRolls[playerId];
             const allRolledPC = gameState.players.every(p => initRolls[p.id] !== undefined);
 
+            // Asegurarnos de que los jugadores estén ordenados y el estado actualizado
+            useEffect(() => {
+                if (allRolledPC && gameState.status !== 'init_results' && gameState.status !== 'playing') {
+                    // Solo el primer jugador (host virtual) hace el update para evitar múltiples escrituras
+                    if (gameState.players[0].id === playerId) {
+                        const sorted = [...gameState.players].sort((a, b) => {
+                            const ra = initRolls[a.id]; const rb = initRolls[b.id];
+                            return (rb.d1 + rb.d2) - (ra.d1 + ra.d2);
+                        });
+                        const sortedPlayers = sorted.map(s => gameState.players.find(p => p.id === s.id));
+                        const updateData = {
+                            players: sortedPlayers,
+                            currentTurnIndex: 0,
+                            status: 'init_results',
+                            logs: [...(gameState.logs || []), `¡Orden decidido! Empieza ${sortedPlayers[0].name} con ${initRolls[sortedPlayers[0].id].d1 + initRolls[sortedPlayers[0].id].d2} puntos.`]
+                        };
+                        updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updateData).catch(console.error);
+                    }
+                }
+            }, [allRolledPC, gameState.status, playerId, gameId, gameState.players, initRolls]);
+
             if (gameState.status !== 'playing') {
                 if (gameState.status === 'init_results' || allRolledPC) {
                     const initRollsAccepted = gameState.initRollsAccepted || {};
                     const myAccept = initRollsAccepted[playerId];
                     
-                    // Asegurarnos de que los jugadores estén ordenados y el estado actualizado
-                    useEffect(() => {
-                        if (allRolledPC && gameState.status !== 'init_results' && gameState.status !== 'playing') {
-                            // Solo el primer jugador (host virtual) hace el update para evitar múltiples escrituras
-                            if (gameState.players[0].id === playerId) {
-                                const sorted = [...gameState.players].sort((a, b) => {
-                                    const ra = initRolls[a.id]; const rb = initRolls[b.id];
-                                    return (rb.d1 + rb.d2) - (ra.d1 + ra.d2);
-                                });
-                                const sortedPlayers = sorted.map(s => gameState.players.find(p => p.id === s.id));
-                                const updateData = {
-                                    players: sortedPlayers,
-                                    currentTurnIndex: 0,
-                                    status: 'init_results',
-                                    logs: [...(gameState.logs || []), `¡Orden decidido! Empieza ${sortedPlayers[0].name} con ${initRolls[sortedPlayers[0].id].d1 + initRolls[sortedPlayers[0].id].d2} puntos.`]
-                                };
-                                updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updateData).catch(console.error);
-                            }
-                        }
-                    }, [allRolledPC, gameState.status, playerId, gameId, gameState.players, initRolls]);
-
                     const sortedPlayers = [...gameState.players].sort((a, b) => {
                         const ra = initRolls[a.id]; const rb = initRolls[b.id];
                         if (!ra || !rb) return 0;
@@ -3266,5 +3293,8 @@
     </script>
 </body>
 </html>
+
+
+
 
 
