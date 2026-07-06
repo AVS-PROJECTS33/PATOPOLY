@@ -43,6 +43,7 @@
         // 1. Importaciones desde la nube (CDNs)
         import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18.2.0';
         import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
+        import { createPortal } from 'https://esm.sh/react-dom@18.2.0';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js';
         import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, runTransaction, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js';
@@ -284,17 +285,34 @@
             );
         }
 
+        // --- ICONOS SVG ---
+        const SvgHouse = ({ count = 1 }) => (
+            <span className="flex gap-[1px] items-center">
+                {Array(count).fill(0).map((_, i) => (
+                    <svg key={i} viewBox="0 0 24 24" fill="#22c55e" stroke="#052e16" strokeWidth="2.5" className="w-3.5 h-3.5 drop-shadow-sm inline-block">
+                        <path d="M3 10l9-8 9 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    </svg>
+                ))}
+            </span>
+        );
+        const SvgHotel = () => (
+            <svg viewBox="0 0 24 24" fill="#ef4444" stroke="#450a0a" strokeWidth="2" className="w-4 h-4 drop-shadow-sm inline-block">
+                <path d="M3 21h18v-14l-9-6-9 6v14z"></path>
+                <path d="M9 13v4h6v-4z"></path>
+            </svg>
+        );
+
         // --- COMPONENTE: TARJETA DE PROPIEDAD (ESTILO MONOPOLY) ---
         function PropertyCard({ space, owner, isMortgaged, isOwner, onMortgage, onUnmortgage, canBuild, canSellBuild, canMortgage, buildings = 0, hasAllColors = false, onBuild, onSellBuild, onClose }) {
             if (!space) return null;
             const isProperty = space.type === 'property';
             const isStation = space.type === 'station';
             const isUtility = space.type === 'utility';
-            const houseIcons = ['🏠','🏠🏠','🏠🏠🏠','🏠🏠🏠🏠','🏨'];
+            const houseIcons = [<SvgHouse count={1} />,<SvgHouse count={2} />,<SvgHouse count={3} />,<SvgHouse count={4} />,<SvgHotel />];
             const mortgageVal = space.mortgage || Math.floor(space.price / 2);
             const unmortgageVal = Math.floor(mortgageVal * 1.1);
             return (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/10 backdrop-blur-[2px] pointer-events-none">
+                <div className="fixed inset-0 lg:right-[30%] z-[200] flex items-center justify-center p-4 pointer-events-none bg-black/60 backdrop-blur-sm">
                     <div className="relative w-72 bg-[#f5f0e8] rounded-lg shadow-2xl border-4 border-slate-800 overflow-hidden pointer-events-auto" onClick={e => e.stopPropagation()}>
                         {/* HEADER */}
                         <div className="px-4 py-3 text-center border-b-4 border-slate-800 relative" style={{ backgroundColor: space.colorHex || '#6b7280' }}>
@@ -364,15 +382,15 @@
                                             Hipotecar – cobrar M{mortgageVal}
                                         </button>
                                     )}
-                                    {isOwner && (canBuild || canSellBuild) && (
-                                        <div className="flex items-center justify-between bg-slate-800 p-2 rounded-xl mt-3 shadow-inner border border-slate-700">
-                                            <button onClick={onSellBuild} disabled={buildings === 0 || !canSellBuild} className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-red-600 disabled:opacity-50 text-white text-xl font-black flex items-center justify-center hover:from-red-400 hover:to-red-500 active:scale-95 transition shadow">-</button>
-                                            <div className="flex flex-col items-center px-4">
-                                                <span className="text-white font-black text-sm tracking-wider">{buildings === 5 ? 'HOTEL' : `${buildings} CASAS`}</span>
-                                                <span className="text-slate-400 text-[10px] font-bold">M{space.houseCost} c/u</span>
-                                            </div>
-                                            <button onClick={() => onBuild(1)} disabled={buildings === 5 || !canBuild || (owner?.balance || 0) < space.houseCost} className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 disabled:opacity-50 text-white text-xl font-black flex items-center justify-center hover:from-emerald-400 hover:to-green-500 active:scale-95 transition shadow">+</button>
-                                        </div>
+                                    {isOwner && canBuild && (
+                                        <button onClick={() => onBuild(1)} disabled={buildings === 5 || (owner?.balance || 0) < space.houseCost} className="w-full mt-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-emerald-400 active:scale-95 transition disabled:opacity-50">
+                                            Comprar {buildings === 4 ? 'Hotel' : 'Casa'} (M{space.houseCost})
+                                        </button>
+                                    )}
+                                    {isOwner && canSellBuild && buildings > 0 && (
+                                        <button onClick={onSellBuild} className="w-full mt-2 bg-gradient-to-r from-red-500 to-red-700 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-red-400 active:scale-95 transition disabled:opacity-50">
+                                            Vender {buildings === 5 ? 'Hotel' : 'Casa'} (M{Math.floor(space.houseCost / 2)})
+                                        </button>
                                     )}
                                 </>
                             )}
@@ -482,12 +500,13 @@
                 style={{ display: 'grid', gridTemplateColumns: 'repeat(11, minmax(0, 1fr))', gridTemplateRows: 'repeat(11, minmax(0, 1fr))' }} >
 
                 {/* TARJETA PROPIEDAD */}
-                {selectedSpace && (
+                {selectedSpace && createPortal(
                     <PropertyCard
                         space={selectedSpace}
                         owner={gameState?.players?.find(p => p.properties?.includes(selectedSpace.id))}
                         onClose={() => setSelectedSpace(null)}
-                    />
+                    />,
+                    document.body
                 )}
                 
                 <div className="bg-[#cde6d0] border border-slate-800 shadow-inner flex flex-col items-center justify-center relative z-0 p-4 sm:p-8" style={{ gridColumn: '2 / 11', gridRow: '2 / 11' }}>
@@ -594,9 +613,20 @@
                                     const bCount = owner?.buildings?.[space.id] || 0;
                                     const isVertical = index > 10 && index < 20 || index > 30;
                                     return (
-                                        <div className={`absolute flex items-center justify-center ${index > 10 && index < 20 ? 'right-0 top-0 bottom-0 w-4 sm:w-6' : index > 30 ? 'left-0 top-0 bottom-0 w-4 sm:w-6' : index > 20 && index < 30 ? 'bottom-0 left-0 right-0 h-4 sm:h-6' : 'top-0 left-0 right-0 h-4 sm:h-6'} ${space.color} border-slate-800 ${index > 10 && index < 20 ? 'border-l' : index > 30 ? 'border-r' : index > 20 && index < 30 ? 'border-t' : 'border-b'} z-20 overflow-hidden`}>
-                                            {bCount > 0 && bCount < 5 && <span className={`text-[10px] sm:text-xs drop-shadow-md leading-none flex items-center tracking-tighter ${isVertical ? 'rotate-90' : ''}`}>{"🏠".repeat(bCount)}</span>}
-                                            {bCount === 5 && <span className={`text-[12px] sm:text-sm drop-shadow-md leading-none ${isVertical ? 'rotate-90' : ''}`}>🏨</span>}
+                                        <div className={`absolute flex items-center justify-center ${index > 10 && index < 20 ? 'right-0 top-0 bottom-0 w-3 sm:w-4' : index > 30 ? 'left-0 top-0 bottom-0 w-3 sm:w-4' : index > 20 && index < 30 ? 'bottom-0 left-0 right-0 h-3 sm:h-4' : 'top-0 left-0 right-0 h-3 sm:h-4'} ${space.color} border-slate-800 ${index > 10 && index < 20 ? 'border-l' : index > 30 ? 'border-r' : index > 20 && index < 30 ? 'border-t' : 'border-b'} z-20 overflow-visible`}>
+                                            <div className={`flex gap-[1px] items-center justify-center ${isVertical ? 'flex-col' : 'flex-row'}`}>
+                                                {bCount > 0 && bCount < 5 && Array(bCount).fill(0).map((_, i) => (
+                                                    <svg key={i} viewBox="0 0 24 24" fill="#22c55e" stroke="#052e16" strokeWidth="2.5" className="w-2.5 h-2.5 sm:w-3 sm:h-3 drop-shadow-md">
+                                                        <path d="M3 10l9-8 9 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                                    </svg>
+                                                ))}
+                                                {bCount === 5 && (
+                                                    <svg viewBox="0 0 24 24" fill="#ef4444" stroke="#450a0a" strokeWidth="2" className="w-3.5 h-3.5 sm:w-4 sm:h-4 drop-shadow-md">
+                                                        <path d="M3 21h18v-14l-9-6-9 6v14z"></path>
+                                                        <path d="M9 13v4h6v-4z"></path>
+                                                    </svg>
+                                                )}
+                                            </div>
                                         </div>
                                     );
                                 })()}
@@ -1467,19 +1497,16 @@
             };
 
             return (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 bg-black/10 backdrop-blur-[2px] pointer-events-none animate-in fade-in duration-300">
+                <div className="fixed inset-0 lg:right-[30%] z-[200] flex items-center justify-center p-2 sm:p-4 pointer-events-none animate-in fade-in duration-300 bg-black/60 backdrop-blur-sm">
                     <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] w-full max-w-5xl flex flex-col md:flex-row overflow-hidden relative pointer-events-auto">
-                        <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-                            <h2 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400 uppercase tracking-widest flex items-center gap-2">
-                                <ArrowRightLeft className="w-6 h-6 text-orange-400" /> Mesa de Trueque
-                            </h2>
-                            {trade.status === 'building' && (
-                                <button onClick={handleReject} className="text-red-400 hover:text-red-300 font-bold uppercase text-sm border border-red-500/30 px-3 py-1 rounded-lg">Cancelar</button>
-                            )}
-                        </div>
+                        {trade.status === 'building' && (
+                            <button onClick={handleReject} className="absolute top-2 right-2 md:top-3 md:right-3 z-50 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-red-500 rounded-full p-2 transition-all">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                            </button>
+                        )}
                         
                         {trade.status === 'building' ? (
-                            <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+                            <>
                                 {/* MI LADO */}
                                 <div className="flex-1 p-4 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col overflow-hidden bg-slate-900/30">
                                     <div className="flex justify-between items-center mb-2">
@@ -1522,7 +1549,7 @@
                                         <p className="text-3xl font-black text-green-400">M{theirOffer.money}</p>
                                     </div>
                                 </div>
-                            </div>
+                            </>
                         ) : (
                             // REVIEW PHASE
                             <div className="flex-1 p-4 sm:p-8 flex flex-col items-center justify-center text-center">
@@ -1826,35 +1853,22 @@
                     
                     const updatedPlayers = gameState.players.map(p => {
                         if (p.id === playerId) {
-                            return { ...p, inJail: true, jailTurns: 0, position: 10, doublesCount: 0 };
+                            return { ...p, doublesCount: 0 };
                         }
                         return p;
                     });
                     
                     let logMsg = `¡${me.name} sacó 3 dobles seguidos! Va directamente a la cárcel por exceso de velocidad.`;
                     
-                    const activeRoll = {
-                        playerId: me.id,
-                        playerName: me.name,
-                        token: me.token,
-                        d1, d2, totalMove: 0,
-                        from: me.position,
-                        to: 10,
-                        nextTurnIndex: nextTurn,
-                        timestamp: Date.now(),
-                        passedGo: false,
-                        isTeleport: true
-                    };
-                    
                     try {
                         await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
                             players: updatedPlayers,
-                            activeRoll: activeRoll,
-                            isAnimating: true,
+                            awaitingGoToJail: { playerId: me.id, nextTurnIndex: nextTurn, reason: 'doubles' },
                             logs: [...(gameState.logs || []), logMsg]
                         });
                     } catch(e) { console.error(e); }
                     return;
+
                 }
                 // --- END DOUBLES RULE LOGIC ---
 
@@ -2189,7 +2203,7 @@
                             playerName: me.name,
                             token: me.token,
                             d1: 0, d2: 0, totalMove: 0,
-                            from: 30, to: 10,
+                            from: me.position, to: 10,
                             nextTurnIndex: nextTurn,
                             timestamp: Date.now(),
                             passedGo: false,
@@ -2725,7 +2739,7 @@
 
                     {/* TRADE SELECTOR MODAL */}
                     {showTradeSelector && (
-                        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/10 backdrop-blur-[2px] pointer-events-none animate-in fade-in zoom-in duration-300">
+                        <div className="fixed inset-0 lg:right-[30%] z-[200] flex items-center justify-center p-4 pointer-events-none animate-in fade-in zoom-in duration-300 bg-black/60 backdrop-blur-sm">
                             <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] w-full max-w-sm p-6 flex flex-col pointer-events-auto">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="text-xl font-black text-white uppercase flex items-center gap-2"><ArrowRightLeft className="text-orange-400 w-5 h-5"/> Nuevo Trueque</h3>
@@ -2764,8 +2778,8 @@
 
                     {/* TURN SPLASH SCREEN */}
                     {showTurnSplash && (
-                        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4">
-                            <div className={`pointer-events-auto bg-slate-900 border ${me?.doublesCount > 0 ? 'border-orange-500/50 shadow-[0_0_50px_rgba(249,115,22,0.3)]' : me?.inJail ? 'border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.3)]' : 'border-green-500/50 shadow-[0_0_50px_rgba(34,197,94,0.3)]'} rounded-3xl w-full max-w-lg p-10 flex flex-col items-center gap-6 text-center animate-pulse`}>
+                        <div className="fixed inset-0 lg:right-[30%] z-[300] flex items-center justify-center pointer-events-none p-4 bg-black/60 backdrop-blur-sm">
+                            <div className={`pointer-events-auto bg-slate-900 border ${me?.doublesCount > 0 ? 'border-orange-500/50 shadow-[0_0_50px_rgba(249,115,22,0.3)]' : me?.inJail ? 'border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.3)]' : 'border-green-500/50 shadow-[0_0_50px_rgba(34,197,94,0.3)]'} rounded-3xl w-full max-w-lg p-10 flex flex-col items-center gap-6 text-center`}>
                                 <div className="text-7xl">{me?.doublesCount > 0 ? '🔥' : me?.inJail ? '🚔' : '🎲'}</div>
                                 <h1 className={`text-4xl md:text-5xl font-black text-transparent bg-clip-text uppercase tracking-widest drop-shadow-sm ${me?.doublesCount > 0 ? 'bg-gradient-to-r from-orange-400 to-yellow-600' : me?.inJail ? 'bg-gradient-to-r from-red-400 to-red-600' : 'bg-gradient-to-r from-green-400 to-emerald-600'}`}>
                                     {me?.doublesCount > 0 ? '¡DOBLES! VUELVE A TIRAR' : me?.inJail ? 'ESTÁS EN LA CÁRCEL' : '¡Es Tu Turno!'}
@@ -2797,7 +2811,7 @@
                     
                     {/* TRADE ALERT SPLASH */}
                     {gameState.tradeAlert && (
-                        <div className="fixed inset-0 z-[350] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in duration-300">
+                        <div className="fixed inset-0 lg:right-[30%] z-[350] flex items-center justify-center pointer-events-none p-4 animate-in fade-in duration-300 bg-black/60 backdrop-blur-sm">
                             <div className={`bg-slate-900 border rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] w-full max-w-lg p-8 flex flex-col items-center gap-6 text-center transition-all scale-100 pointer-events-auto ${gameState.tradeAlert.type === 'success' ? 'border-green-500 shadow-[0_0_50px_rgba(34,197,94,0.3)]' : 'border-red-500 shadow-[0_0_50px_rgba(239,68,68,0.3)]'}`}>
                                 <div className="text-6xl">{gameState.tradeAlert.type === 'success' ? '🤝' : '❌'}</div>
                                 <h2 className={`text-3xl font-black uppercase tracking-wider ${gameState.tradeAlert.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
@@ -2880,7 +2894,7 @@
                         {gameState.awaitingTax && gameState.awaitingTax.playerId === playerId && (() => {
                             const taxSpace = boardSpaces[gameState.awaitingTax.spaceId];
                             return (
-                                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4">
+                                <div className="fixed inset-0 lg:right-[30%] z-[100] flex items-center justify-center pointer-events-none p-4 bg-black/60 backdrop-blur-sm">
                                     <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] max-w-sm w-full p-6 flex flex-col items-center gap-5 pointer-events-auto">
                                         <div className="text-6xl">💸</div>
                                         <h2 className="text-2xl font-black text-white text-center uppercase tracking-wider">{taxSpace.name}</h2>
@@ -2907,7 +2921,7 @@
                             const hCount = gameState.awaitingRent.houses || 0;
                             const hText = hCount === 0 ? 'Sin construir' : hCount === 5 ? 'Con Hotel' : `Con ${hCount} casa${hCount>1?'s':''}`;
                             return (
-                                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4">
+                                <div className="fixed inset-0 lg:right-[30%] z-[100] flex items-center justify-center pointer-events-none p-4 bg-black/60 backdrop-blur-sm">
                                     <div className="bg-slate-900 border border-red-500/30 rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-5 pointer-events-auto">
                                         <div className="text-6xl">💸</div>
                                         <div className="text-center">
@@ -2950,7 +2964,7 @@
 
                         {/* MODAL TIRAR DADOS COMPAÑÍA */}
                         {gameState.awaitingUtilityRoll && gameState.awaitingUtilityRoll.playerId === playerId && !gameState.isAnimating && (
-                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in zoom-in duration-300">
+                            <div className="fixed inset-0 lg:right-[30%] z-[100] flex items-center justify-center pointer-events-none p-4 animate-in fade-in zoom-in duration-300 bg-black/60 backdrop-blur-sm">
                                 <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center pointer-events-auto">
                                     <div className="text-6xl mb-4">🎲</div>
                                     <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-2">Pago de Servicio</h2>
@@ -2983,7 +2997,7 @@
 
                         {/* MODAL ALQUILER RECIBIDO */}
                         {gameState.rentReceivedAlert && gameState.rentReceivedAlert.playerId === playerId && (
-                            <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in zoom-in duration-300">
+                            <div className="fixed inset-0 lg:right-[30%] z-[110] flex items-center justify-center pointer-events-none p-4 animate-in fade-in zoom-in duration-300 bg-black/60 backdrop-blur-sm">
                                 <div className="bg-slate-900 border border-green-500/50 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.3)] w-full max-w-sm p-8 flex flex-col items-center gap-6 text-center pointer-events-auto">
                                     <div className="text-7xl animate-bounce">🤑</div>
                                     <div>
@@ -3004,7 +3018,7 @@
 
                         {/* MODAL PARKING GRATUITO */}
                         {gameState.freeParkingClaim && (
-                            <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in zoom-in duration-300">
+                            <div className="fixed inset-0 lg:right-[30%] z-[120] flex items-center justify-center pointer-events-none p-4 animate-in fade-in zoom-in duration-300 bg-black/60 backdrop-blur-sm">
                                 <div className="bg-slate-900 border border-blue-500/50 rounded-3xl shadow-[0_0_50px_rgba(59,130,246,0.3)] w-full max-w-sm p-8 flex flex-col items-center gap-6 text-center pointer-events-auto">
                                     <div className="text-7xl animate-bounce">🚗💨</div>
                                     <div>
@@ -3035,7 +3049,7 @@
                             const space = boardSpaces[myPurchase.spaceId];
                             const canAfford = me.balance >= space.price;
                             return (
-                                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4">
+                                <div className="fixed inset-0 lg:right-[30%] z-[100] flex items-center justify-center pointer-events-none p-4 bg-black/60 backdrop-blur-sm">
                                     <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] max-w-sm w-full p-6 flex flex-col items-center gap-5 pointer-events-auto">
                                         <div className={`w-full h-3 rounded-t-xl ${space.color || 'bg-gray-400'}`}></div>
                                         <div className="flex justify-center"><TokenIcon tokenId={me.token} className="w-16 h-16" /></div>
@@ -3071,8 +3085,7 @@
                             const canAfford = me.balance >= cardCost;
                             
                             return (
-                                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 pointer-events-none">
-                                    <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
+                                <div className="fixed inset-0 lg:right-[30%] z-[110] flex items-center justify-center p-4 pointer-events-none bg-black/60 backdrop-blur-sm">
                                     <div className={`relative w-full max-w-sm rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 pointer-events-auto ${ac.type === 'chance' ? 'bg-orange-50 border-orange-500' : 'bg-blue-50 border-blue-500'}`}>
                                         <div className="text-6xl mb-4 drop-shadow-md">
                                             {ac.type === 'chance' ? '❓' : '🎁'}
@@ -3110,16 +3123,21 @@
 
                         {/* MODAL VAYA A LA CÁRCEL */}
                         {gameState.awaitingGoToJail && (
-                            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 pointer-events-none">
-                                <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
+                            <div className="fixed inset-0 lg:right-[30%] z-[110] flex items-center justify-center p-4 pointer-events-none bg-black/60 backdrop-blur-sm">
                                 <div className="relative w-full max-w-md rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(239,68,68,0.3)] border-4 bg-slate-900 border-red-500 text-center pointer-events-auto">
                                     <div className="text-6xl mb-4 animate-bounce">🚔</div>
                                     <h2 className="text-3xl font-black uppercase tracking-widest mb-4 text-red-500 drop-shadow-md">Vas a la Cárcel</h2>
                                     
                                     <div className="bg-slate-800 p-6 rounded-2xl border-2 border-slate-700 shadow-inner w-full mb-6">
-                                        <p className="text-lg font-bold text-slate-300 leading-snug">
-                                            Debes ir directamente a la cárcel sin pasar por la salida y sin cobrar M200.
-                                        </p>
+                                        {gameState.awaitingGoToJail.reason === 'doubles' ? (
+                                            <p className="text-lg font-bold text-orange-400 leading-snug">
+                                                ¡Has sacado dobles 3 veces seguidas! Te han pillado por exceso de velocidad.
+                                            </p>
+                                        ) : (
+                                            <p className="text-lg font-bold text-slate-300 leading-snug">
+                                                Debes ir directamente a la cárcel sin pasar por la salida y sin cobrar M200.
+                                            </p>
+                                        )}
                                         <p className="text-xl font-black text-white mt-4 bg-red-900/50 p-3 rounded-lg border border-red-500/30">
                                             Estarás 3 turnos sin tirar o hasta que pagues M50 o saques dobles.
                                         </p>
@@ -3194,9 +3212,9 @@
                                             </button>
                                         );
                                     })()}
-                                    <button onClick={() => setShowTradeSelector(true)} disabled={gameState.activeTrade !== undefined && gameState.activeTrade !== null} className={`p-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md border group ${gameState.activeTrade ? 'bg-slate-800 text-slate-600 border-slate-700 cursor-not-allowed' : 'bg-slate-700/50 hover:bg-slate-700 border-slate-600'}`}>
-                                        <ArrowRightLeft className={`w-4 h-4 transition-transform duration-500 ${gameState.activeTrade ? 'text-slate-600' : 'text-orange-400 group-hover:rotate-180'}`} />
-                                        <span className={`font-bold text-xs uppercase ${gameState.activeTrade ? 'text-slate-600' : 'text-slate-300 group-hover:text-white'}`}>Trueque</span>
+                                    <button onClick={() => setShowTradeSelector(true)} disabled={(gameState.activeTrade !== undefined && gameState.activeTrade !== null) || !isMyTurn} className={`p-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md border group ${(gameState.activeTrade || !isMyTurn) ? 'bg-slate-800/50 text-slate-600 border-slate-700/50 cursor-not-allowed' : 'bg-slate-700/50 hover:bg-slate-700 border-slate-600'}`}>
+                                        <ArrowRightLeft className={`w-4 h-4 transition-transform duration-500 ${(gameState.activeTrade || !isMyTurn) ? 'text-slate-600' : 'text-orange-400 group-hover:rotate-180'}`} />
+                                        <span className={`font-bold text-xs uppercase ${(gameState.activeTrade || !isMyTurn) ? 'text-slate-600' : 'text-slate-300 group-hover:text-white'}`}>Trueque</span>
                                     </button>
                                 </div>
                             </div>
@@ -3366,7 +3384,7 @@
 
                             {/* MODAL DE CONFIRMACIÓN DE BANCARROTA */}
                             {showBankruptcyConfirm && (
-                                <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in zoom-in duration-300">
+                                <div className="fixed inset-0 lg:right-[30%] z-[300] flex items-center justify-center pointer-events-none p-4 animate-in fade-in zoom-in duration-300 bg-black/60 backdrop-blur-sm">
                                     <div className="bg-slate-900 border border-red-500/50 p-8 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.3)] w-full max-w-sm text-center flex flex-col items-center pointer-events-auto">
                                         <div className="text-6xl mb-4 animate-bounce">💀</div>
                                         <h2 className="text-2xl font-black text-red-500 uppercase tracking-widest mb-4 drop-shadow-md">¿Estás seguro?</h2>
