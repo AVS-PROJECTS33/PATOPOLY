@@ -1799,6 +1799,54 @@
                 }
                 // --- END JAIL LOGIC ---
 
+                // --- DOUBLES RULE LOGIC ---
+                let newDoublesCount = 0;
+                if (isDoubles) {
+                    newDoublesCount = (me.doublesCount || 0) + 1;
+                }
+                
+                if (newDoublesCount === 3) {
+                    let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
+                    let loopCount = 0;
+                    while ((!gameState.players[nextTurn].hasJoined || gameState.players[nextTurn].isBankrupt) && loopCount < gameState.players.length) {
+                        nextTurn = (nextTurn + 1) % gameState.players.length;
+                        loopCount++;
+                    }
+                    
+                    const updatedPlayers = gameState.players.map(p => {
+                        if (p.id === playerId) {
+                            return { ...p, inJail: true, jailTurns: 0, position: 10, doublesCount: 0 };
+                        }
+                        return p;
+                    });
+                    
+                    let logMsg = `¡${me.name} sacó 3 dobles seguidos! Va directamente a la cárcel por exceso de velocidad.`;
+                    
+                    const activeRoll = {
+                        playerId: me.id,
+                        playerName: me.name,
+                        token: me.token,
+                        d1, d2, totalMove: 0,
+                        from: me.position,
+                        to: 10,
+                        nextTurnIndex: nextTurn,
+                        timestamp: Date.now(),
+                        passedGo: false,
+                        isTeleport: true
+                    };
+                    
+                    try {
+                        await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                            players: updatedPlayers,
+                            activeRoll: activeRoll,
+                            isAnimating: true,
+                            logs: [...(gameState.logs || []), logMsg]
+                        });
+                    } catch(e) { console.error(e); }
+                    return;
+                }
+                // --- END DOUBLES RULE LOGIC ---
+
                 let newPos = me.position + totalMove;
                 let passedGo = false;
 
@@ -1809,17 +1857,20 @@
 
                 const updatedPlayers = gameState.players.map(p => {
                     if (p.id === playerId) {
-                        return { ...p, position: newPos };
+                        return { ...p, position: newPos, doublesCount: newDoublesCount };
                     }
                     return p;
                 });
 
                 // Calculamos el siguiente turno pero NO actualizamos currentTurnIndex todavía
-                let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
-                let loopCount = 0;
-                while ((!gameState.players[nextTurn].hasJoined || gameState.players[nextTurn].isBankrupt) && loopCount < gameState.players.length) {
-                    nextTurn = (nextTurn + 1) % gameState.players.length;
-                    loopCount++;
+                let nextTurn = gameState.currentTurnIndex;
+                if (!isDoubles) {
+                    nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
+                    let loopCount = 0;
+                    while ((!gameState.players[nextTurn].hasJoined || gameState.players[nextTurn].isBankrupt) && loopCount < gameState.players.length) {
+                        nextTurn = (nextTurn + 1) % gameState.players.length;
+                        loopCount++;
+                    }
                 }
 
                 let logMsg = `${me.name} tiró ${d1} y ${d2} (${totalMove}) y cayó en ${boardSpaces[newPos].name}.`;
@@ -2068,7 +2119,11 @@
                     meUpdated.position = newPos;
                     meUpdated.inJail = true;
                     meUpdated.jailTurns = 0;
-                    updateData.activeRoll = { playerId: meUpdated.id, playerName: meUpdated.name, token: meUpdated.token, d1: 0, d2: 0, totalMove: 0, from: oldPos, to: newPos, nextTurnIndex: ac.nextTurnIndex, timestamp: Date.now(), passedGo: false, isTeleport: true, hideDice: true };
+                    meUpdated.doublesCount = 0;
+                    let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
+                    let loopCount = 0;
+                    while ((!gameState.players[nextTurn].hasJoined || gameState.players[nextTurn].isBankrupt) && loopCount < gameState.players.length) { nextTurn = (nextTurn + 1) % gameState.players.length; loopCount++; }
+                    updateData.activeRoll = { playerId: meUpdated.id, playerName: meUpdated.name, token: meUpdated.token, d1: 0, d2: 0, totalMove: 0, from: oldPos, to: newPos, nextTurnIndex: nextTurn, timestamp: Date.now(), passedGo: false, isTeleport: true, hideDice: true };
                     updateData.isAnimating = true;
                     delete updateData.currentTurnIndex; 
                 } else if (card.action === 'payBank') {
@@ -2107,9 +2162,13 @@
                 
                 SoundFX.jail();
                 const updatedPlayers = gameState.players.map(p => {
-                    if (p.id === playerId) return { ...p, position: 10, inJail: true, jailTurns: 0 };
+                    if (p.id === playerId) return { ...p, position: 10, inJail: true, jailTurns: 0, doublesCount: 0 };
                     return p;
                 });
+                
+                let nextTurn = (gameState.currentTurnIndex + 1) % gameState.players.length;
+                let loopCount = 0;
+                while ((!gameState.players[nextTurn].hasJoined || gameState.players[nextTurn].isBankrupt) && loopCount < gameState.players.length) { nextTurn = (nextTurn + 1) % gameState.players.length; loopCount++; }
                 
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
@@ -2120,7 +2179,7 @@
                             token: me.token,
                             d1: 0, d2: 0, totalMove: 0,
                             from: 30, to: 10,
-                            nextTurnIndex: ac.nextTurnIndex,
+                            nextTurnIndex: nextTurn,
                             timestamp: Date.now(),
                             passedGo: false,
                             isTeleport: true,
@@ -2277,12 +2336,17 @@
 
             const handleBuild = async (spaceId, qty = 1) => {
                 const space = boardSpaces[spaceId];
+                if (qty > 1) return; // Solo permitir 1 a la vez para regla uniforme
                 const totalCost = space.houseCost * qty;
                 if (me.balance < totalCost) return;
 
                 const myBuildings = me.buildings || {};
                 const currentCount = myBuildings[spaceId] || 0;
                 if (currentCount + qty > 5) return;
+
+                const groupSpaces = boardSpaces.filter(s => s.color === space.color);
+                const minBuildings = Math.min(...groupSpaces.map(s => myBuildings[s.id] || 0));
+                if (currentCount > minBuildings) return;
 
                 const newBuildings = { ...myBuildings, [spaceId]: currentCount + qty };
                 
@@ -2308,6 +2372,10 @@
                 const myBuildings = me.buildings || {};
                 const currentCount = myBuildings[spaceId] || 0;
                 if (currentCount <= 0) return;
+
+                const groupSpaces = boardSpaces.filter(s => s.color === space.color);
+                const maxBuildings = Math.max(...groupSpaces.map(s => myBuildings[s.id] || 0));
+                if (currentCount < maxBuildings) return;
 
                 const newBuildings = { ...myBuildings, [spaceId]: currentCount - 1 };
                 const sellPrice = Math.floor(space.houseCost / 2);
@@ -2741,11 +2809,13 @@
                                 if (hasAllColors && currentBuildings < 5 && pcOwner.balance >= selectedSpacePC.houseCost) {
                                     // Extra check: none in color group can be mortgaged to build
                                     const anyMortgaged = groupSpaces.some(s => pcOwner.mortgaged?.includes(s.id));
-                                    if (!anyMortgaged && isMyTurn) canBuild = true;
+                                    const minBuildings = Math.min(...groupSpaces.map(s => pcOwner.buildings?.[s.id] || 0));
+                                    if (!anyMortgaged && isMyTurn && currentBuildings === minBuildings) canBuild = true;
                                 }
                                 
                                 if (currentBuildings > 0) {
-                                    canSellBuild = true;
+                                    const maxBuildings = Math.max(...groupSpaces.map(s => pcOwner.buildings?.[s.id] || 0));
+                                    if (currentBuildings === maxBuildings) canSellBuild = true;
                                 }
                                 
                                 if (currentBuildings === 0 && isMyTurn) {
