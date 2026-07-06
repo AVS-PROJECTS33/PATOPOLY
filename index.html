@@ -294,8 +294,8 @@
             const mortgageVal = space.mortgage || Math.floor(space.price / 2);
             const unmortgageVal = Math.floor(mortgageVal * 1.1);
             return (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-                    <div className="relative w-72 bg-[#f5f0e8] rounded-lg shadow-2xl border-4 border-slate-800 overflow-hidden" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/10 backdrop-blur-[2px] pointer-events-none">
+                    <div className="relative w-72 bg-[#f5f0e8] rounded-lg shadow-2xl border-4 border-slate-800 overflow-hidden pointer-events-auto" onClick={e => e.stopPropagation()}>
                         {/* HEADER */}
                         <div className="px-4 py-3 text-center border-b-4 border-slate-800 relative" style={{ backgroundColor: space.colorHex || '#6b7280' }}>
                             {isMortgaged && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-red-400 font-black text-lg uppercase tracking-widest rotate-[-12deg] border-2 border-red-400 px-3 py-1">HIPOTECADA</span></div>}
@@ -594,9 +594,9 @@
                                     const bCount = owner?.buildings?.[space.id] || 0;
                                     const isVertical = index > 10 && index < 20 || index > 30;
                                     return (
-                                        <div className={`absolute flex items-center justify-center ${index > 10 && index < 20 ? 'right-0 top-0 bottom-0 w-3 sm:w-4' : index > 30 ? 'left-0 top-0 bottom-0 w-3 sm:w-4' : index > 20 && index < 30 ? 'bottom-0 left-0 right-0 h-3 sm:h-4' : 'top-0 left-0 right-0 h-3 sm:h-4'} ${space.color} border-slate-800 ${index > 10 && index < 20 ? 'border-l' : index > 30 ? 'border-r' : index > 20 && index < 30 ? 'border-t' : 'border-b'} z-20 overflow-hidden`}>
-                                            {bCount > 0 && bCount < 5 && <span className={`text-[6px] sm:text-[8px] drop-shadow-md leading-none flex items-center ${isVertical ? 'rotate-90' : ''}`}>🏠{bCount > 1 && <span className="font-black text-white ml-px">+{bCount}</span>}</span>}
-                                            {bCount === 5 && <span className={`text-[6px] sm:text-[8px] drop-shadow-md leading-none ${isVertical ? 'rotate-90' : ''}`}>🏨</span>}
+                                        <div className={`absolute flex items-center justify-center ${index > 10 && index < 20 ? 'right-0 top-0 bottom-0 w-4 sm:w-6' : index > 30 ? 'left-0 top-0 bottom-0 w-4 sm:w-6' : index > 20 && index < 30 ? 'bottom-0 left-0 right-0 h-4 sm:h-6' : 'top-0 left-0 right-0 h-4 sm:h-6'} ${space.color} border-slate-800 ${index > 10 && index < 20 ? 'border-l' : index > 30 ? 'border-r' : index > 20 && index < 30 ? 'border-t' : 'border-b'} z-20 overflow-hidden`}>
+                                            {bCount > 0 && bCount < 5 && <span className={`text-[10px] sm:text-xs drop-shadow-md leading-none flex items-center tracking-tighter ${isVertical ? 'rotate-90' : ''}`}>{"🏠".repeat(bCount)}</span>}
+                                            {bCount === 5 && <span className={`text-[12px] sm:text-sm drop-shadow-md leading-none ${isVertical ? 'rotate-90' : ''}`}>🏨</span>}
                                         </div>
                                     );
                                 })()}
@@ -797,9 +797,9 @@
 
                     {/* MODAL VAYA A LA CÁRCEL */}
                     {gameState.awaitingGoToJail && (
-                        <div className="absolute inset-0 flex items-center justify-center p-4">
-                            <div className="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
-                            <div className="relative w-full max-w-md rounded-3xl p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(239,68,68,0.3)] border-4 bg-slate-900 border-red-500 text-center">
+                        <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+                            <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
+                            <div className="relative w-full max-w-md rounded-3xl p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(239,68,68,0.3)] border-4 bg-slate-900 border-red-500 text-center pointer-events-auto">
                                 <div className="text-7xl mb-4 animate-bounce">??</div>
                                 <h2 className="text-4xl font-black uppercase tracking-widest mb-4 text-red-500 drop-shadow-md">Vas a la Cárcel</h2>
                                 <div className="bg-slate-800 p-6 rounded-2xl border-2 border-slate-700 shadow-inner w-full mb-6 text-xl">
@@ -818,8 +818,8 @@
                         if (!card) return null;
                         
                         return (
-                            <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-                                <div className={`relative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 ${ac.type === 'chance' ? 'bg-orange-50 border-orange-500' : 'bg-blue-50 border-blue-500'}`}>
+                            <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/10 backdrop-blur-[2px] pointer-events-none">
+                                <div className={`relative w-full max-w-lg rounded-3xl p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 pointer-events-auto ${ac.type === 'chance' ? 'bg-orange-50 border-orange-500' : 'bg-blue-50 border-blue-500'}`}>
                                     <div className="text-7xl mb-6 drop-shadow-md">
                                         {ac.type === 'chance' ? '?' : '??'}
                                     </div>
@@ -1467,8 +1467,8 @@
             };
 
             return (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col h-[90vh] md:h-auto md:max-h-[85vh] overflow-hidden relative">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 bg-black/10 backdrop-blur-[2px] pointer-events-none animate-in fade-in duration-300">
+                    <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] w-full max-w-5xl flex flex-col md:flex-row overflow-hidden relative pointer-events-auto">
                         <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
                             <h2 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400 uppercase tracking-widest flex items-center gap-2">
                                 <ArrowRightLeft className="w-6 h-6 text-orange-400" /> Mesa de Trueque
@@ -1583,6 +1583,7 @@
             const [balanceDiff, setBalanceDiff] = useState(null);
             const [localName, setLocalName] = useState('');
             const prevBalanceRef = useRef(null);
+            const lastSplashedDoublesCountRef = useRef(0);
 
             // Fix for race condition during init roll (has to be top level hook)
             const initRolls = gameState?.initRolls || {};
@@ -1672,17 +1673,27 @@
             }, [gameState?.players?.find(p => p.id === playerId)?.balance, playerId]);
 
             useEffect(() => {
-                const hasBlockingAlert = (gameState?.rentReceivedAlert && gameState.rentReceivedAlert.playerId === playerId) || gameState?.tradeAlert;
-                if (gameState && gameState.status === 'playing' && gameState.currentTurnIndex !== prevTurnIndex) {
-                    if (hasBlockingAlert && gameState.players[gameState.currentTurnIndex].id === playerId) {
+                const hasBlockingAlert = (gameState?.rentReceivedAlert && gameState.rentReceivedAlert.playerId === playerId) || gameState?.tradeAlert || gameState?.awaitingPurchase || gameState?.awaitingTax || gameState?.awaitingRent || gameState?.activeCard || gameState?.awaitingGoToJail || gameState?.awaitingUtilityRoll;
+                const me = gameState?.players?.find(p => p.id === playerId);
+                if (gameState && gameState.status === 'playing') {
+                    if (hasBlockingAlert && gameState.players[gameState.currentTurnIndex]?.id === playerId) {
                         return; // Wait until alerts are cleared
                     }
-                    setPrevTurnIndex(gameState.currentTurnIndex);
-                    if (gameState.players[gameState.currentTurnIndex].id === playerId) {
-                        setShowTurnSplash(true);
+                    if (gameState.currentTurnIndex !== prevTurnIndex) {
+                        setPrevTurnIndex(gameState.currentTurnIndex);
+                        lastSplashedDoublesCountRef.current = 0;
+                        if (gameState.players[gameState.currentTurnIndex]?.id === playerId) {
+                            setShowTurnSplash(true);
+                        }
+                    } else if (gameState.players[gameState.currentTurnIndex]?.id === playerId && me && me.doublesCount > 0 && !gameState.isAnimating) {
+                        // Check if we got another turn due to doubles
+                        if (lastSplashedDoublesCountRef.current !== me.doublesCount && !hasBlockingAlert) {
+                            setShowTurnSplash(true);
+                            lastSplashedDoublesCountRef.current = me.doublesCount;
+                        }
                     }
                 }
-            }, [gameState?.currentTurnIndex, gameState?.status, prevTurnIndex, playerId, gameState?.players, gameState?.rentReceivedAlert, gameState?.tradeAlert]);
+            }, [gameState?.currentTurnIndex, gameState?.status, prevTurnIndex, playerId, gameState?.players, gameState?.rentReceivedAlert, gameState?.tradeAlert, gameState?.awaitingPurchase, gameState?.awaitingTax, gameState?.awaitingRent, gameState?.activeCard, gameState?.awaitingGoToJail, gameState?.awaitingUtilityRoll, gameState?.isAnimating]);
             
             // Heartbeat Logic for Presence
             useEffect(() => {
@@ -2714,8 +2725,8 @@
 
                     {/* TRADE SELECTOR MODAL */}
                     {showTradeSelector && (
-                        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in zoom-in duration-300">
-                            <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl w-full max-w-sm p-6 flex flex-col">
+                        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/10 backdrop-blur-[2px] pointer-events-none animate-in fade-in zoom-in duration-300">
+                            <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] w-full max-w-sm p-6 flex flex-col pointer-events-auto">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="text-xl font-black text-white uppercase flex items-center gap-2"><ArrowRightLeft className="text-orange-400 w-5 h-5"/> Nuevo Trueque</h3>
                                     <button onClick={() => setShowTradeSelector(false)} className="text-slate-500 hover:text-white">✕</button>
@@ -2753,16 +2764,30 @@
 
                     {/* TURN SPLASH SCREEN */}
                     {showTurnSplash && (
-                        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-                            <div className="bg-slate-900 border border-green-500/50 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.3)] w-full max-w-lg p-10 flex flex-col items-center gap-6 text-center animate-pulse">
-                                <div className="text-7xl">🎲</div>
-                                <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 uppercase tracking-widest drop-shadow-sm">¡Es Tu Turno!</h1>
-                                <p className="text-slate-300 text-lg">Es el momento de jugar.</p>
-                                <div className="flex gap-4 mt-4 w-full">
-                                    <button onClick={() => setShowTurnSplash(false)} className="flex-1 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm transition border border-slate-600 uppercase">
+                        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4">
+                            <div className={`pointer-events-auto bg-slate-900 border ${me?.doublesCount > 0 ? 'border-orange-500/50 shadow-[0_0_50px_rgba(249,115,22,0.3)]' : me?.inJail ? 'border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.3)]' : 'border-green-500/50 shadow-[0_0_50px_rgba(34,197,94,0.3)]'} rounded-3xl w-full max-w-lg p-10 flex flex-col items-center gap-6 text-center animate-pulse`}>
+                                <div className="text-7xl">{me?.doublesCount > 0 ? '🔥' : me?.inJail ? '🚔' : '🎲'}</div>
+                                <h1 className={`text-4xl md:text-5xl font-black text-transparent bg-clip-text uppercase tracking-widest drop-shadow-sm ${me?.doublesCount > 0 ? 'bg-gradient-to-r from-orange-400 to-yellow-600' : me?.inJail ? 'bg-gradient-to-r from-red-400 to-red-600' : 'bg-gradient-to-r from-green-400 to-emerald-600'}`}>
+                                    {me?.doublesCount > 0 ? '¡DOBLES! VUELVE A TIRAR' : me?.inJail ? 'ESTÁS EN LA CÁRCEL' : '¡Es Tu Turno!'}
+                                </h1>
+                                <p className="text-slate-300 text-lg">{me?.doublesCount > 0 ? '¡Qué suerte! Tienes otro turno.' : me?.inJail ? '¿Cómo quieres salir de la cárcel?' : 'Es el momento de jugar.'}</p>
+                                <div className="flex gap-4 mt-4 w-full flex-wrap justify-center">
+                                    {me?.inJail && (
+                                        <>
+                                            <button onClick={() => { setShowTurnSplash(false); handlePayJail(); }} disabled={me.balance < 50} className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-red-600 to-orange-700 hover:from-red-500 hover:to-orange-600 text-white font-bold text-sm transition shadow-lg uppercase border border-red-500 disabled:opacity-50 min-w-[120px]">
+                                                Pagar M50
+                                            </button>
+                                            {me.getOutJailFreeCards > 0 && (
+                                                <button onClick={() => { setShowTurnSplash(false); handleUseJailCard(); }} className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white font-bold text-sm transition shadow-lg uppercase border border-yellow-400 min-w-[120px]">
+                                                    Usar Carta
+                                                </button>
+                                            )}
+                                        </>
+                                    )}
+                                    <button onClick={() => setShowTurnSplash(false)} className="flex-1 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm transition border border-slate-600 uppercase min-w-[120px]">
                                         Gestionar Patrimonio
                                     </button>
-                                    <button onClick={() => { setShowTurnSplash(false); rollDice(); }} className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold text-sm transition border border-green-500 shadow-lg uppercase">
+                                    <button onClick={() => { setShowTurnSplash(false); rollDice(); }} className={`flex-1 px-4 py-3 rounded-xl text-white font-bold text-sm transition shadow-lg uppercase border min-w-[120px] ${me?.doublesCount > 0 ? 'bg-gradient-to-r from-orange-500 to-yellow-600 hover:from-orange-400 hover:to-yellow-500 border-orange-500' : me?.inJail ? 'bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-500 hover:to-slate-700 border-slate-500' : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 border-green-500'}`}>
                                         Tirar Dados
                                     </button>
                                 </div>
@@ -2772,8 +2797,8 @@
                     
                     {/* TRADE ALERT SPLASH */}
                     {gameState.tradeAlert && (
-                        <div className="fixed inset-0 z-[350] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
-                            <div className={`bg-slate-900 border rounded-3xl shadow-2xl w-full max-w-lg p-8 flex flex-col items-center gap-6 text-center transition-all scale-100 ${gameState.tradeAlert.type === 'success' ? 'border-green-500 shadow-[0_0_50px_rgba(34,197,94,0.3)]' : 'border-red-500 shadow-[0_0_50px_rgba(239,68,68,0.3)]'}`}>
+                        <div className="fixed inset-0 z-[350] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in duration-300">
+                            <div className={`bg-slate-900 border rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] w-full max-w-lg p-8 flex flex-col items-center gap-6 text-center transition-all scale-100 pointer-events-auto ${gameState.tradeAlert.type === 'success' ? 'border-green-500 shadow-[0_0_50px_rgba(34,197,94,0.3)]' : 'border-red-500 shadow-[0_0_50px_rgba(239,68,68,0.3)]'}`}>
                                 <div className="text-6xl">{gameState.tradeAlert.type === 'success' ? '🤝' : '❌'}</div>
                                 <h2 className={`text-3xl font-black uppercase tracking-wider ${gameState.tradeAlert.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
                                     {gameState.tradeAlert.message}
@@ -2855,8 +2880,8 @@
                         {gameState.awaitingTax && gameState.awaitingTax.playerId === playerId && (() => {
                             const taxSpace = boardSpaces[gameState.awaitingTax.spaceId];
                             return (
-                                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-                                    <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-5">
+                                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4">
+                                    <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] max-w-sm w-full p-6 flex flex-col items-center gap-5 pointer-events-auto">
                                         <div className="text-6xl">💸</div>
                                         <h2 className="text-2xl font-black text-white text-center uppercase tracking-wider">{taxSpace.name}</h2>
                                         <p className="text-slate-400 text-sm text-center">Debes pagar al banco</p>
@@ -2882,8 +2907,8 @@
                             const hCount = gameState.awaitingRent.houses || 0;
                             const hText = hCount === 0 ? 'Sin construir' : hCount === 5 ? 'Con Hotel' : `Con ${hCount} casa${hCount>1?'s':''}`;
                             return (
-                                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-                                    <div className="bg-slate-900 border border-red-500/30 rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-5">
+                                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4">
+                                    <div className="bg-slate-900 border border-red-500/30 rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-5 pointer-events-auto">
                                         <div className="text-6xl">💸</div>
                                         <div className="text-center">
                                             <h2 className="text-xl font-bold text-slate-300">Has caído en</h2>
@@ -2925,8 +2950,8 @@
 
                         {/* MODAL TIRAR DADOS COMPAÑÍA */}
                         {gameState.awaitingUtilityRoll && gameState.awaitingUtilityRoll.playerId === playerId && !gameState.isAnimating && (
-                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300">
-                                <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center">
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in zoom-in duration-300">
+                                <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center pointer-events-auto">
                                     <div className="text-6xl mb-4">🎲</div>
                                     <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-2">Pago de Servicio</h2>
                                     <p className="text-slate-300 text-sm mb-6">El propietario tiene {gameState.awaitingUtilityRoll.multiplier === 10 ? '2 servicios' : '1 servicio'}. El alquiler será <strong className="text-white text-lg">x{gameState.awaitingUtilityRoll.multiplier}</strong> el resultado de los dados.</p>
@@ -2958,8 +2983,8 @@
 
                         {/* MODAL ALQUILER RECIBIDO */}
                         {gameState.rentReceivedAlert && gameState.rentReceivedAlert.playerId === playerId && (
-                            <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in zoom-in duration-300">
-                                <div className="bg-slate-900 border border-green-500/50 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.3)] w-full max-w-sm p-8 flex flex-col items-center gap-6 text-center">
+                            <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in zoom-in duration-300">
+                                <div className="bg-slate-900 border border-green-500/50 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.3)] w-full max-w-sm p-8 flex flex-col items-center gap-6 text-center pointer-events-auto">
                                     <div className="text-7xl animate-bounce">🤑</div>
                                     <div>
                                         <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 uppercase tracking-widest drop-shadow-sm mb-2">¡Ingreso!</h1>
@@ -2979,8 +3004,8 @@
 
                         {/* MODAL PARKING GRATUITO */}
                         {gameState.freeParkingClaim && (
-                            <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in zoom-in duration-300">
-                                <div className="bg-slate-900 border border-blue-500/50 rounded-3xl shadow-[0_0_50px_rgba(59,130,246,0.3)] w-full max-w-sm p-8 flex flex-col items-center gap-6 text-center">
+                            <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in zoom-in duration-300">
+                                <div className="bg-slate-900 border border-blue-500/50 rounded-3xl shadow-[0_0_50px_rgba(59,130,246,0.3)] w-full max-w-sm p-8 flex flex-col items-center gap-6 text-center pointer-events-auto">
                                     <div className="text-7xl animate-bounce">🚗💨</div>
                                     <div>
                                         <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 uppercase tracking-widest drop-shadow-sm mb-2">
@@ -3010,8 +3035,8 @@
                             const space = boardSpaces[myPurchase.spaceId];
                             const canAfford = me.balance >= space.price;
                             return (
-                                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-                                    <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center gap-5">
+                                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4">
+                                    <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] max-w-sm w-full p-6 flex flex-col items-center gap-5 pointer-events-auto">
                                         <div className={`w-full h-3 rounded-t-xl ${space.color || 'bg-gray-400'}`}></div>
                                         <div className="flex justify-center"><TokenIcon tokenId={me.token} className="w-16 h-16" /></div>
                                         <h2 className="text-2xl font-black text-white text-center uppercase tracking-wider">{space.name}</h2>
@@ -3046,9 +3071,9 @@
                             const canAfford = me.balance >= cardCost;
                             
                             return (
-                                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-                                    <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => {}} />
-                                    <div className={`relative w-full max-w-sm rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 ${ac.type === 'chance' ? 'bg-orange-50 border-orange-500' : 'bg-blue-50 border-blue-500'}`}>
+                                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 pointer-events-none">
+                                    <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
+                                    <div className={`relative w-full max-w-sm rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 pointer-events-auto ${ac.type === 'chance' ? 'bg-orange-50 border-orange-500' : 'bg-blue-50 border-blue-500'}`}>
                                         <div className="text-6xl mb-4 drop-shadow-md">
                                             {ac.type === 'chance' ? '❓' : '🎁'}
                                         </div>
@@ -3085,9 +3110,9 @@
 
                         {/* MODAL VAYA A LA CÁRCEL */}
                         {gameState.awaitingGoToJail && (
-                            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-                                <div className="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
-                                <div className="relative w-full max-w-md rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(239,68,68,0.3)] border-4 bg-slate-900 border-red-500 text-center">
+                            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 pointer-events-none">
+                                <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
+                                <div className="relative w-full max-w-md rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_20px_50px_rgba(239,68,68,0.3)] border-4 bg-slate-900 border-red-500 text-center pointer-events-auto">
                                     <div className="text-6xl mb-4 animate-bounce">🚔</div>
                                     <h2 className="text-3xl font-black uppercase tracking-widest mb-4 text-red-500 drop-shadow-md">Vas a la Cárcel</h2>
                                     
@@ -3115,7 +3140,6 @@
 
                         {/* PANEL IZQUIERDO: TABLERO */}
                     <div className={`w-full lg:w-[70%] h-full p-2 lg:p-6 flex items-center justify-center border-b lg:border-b-0 lg:border-r border-slate-800/50 bg-slate-950/40 lg:overflow-hidden relative z-10 ${gameState.mode === 'family' ? 'hidden lg:flex' : ''}`}>
-                        {/* TABLERO (Siempre renderizado para ejecutar la lógica de final de turno, aunque oculto por CSS) */}
                         <div className="w-full max-w-[95vmin] lg:max-w-[96vh] drop-shadow-2xl flex-shrink-0">
                             <Board gameState={gameState} onAnimationComplete={handleAnimationComplete} />
                         </div>
@@ -3146,14 +3170,14 @@
                                             onClick={handlePayJail}
                                             disabled={me.balance < 50 || gameState.isAnimating}
                                             className="p-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md bg-gradient-to-br from-red-600 to-orange-700 hover:from-red-500 hover:to-orange-600 active:scale-95 border border-red-400/30">
-                                            <span className="font-bold text-xs uppercase hidden xl:inline text-white">Pagar M50</span>
+                                            <span className="font-bold text-xs uppercase text-white">Pagar M50</span>
                                         </button>
                                         {me.getOutJailFreeCards > 0 && (
                                             <button 
                                                 onClick={handleUseJailCard}
                                                 disabled={gameState.isAnimating}
                                                 className="p-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 active:scale-95 border border-yellow-400/30">
-                                                <span className="font-bold text-xs uppercase hidden xl:inline text-white">Usar Carta</span>
+                                                <span className="font-bold text-xs uppercase text-white">Usar Carta</span>
                                             </button>
                                         )}
                                         </>
@@ -3166,13 +3190,13 @@
                                                 disabled={!isRollingAllowed}
                                                 className={`p-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md ${isRollingAllowed ? (me.inJail ? 'bg-gradient-to-br from-purple-600 to-pink-700 hover:from-purple-500 hover:to-pink-600 active:scale-95 border border-purple-400/30 text-white' : 'bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 active:scale-95 border border-blue-400/30 text-white') : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'}`}>
                                                 <Dices className="w-5 h-5" />
-                                                <span className="font-bold text-xs uppercase hidden xl:inline">{me.inJail ? 'Tirar (Dobles)' : 'Tirar Dados'}</span>
+                                                <span className="font-bold text-xs uppercase text-white">Tirar Dados</span>
                                             </button>
                                         );
                                     })()}
                                     <button onClick={() => setShowTradeSelector(true)} disabled={gameState.activeTrade !== undefined && gameState.activeTrade !== null} className={`p-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md border group ${gameState.activeTrade ? 'bg-slate-800 text-slate-600 border-slate-700 cursor-not-allowed' : 'bg-slate-700/50 hover:bg-slate-700 border-slate-600'}`}>
                                         <ArrowRightLeft className={`w-4 h-4 transition-transform duration-500 ${gameState.activeTrade ? 'text-slate-600' : 'text-orange-400 group-hover:rotate-180'}`} />
-                                        <span className={`font-bold text-xs uppercase hidden xl:inline ${gameState.activeTrade ? 'text-slate-600' : 'text-slate-300 group-hover:text-white'}`}>Trueque</span>
+                                        <span className={`font-bold text-xs uppercase ${gameState.activeTrade ? 'text-slate-600' : 'text-slate-300 group-hover:text-white'}`}>Trueque</span>
                                     </button>
                                 </div>
                             </div>
@@ -3342,8 +3366,8 @@
 
                             {/* MODAL DE CONFIRMACIÓN DE BANCARROTA */}
                             {showBankruptcyConfirm && (
-                                <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in zoom-in duration-300">
-                                    <div className="bg-slate-900 border border-red-500/50 p-8 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.3)] w-full max-w-sm text-center flex flex-col items-center">
+                                <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/10 backdrop-blur-[2px] pointer-events-none p-4 animate-in fade-in zoom-in duration-300">
+                                    <div className="bg-slate-900 border border-red-500/50 p-8 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.3)] w-full max-w-sm text-center flex flex-col items-center pointer-events-auto">
                                         <div className="text-6xl mb-4 animate-bounce">💀</div>
                                         <h2 className="text-2xl font-black text-red-500 uppercase tracking-widest mb-4 drop-shadow-md">¿Estás seguro?</h2>
                                         <p className="text-slate-300 text-sm mb-8">Al declarar la bancarrota quedarás <strong className="text-red-400">eliminado</strong> de la partida. Todas tus propiedades, casas y hoteles volverán al banco y podrán ser compradas por otros jugadores. Esta acción no se puede deshacer.</p>
