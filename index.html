@@ -2341,7 +2341,7 @@
                 return (
                     <div className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center p-4 relative" style={{ backgroundImage: `url(https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_9q9p9s9q9p9s9q9p.png)` }}>
                         <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-0"></div>
-                        <div className="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl border border-white/10 relative z-10">
+                        <div className={`glass-panel w-full ${!playerId ? 'max-w-md' : 'max-w-3xl'} rounded-3xl p-6 shadow-2xl border border-white/10 relative z-10 transition-all duration-300`}>
                             
                             {!playerId ? (
                                 <div className="animate-fade-in">
@@ -2372,29 +2372,51 @@
                                     </div>
                                 </div>
                             ) : (
-                                <div className="animate-fade-in flex flex-col h-full">
+                                <div className="animate-fade-in flex flex-col h-full w-full">
                                     <button onClick={() => setPlayerId('')} className="text-slate-400 hover:text-white flex items-center gap-2 mb-6 text-sm font-bold uppercase tracking-wider transition w-fit">
                                         <ArrowRight className="w-4 h-4 rotate-180" /> Volver
                                     </button>
-                                    <h1 className="text-2xl font-black text-center text-white mb-2">Elige tu Ficha</h1>
-                                    <p className="text-slate-300 text-center mb-6">Selecciona la ficha con la que jugarás</p>
                                     
+                                    <div className="flex flex-col md:flex-row gap-8 w-full">
+                                        {/* Columna Izquierda: Jugador y Aceptar */}
+                                        <div className="flex-1 flex flex-col justify-center gap-4">
+                                            {gameState.mode === 'family' ? (
+                                                <div className="w-full bg-slate-800/50 p-6 rounded-2xl border border-slate-700 text-center shadow-inner">
+                                                    <label className="block text-slate-400 font-black uppercase tracking-widest text-xs mb-3">Tu Nombre</label>
+                                                    <input type="text" placeholder={me.name} value={localName} onChange={(e) => setLocalName(e.target.value)} maxLength="15" className="w-full bg-slate-900/80 border-2 border-slate-600 rounded-xl p-3 text-center text-2xl font-black text-white focus:outline-none focus:border-green-400 transition-colors shadow-inner" />
+                                                </div>
+                                            ) : (
+                                                <div className="w-full bg-slate-800/50 p-6 rounded-2xl border border-slate-700 text-center shadow-inner">
+                                                    <label className="block text-slate-400 font-black uppercase tracking-widest text-xs mb-1">Jugador</label>
+                                                    <div className="text-3xl font-black text-white truncate">{me.name}</div>
+                                                </div>
+                                            )}
+                                            
+                                            <button onClick={() => handleJoin(playerId)} disabled={!selectedToken} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 disabled:opacity-50 text-white font-black py-4 md:py-6 rounded-2xl shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all text-xl uppercase tracking-wider hover:from-green-400 hover:to-emerald-500 transform active:scale-95 disabled:active:scale-100 disabled:shadow-none mt-auto">
+                                                Entrar al Tablero
+                                            </button>
+                                        </div>
 
-                                    
-                                    <div className="grid grid-cols-2 gap-4 mb-8">
-                                        {availableTokens.map(token => {
-                                            const isTaken = takenTokens.includes(token.id);
-                                            const isSelected = selectedToken === token.id;
-                                            return (
-                                                <button key={token.id} disabled={isTaken} onClick={() => setSelectedToken(token.id)} className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${isTaken ? 'opacity-30 cursor-not-allowed border-slate-800 bg-slate-900/50' : isSelected ? 'border-green-500 bg-green-500/20 scale-105 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'border-slate-700 bg-slate-800/50 hover:border-slate-500 hover:bg-slate-700'}`}>
-                                                    <div className="mb-2 flex justify-center"><TokenIcon tokenId={token.id} className="w-12 h-12" /></div>
-                                                    <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${isSelected ? 'text-green-400' : 'text-slate-300'}`}>{token.name}</span>
-                                                    {isTaken && <span className="text-[10px] text-red-400 mt-1 uppercase font-black">Ocupada</span>}
-                                                </button>
-                                            );
-                                        })}
+                                        {/* Columna Derecha: Fichas */}
+                                        <div className="flex-[2] flex flex-col border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-8">
+                                            <h1 className="text-2xl font-black text-center md:text-left text-white mb-2">Elige tu Ficha</h1>
+                                            <p className="text-slate-400 text-center md:text-left text-sm mb-6 font-bold">Selecciona la ficha con la que jugarás</p>
+                                            
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {availableTokens.map(token => {
+                                                    const isTaken = takenTokens.includes(token.id);
+                                                    const isSelected = selectedToken === token.id;
+                                                    return (
+                                                        <button key={token.id} disabled={isTaken} onClick={() => setSelectedToken(token.id)} className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all aspect-square ${isTaken ? 'opacity-30 cursor-not-allowed border-slate-800 bg-slate-900/50' : isSelected ? 'border-green-500 bg-green-500/20 scale-[1.02] shadow-[0_0_20px_rgba(34,197,94,0.4)]' : 'border-slate-700 bg-slate-800/50 hover:border-slate-500 hover:bg-slate-700/80 hover:scale-105'}`}>
+                                                            <div className="mb-2 flex justify-center"><TokenIcon tokenId={token.id} className="w-10 h-10 sm:w-14 sm:h-14 drop-shadow-lg" /></div>
+                                                            <span className={`text-[9px] sm:text-[11px] font-black uppercase tracking-wider ${isSelected ? 'text-green-400' : 'text-slate-300'}`}>{token.name}</span>
+                                                            {isTaken && <span className="text-[9px] text-red-500 mt-1 uppercase font-black tracking-widest bg-red-900/40 px-2 py-0.5 rounded-full">Ocupada</span>}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <button onClick={() => handleJoin(playerId)} disabled={!selectedToken} className="w-full bg-gradient-to-r from-green-500 to-green-600 disabled:opacity-50 text-white font-black py-4 rounded-xl shadow-lg transition-all text-lg uppercase tracking-wide hover:from-green-400 hover:to-green-500 transform active:scale-95 disabled:active:scale-100 mt-auto">Entrar al Tablero</button>
                                 </div>
                             )}
                         </div>
@@ -2598,24 +2620,26 @@
                 <div className="min-h-screen lg:h-screen flex flex-col lg:flex-row pb-safe text-white lg:overflow-hidden bg-cover bg-center relative" style={{ backgroundImage: `url(https://raw.githubusercontent.com/AVS-PROJECTS33/PATOPOLY/main/Gemini_Generated_Image_9q9p9s9q9p9s9q9p.png)` }}>
                     
                     {/* ROOM NUMBER AND PLAYERS DISPLAY */}
-                    <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-[400] flex flex-col gap-2 pointer-events-none">
-                        <div className="bg-black/60 backdrop-blur-md p-2 rounded-xl border border-white/20 shadow-lg text-center w-16 sm:w-20">
-                            <p className="text-[8px] sm:text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-0.5">Sala</p>
-                            <p className="text-sm sm:text-lg font-black text-white leading-none tracking-tight">{gameId}</p>
+                    {gameState.mode !== 'family' && (
+                        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-[400] flex flex-col gap-2 pointer-events-none">
+                            <div className="bg-black/60 backdrop-blur-md p-2 rounded-xl border border-white/20 shadow-lg text-center w-16 sm:w-20">
+                                <p className="text-[8px] sm:text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-0.5">Sala</p>
+                                <p className="text-sm sm:text-lg font-black text-white leading-none tracking-tight">{gameId}</p>
+                            </div>
+                            <div className="flex flex-col gap-1.5 mt-1">
+                                {gameState.players.filter(p => p.hasJoined && !p.isBankrupt).map((p) => {
+                                    const isCurrentTurn = gameState.players[gameState.currentTurnIndex]?.id === p.id;
+                                    return (
+                                        <div key={p.id} className={`flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-xl border backdrop-blur-md shadow-sm transition-all duration-300 w-16 sm:w-20 ${isCurrentTurn ? 'bg-green-900/40 border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'bg-black/40 border-white/10'}`}>
+                                            <TokenIcon tokenId={p.token} className={`w-6 h-6 sm:w-8 sm:h-8 drop-shadow-md transition-transform mb-1 ${isCurrentTurn ? 'animate-bounce' : 'opacity-70'}`} />
+                                            <span className={`text-[9px] sm:text-[11px] font-bold text-center leading-tight overflow-hidden text-ellipsis whitespace-nowrap w-full ${isCurrentTurn ? 'text-green-400' : 'text-slate-300'}`}>{p.name}</span>
+                                            {isCurrentTurn && <span className="mt-1 text-[7px] sm:text-[9px] bg-green-500 text-white px-1 py-0.5 rounded shadow w-full text-center tracking-wider">TURNO</span>}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
-                        <div className="flex flex-col gap-1.5 mt-1">
-                            {gameState.players.filter(p => p.hasJoined && !p.isBankrupt).map((p) => {
-                                const isCurrentTurn = gameState.players[gameState.currentTurnIndex]?.id === p.id;
-                                return (
-                                    <div key={p.id} className={`flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-xl border backdrop-blur-md shadow-sm transition-all duration-300 w-16 sm:w-20 ${isCurrentTurn ? 'bg-green-900/40 border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.3)] scale-110 ml-2 origin-left' : 'bg-black/40 border-white/10'}`}>
-                                        <TokenIcon tokenId={p.token} className={`w-6 h-6 sm:w-8 sm:h-8 drop-shadow-md transition-transform mb-1 ${isCurrentTurn ? 'animate-bounce' : 'opacity-70'}`} />
-                                        <span className={`text-[9px] sm:text-[11px] font-bold text-center leading-tight overflow-hidden text-ellipsis whitespace-nowrap w-full ${isCurrentTurn ? 'text-green-400' : 'text-slate-300'}`}>{p.name}</span>
-                                        {isCurrentTurn && <span className="mt-1 text-[7px] sm:text-[9px] bg-green-500 text-white px-1 py-0.5 rounded shadow w-full text-center tracking-wider">TURNO</span>}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
+                    )}
                     
                     {/* TRADE MANAGER */}
                     <TradeManager gameState={gameState} playerId={playerId} gameId={gameId} onClose={() => setShowTradeSelector(false)} />
