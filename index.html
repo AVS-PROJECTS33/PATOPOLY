@@ -303,7 +303,7 @@
         );
 
         // --- COMPONENTE: TARJETA DE PROPIEDAD (ESTILO MONOPOLY) ---
-        function PropertyCard({ space, owner, isMortgaged, isOwner, onMortgage, onUnmortgage, canBuild, canSellBuild, canMortgage, buildings = 0, hasAllColors = false, onBuild, onSellBuild, onClose }) {
+        function PropertyCard({ space, owner, isMortgaged, isOwner, isMyTurn = true, onMortgage, onUnmortgage, canBuild, canSellBuild, canMortgage, buildings = 0, hasAllColors = false, onBuild, onSellBuild, onClose }) {
             if (!space) return null;
             const isProperty = space.type === 'property';
             const isStation = space.type === 'station';
@@ -326,7 +326,7 @@
                             {isMortgaged ? (
                                 <div className="text-center py-4">
                                     <p className="text-slate-600 text-xs mb-3">Esta propiedad está hipotecada y no genera alquiler.</p>
-                                    {isOwner && (
+                                    {isOwner && isMyTurn && (
                                         <button onClick={onUnmortgage} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-black py-3 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-green-400 active:scale-95 transition">
                                             Paga M{unmortgageVal} para deshipotecar
                                         </button>
@@ -377,17 +377,17 @@
                                         <div>HIPOTECADO<br/><span className="font-mono">POR M{mortgageVal}</span></div>
                                         <div className="text-right">PARA DESHIP.<br/><span className="font-mono">PAGA M{unmortgageVal}</span></div>
                                     </div>
-                                    {isOwner && canMortgage && (
+                                    {isOwner && isMyTurn && canMortgage && (
                                         <button onClick={onMortgage} className="w-full mt-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-orange-400 active:scale-95 transition">
                                             Hipotecar – cobrar M{mortgageVal}
                                         </button>
                                     )}
-                                    {isOwner && canBuild && (
+                                    {isOwner && isMyTurn && canBuild && (
                                         <button onClick={() => onBuild(1)} disabled={buildings === 5 || (owner?.balance || 0) < space.houseCost} className="w-full mt-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-emerald-400 active:scale-95 transition disabled:opacity-50">
                                             Comprar {buildings === 4 ? 'Hotel' : 'Casa'} (M{space.houseCost})
                                         </button>
                                     )}
-                                    {isOwner && canSellBuild && buildings > 0 && (
+                                    {isOwner && isMyTurn && canSellBuild && buildings > 0 && (
                                         <button onClick={onSellBuild} className="w-full mt-2 bg-gradient-to-r from-red-500 to-red-700 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-red-400 active:scale-95 transition disabled:opacity-50">
                                             Vender {buildings === 5 ? 'Hotel' : 'Casa'} (M{Math.floor(space.houseCost / 2)})
                                         </button>
@@ -1230,10 +1230,17 @@
                                         
                                         {/* NUEVA CABECERA EN COLUMNA DERECHA */}
                                         <div className="w-full mb-6 pb-6 border-b border-slate-700/50">
-                                            <h2 className="text-xl font-black text-white uppercase tracking-wider mb-1">Sala de Espera</h2>
-                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2">
-                                                {gameState.mode === 'family' ? <><QrCode className="w-3 h-3" /> Modo Familia</> : <><Users className="w-3 h-3" /> Código: <span className="text-purple-400">{activeGameId}</span></>}
-                                            </p>
+                                            <h2 className="text-xl font-black text-white uppercase tracking-wider mb-2">Sala de Espera</h2>
+                                            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs flex flex-col items-center justify-center gap-2">
+                                                {gameState.mode === 'family' ? (
+                                                    <span className="flex items-center gap-2"><QrCode className="w-4 h-4" /> Modo Familia</span>
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-2 mt-2">
+                                                        <span className="flex items-center gap-2 text-slate-500"><Users className="w-4 h-4" /> Código para unirse</span>
+                                                        <span className="text-4xl sm:text-5xl font-black text-purple-400 tracking-[0.2em] drop-shadow-md bg-slate-900/50 px-4 py-2 rounded-xl border border-purple-500/30">{activeGameId}</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
                                         {gameState.mode === 'family' ? (
@@ -1606,6 +1613,7 @@
             const [showTurnSplash, setShowTurnSplash] = useState(false);
             const [showTradeSelector, setShowTradeSelector] = useState(false);
             const [showBankruptcyConfirm, setShowBankruptcyConfirm] = useState(false);
+            const [confirmAction, setConfirmAction] = useState(null);
             const [prevTurnIndex, setPrevTurnIndex] = useState(null);
             const [balanceDiff, setBalanceDiff] = useState(null);
             const [localName, setLocalName] = useState('');
@@ -2870,19 +2878,26 @@
 
                         return (
                                 <PropertyCard 
-                                    space={selectedSpacePC}
-                                    owner={pcOwner}
-                                    isOwner={pcIsOwner}
-                                    isMortgaged={pcIsMortgaged}
+                                    space={selectedSpacePC} 
+                                    owner={me} 
+                                    isMortgaged={pcIsMortgaged} 
+                                    isOwner={true}
+                                    isMyTurn={isMyTurn}
                                     buildings={currentBuildings}
                                     hasAllColors={hasAllColors}
+                                    canMortgage={canMortgage}
                                     canBuild={canBuild}
                                     canSellBuild={canSellBuild}
-                                    canMortgage={canMortgage}
-                                    onMortgage={() => handleMortgage(selectedSpacePC.id)}
+                                    onMortgage={() => {
+                                        setSelectedSpacePC(null);
+                                        setConfirmAction({ type: 'mortgage', spaceId: selectedSpacePC.id });
+                                    }}
                                     onUnmortgage={() => handleUnmortgage(selectedSpacePC.id)}
                                     onBuild={(qty) => handleBuild(selectedSpacePC.id, qty)}
-                                    onSellBuild={() => handleSellBuild(selectedSpacePC.id)}
+                                    onSellBuild={() => {
+                                        setSelectedSpacePC(null);
+                                        setConfirmAction({ type: 'sellHouse', spaceId: selectedSpacePC.id });
+                                    }}
                                     onClose={() => setSelectedSpacePC(null)}
                                 />
                         );
@@ -3396,6 +3411,34 @@
                                     </div>
                                 </div>
                             )}
+
+                            {/* MODAL DE CONFIRMACIÓN (VENDER CASA / HIPOTECAR) */}
+                            {confirmAction && (() => {
+                                const space = boardSpaces.find(s => s.id === confirmAction.spaceId);
+                                const isSell = confirmAction.type === 'sellHouse';
+                                const val = isSell ? Math.floor(space.houseCost / 2) : (space.mortgage || Math.floor(space.price / 2));
+                                const title = isSell ? '¿Vender Construcción?' : '¿Hipotecar Propiedad?';
+                                const desc = isSell ? `¿Estás seguro de que quieres vender una construcción de ${space.name}?` : `¿Estás seguro de que quieres hipotecar ${space.name}? No cobrarás alquiler hasta deshipotecarla.`;
+                                const btnText = isSell ? `Vender por M${val}` : `Hipotecar por M${val}`;
+                                
+                                return (
+                                    <div className="fixed inset-0 lg:right-[30%] z-[300] flex items-center justify-center pointer-events-none p-4 animate-in fade-in zoom-in duration-300 bg-black/60 backdrop-blur-sm">
+                                        <div className="bg-slate-900 border border-slate-700 p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-sm text-center flex flex-col items-center pointer-events-auto">
+                                            <div className="text-5xl mb-4 animate-bounce">⚠️</div>
+                                            <h2 className="text-2xl font-black text-orange-400 uppercase tracking-widest mb-4">{title}</h2>
+                                            <p className="text-slate-300 text-sm mb-8">{desc}</p>
+                                            <div className="flex gap-4 w-full">
+                                                <button onClick={() => setConfirmAction(null)} className="flex-1 bg-slate-800 text-white font-black py-4 rounded-xl border border-slate-600 hover:bg-slate-700 transition uppercase active:scale-95 text-xs">Cancelar</button>
+                                                <button onClick={() => {
+                                                    if(isSell) handleSellBuild(space.id);
+                                                    else handleMortgage(space.id);
+                                                    setConfirmAction(null);
+                                                }} className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white font-black py-4 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] transition uppercase active:scale-95 border border-orange-500 text-xs">{btnText}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
 
                         </div>
                     </div>
