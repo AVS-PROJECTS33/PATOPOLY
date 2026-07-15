@@ -119,7 +119,7 @@
             { id: 'c6', text: "Quedas libre de la cárcel. Esta carta puede conservarse hasta que se utilice.", action: "jailFree" },
             { id: 'c7', text: "Paga una multa por exceso de velocidad de M15", action: "payBank", value: 15 },
             { id: 'c8', text: "Avanza hasta el Paseo del Prado", action: "moveTo", value: 39 },
-            { id: 'c9', text: "Haz reparaciones en tus propiedades: paga M25 por cada una", action: "repairs", value: 25 },
+            { id: 'c9', text: "Haz reparaciones en tus edificios: paga por cada casa M25 y por cada hotel M100", action: "repairs", houseCost: 25, hotelCost: 100 },
             { id: 'c10', text: "Has sido elegido presidente del consejo. Paga M50 a cada jugador", action: "payPlayers", value: 50 }
         ];
 
@@ -304,6 +304,7 @@
 
         // --- COMPONENTE: TARJETA DE PROPIEDAD (ESTILO MONOPOLY) ---
         function PropertyCard({ space, owner, isMortgaged, isOwner, isMyTurn = true, onMortgage, onUnmortgage, canBuild, canSellBuild, canMortgage, buildings = 0, hasAllColors = false, onBuild, onSellBuild, onClose }) {
+            const [localConfirm, setLocalConfirm] = useState(null); // 'mortgage' | 'sell'
             if (!space) return null;
             const isProperty = space.type === 'property';
             const isStation = space.type === 'station';
@@ -312,7 +313,7 @@
             const mortgageVal = space.mortgage || Math.floor(space.price / 2);
             const unmortgageVal = Math.floor(mortgageVal * 1.1);
             return (
-                <div className="fixed inset-0 lg:right-[30%] z-[200] flex items-center justify-center p-4 pointer-events-none bg-black/60 backdrop-blur-sm">
+                <div className="fixed inset-0 lg:right-[30%] flex items-center justify-center p-4 pointer-events-none bg-black/60 backdrop-blur-sm" style={{ zIndex: 9998 }}>
                     <div className="relative w-72 bg-[#f5f0e8] rounded-lg shadow-2xl border-4 border-slate-800 overflow-hidden pointer-events-auto" onClick={e => e.stopPropagation()}>
                         {/* HEADER */}
                         <div className="px-4 py-3 text-center border-b-4 border-slate-800 relative" style={{ backgroundColor: space.colorHex || '#6b7280' }}>
@@ -378,9 +379,19 @@
                                         <div className="text-right">PARA DESHIP.<br/><span className="font-mono">PAGA M{unmortgageVal}</span></div>
                                     </div>
                                     {isOwner && isMyTurn && canMortgage && (
-                                        <button onClick={onMortgage} className="w-full mt-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-orange-400 active:scale-95 transition">
-                                            Hipotecar – cobrar M{mortgageVal}
-                                        </button>
+                                        localConfirm === 'mortgage' ? (
+                                            <div className="w-full mt-3 flex flex-col gap-2 bg-red-100 p-2 rounded-xl border-2 border-red-300">
+                                                <p className="text-red-800 text-[10px] font-bold text-center leading-tight">¿Seguro que quieres hipotecar? No cobrarás alquiler.</p>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => setLocalConfirm(null)} className="flex-1 bg-slate-600 text-white font-black py-2 rounded-lg text-xs uppercase shadow hover:bg-slate-500 active:scale-95 transition">Cancelar</button>
+                                                    <button onClick={async () => { const success = await onMortgage(); if(success !== false) { setLocalConfirm(null); if(onClose) onClose(); } }} className="flex-1 bg-red-600 text-white font-black py-2 rounded-lg text-xs uppercase shadow hover:bg-red-500 active:scale-95 transition">Confirmar</button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <button onClick={() => setLocalConfirm('mortgage')} className="w-full mt-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-orange-400 active:scale-95 transition">
+                                                Hipotecar – cobrar M{mortgageVal}
+                                            </button>
+                                        )
                                     )}
                                     {isOwner && isMyTurn && canBuild && (
                                         <button onClick={() => onBuild(1)} disabled={buildings === 5 || (owner?.balance || 0) < space.houseCost} className="w-full mt-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-emerald-400 active:scale-95 transition disabled:opacity-50">
@@ -388,9 +399,19 @@
                                         </button>
                                     )}
                                     {isOwner && isMyTurn && canSellBuild && buildings > 0 && (
-                                        <button onClick={onSellBuild} className="w-full mt-2 bg-gradient-to-r from-red-500 to-red-700 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-red-400 active:scale-95 transition disabled:opacity-50">
-                                            Vender {buildings === 5 ? 'Hotel' : 'Casa'} (M{Math.floor(space.houseCost / 2)})
-                                        </button>
+                                        localConfirm === 'sell' ? (
+                                            <div className="w-full mt-3 flex flex-col gap-2 bg-red-100 p-2 rounded-xl border-2 border-red-300">
+                                                <p className="text-red-800 text-[10px] font-bold text-center leading-tight">¿Seguro que quieres vender {buildings === 5 ? 'el Hotel' : 'una Casa'}?</p>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => setLocalConfirm(null)} className="flex-1 bg-slate-600 text-white font-black py-2 rounded-lg text-xs uppercase shadow hover:bg-slate-500 active:scale-95 transition">Cancelar</button>
+                                                    <button onClick={async () => { const success = await onSellBuild(); if(success !== false) { setLocalConfirm(null); if(onClose) onClose(); } }} className="flex-1 bg-red-600 text-white font-black py-2 rounded-lg text-xs uppercase shadow hover:bg-red-500 active:scale-95 transition">Confirmar</button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <button onClick={() => setLocalConfirm('sell')} className="w-full mt-2 bg-gradient-to-r from-red-500 to-red-700 text-white font-black py-2.5 rounded-xl text-sm uppercase tracking-wider shadow-lg hover:from-red-400 active:scale-95 transition disabled:opacity-50">
+                                                Vender {buildings === 5 ? 'Hotel' : 'Casa'} (M{Math.floor(space.houseCost / 2)})
+                                            </button>
+                                        )
                                     )}
                                 </>
                             )}
@@ -1365,55 +1386,68 @@
             const me = gameState.players.find(p => p.id === playerId);
             const them = gameState.players.find(p => p.id === (isP1 ? trade.p2Id : trade.p1Id));
 
-            // Local state for editing money (to avoid constant firestore writes while typing)
-            const [localMoney, setLocalMoney] = useState(myOffer.money.toString());
+            // Local state for editing money
+            const [localMoneyMe, setLocalMoneyMe] = useState(trade.p1Offer.money.toString());
+            const [localMoneyThem, setLocalMoneyThem] = useState(trade.p2Offer.money.toString());
 
             useEffect(() => {
-                setLocalMoney(myOffer.money.toString());
-            }, [myOffer.money, trade.status]);
+                setLocalMoneyMe(trade.p1Offer.money.toString());
+                setLocalMoneyThem(trade.p2Offer.money.toString());
+            }, [trade.p1Offer.money, trade.p2Offer.money, trade.status]);
 
-            const handleToggleProperty = async (propId) => {
-                if (myOffer.locked || trade.status !== 'building') return;
-                const newProps = myOffer.properties.includes(propId) 
-                    ? myOffer.properties.filter(id => id !== propId)
-                    : [...myOffer.properties, propId];
+            // Only P1 (initiator) can toggle properties and change money during 'building' status
+            const handleToggleProperty = async (propId, isForP1Offer) => {
+                if (!isP1 || trade.status !== 'building') return;
+                
+                const offerKey = isForP1Offer ? 'p1Offer' : 'p2Offer';
+                const currentProps = trade[offerKey].properties;
+                const newProps = currentProps.includes(propId) 
+                    ? currentProps.filter(id => id !== propId)
+                    : [...currentProps, propId];
                 
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
-                        [`activeTrade.${isP1 ? 'p1Offer' : 'p2Offer'}.properties`]: newProps
+                        [`activeTrade.${offerKey}.properties`]: newProps
                     });
                 } catch(e) { console.error(e); }
             };
 
-            const handleMoneyChange = (val) => {
-                if (myOffer.locked || trade.status !== 'building') return;
-                setLocalMoney(val);
+            const handleMoneyChange = (val, isForP1Offer) => {
+                if (!isP1 || trade.status !== 'building') return;
+                if (isForP1Offer) setLocalMoneyMe(val);
+                else setLocalMoneyThem(val);
             };
 
-            const handleMoneyBlur = async () => {
-                if (myOffer.locked || trade.status !== 'building') return;
-                let num = parseInt(localMoney, 10);
+            const handleMoneyBlur = async (isForP1Offer) => {
+                if (!isP1 || trade.status !== 'building') return;
+                
+                let num = parseInt(isForP1Offer ? localMoneyMe : localMoneyThem, 10);
                 if (isNaN(num) || num < 0) num = 0;
-                if (num > me.balance) num = me.balance;
-                setLocalMoney(num.toString());
+                
+                // Max limits: P1 can't offer more than they have, and can't request more than P2 has
+                const maxBalance = isForP1Offer ? (gameState.players.find(p => p.id === trade.p1Id).balance) : (gameState.players.find(p => p.id === trade.p2Id).balance);
+                if (num > maxBalance) num = maxBalance;
+                
+                if (isForP1Offer) setLocalMoneyMe(num.toString());
+                else setLocalMoneyThem(num.toString());
+                
+                const offerKey = isForP1Offer ? 'p1Offer' : 'p2Offer';
+                
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
-                        [`activeTrade.${isP1 ? 'p1Offer' : 'p2Offer'}.money`]: num
+                        [`activeTrade.${offerKey}.money`]: num
                     });
                 } catch(e) { console.error(e); }
             };
 
-            const toggleLock = async () => {
+            const proposeTrade = async () => {
+                if (!isP1 || trade.status !== 'building') return;
                 try {
-                    const newLocked = !myOffer.locked;
-                    const updates = {
-                        [`activeTrade.${isP1 ? 'p1Offer' : 'p2Offer'}.locked`]: newLocked
-                    };
-                    // If we are locking, and the other person is already locked, transition to 'review'
-                    if (newLocked && theirOffer.locked) {
-                        updates['activeTrade.status'] = 'review';
-                    }
-                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updates);
+                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
+                        'activeTrade.status': 'review',
+                        'activeTrade.p1Offer.locked': true,
+                        'activeTrade.p2Offer.locked': true
+                    });
                 } catch(e) { console.error(e); }
             };
 
@@ -1429,59 +1463,61 @@
             };
 
             const handleAccept = async () => {
+                if (isP1) return; // P1 already proposed, only P2 can accept
                 try {
-                    const updates = {
-                        [`activeTrade.${isP1 ? 'p1Offer' : 'p2Offer'}.accepted`]: true
+                    const newPlayers = JSON.parse(JSON.stringify(gameState.players));
+                    const p1Data = newPlayers.find(p => p.id === trade.p1Id);
+                    const p2Data = newPlayers.find(p => p.id === trade.p2Id);
+                    
+                    // Execute money transfer
+                    p1Data.balance = p1Data.balance - trade.p1Offer.money + trade.p2Offer.money;
+                    p2Data.balance = p2Data.balance - trade.p2Offer.money + trade.p1Offer.money;
+                    
+                    // Execute properties and mortgage transfer
+                    trade.p1Offer.properties.forEach(pid => {
+                        p1Data.properties = p1Data.properties.filter(id => id !== pid);
+                        p2Data.properties.push(pid);
+                        if (p1Data.mortgaged && p1Data.mortgaged.includes(pid)) {
+                            p1Data.mortgaged = p1Data.mortgaged.filter(id => id !== pid);
+                            if (!p2Data.mortgaged) p2Data.mortgaged = [];
+                            p2Data.mortgaged.push(pid);
+                        }
+                    });
+                    trade.p2Offer.properties.forEach(pid => {
+                        p2Data.properties = p2Data.properties.filter(id => id !== pid);
+                        p1Data.properties.push(pid);
+                        if (p2Data.mortgaged && p2Data.mortgaged.includes(pid)) {
+                            p2Data.mortgaged = p2Data.mortgaged.filter(id => id !== pid);
+                            if (!p1Data.mortgaged) p1Data.mortgaged = [];
+                            p1Data.mortgaged.push(pid);
+                        }
+                    });
+
+                    let updates = {
+                        activeTrade: null,
+                        tradeAlert: { message: `¡Enhorabuena! Trueque aceptado.`, type: 'success', timestamp: Date.now() },
+                        players: newPlayers,
+                        logs: [...(gameState.logs || []), `¡Trueque completado entre ${gameState.players.find(p => p.id === trade.p1Id).name} y ${gameState.players.find(p => p.id === trade.p2Id).name}!`]
                     };
                     
-                    // If the other person has already accepted, execute trade
-                    if (theirOffer.accepted) {
-                        const newPlayers = JSON.parse(JSON.stringify(gameState.players));
-                        const p1Data = newPlayers.find(p => p.id === trade.p1Id);
-                        const p2Data = newPlayers.find(p => p.id === trade.p2Id);
-                        
-                        // Execute money transfer
-                        p1Data.balance = p1Data.balance - trade.p1Offer.money + trade.p2Offer.money;
-                        p2Data.balance = p2Data.balance - trade.p2Offer.money + trade.p1Offer.money;
-                        
-                        // Execute properties transfer
-                        trade.p1Offer.properties.forEach(pid => {
-                            p1Data.properties = p1Data.properties.filter(id => id !== pid);
-                            p2Data.properties.push(pid);
-                        });
-                        trade.p2Offer.properties.forEach(pid => {
-                            p2Data.properties = p2Data.properties.filter(id => id !== pid);
-                            p1Data.properties.push(pid);
-                        });
-
-                        updates.activeTrade = null;
-                        updates.tradeAlert = { message: `¡Enhorabuena! Trueque aceptado.`, type: 'success', timestamp: Date.now() };
-                        updates.players = newPlayers;
-                        updates.logs = [...(gameState.logs || []), `¡Trueque completado entre ${me.name} y ${them.name}!`];
-                        
-                        if (gameState.awaitingRent && 
-                           ((gameState.awaitingRent.playerId === trade.p1Id && gameState.awaitingRent.toPlayerId === trade.p2Id) || 
-                            (gameState.awaitingRent.playerId === trade.p2Id && gameState.awaitingRent.toPlayerId === trade.p1Id))) {
-                            updates.awaitingRent = null;
-                            updates.currentTurnIndex = gameState.awaitingRent.nextTurnIndex;
-                            updates.logs.push(`¡La deuda de alquiler fue saldada con el trueque!`);
-                        }
-
-                        await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updates);
-                        if (onClose) onClose();
-                    } else {
-                        await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updates);
+                    if (gameState.awaitingRent && 
+                       ((gameState.awaitingRent.playerId === trade.p1Id && gameState.awaitingRent.toPlayerId === trade.p2Id) || 
+                        (gameState.awaitingRent.playerId === trade.p2Id && gameState.awaitingRent.toPlayerId === trade.p1Id))) {
+                        updates.awaitingRent = null;
+                        updates.currentTurnIndex = gameState.awaitingRent.nextTurnIndex;
+                        updates.logs.push(`¡La deuda de alquiler fue saldada con el trueque!`);
                     }
+
+                    await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), updates);
+                    if (onClose) onClose();
                 } catch(e) { console.error(e); }
             };
 
             // Helpers for rendering properties
-            const renderProps = (offerProps, ownerProps, isMe, ownerPlayer) => {
-                const rawProps = isMe ? ownerProps : offerProps;
-                // Filtrar propiedades hipotecadas
-                const availableProps = rawProps ? rawProps.filter(id => !(ownerPlayer.mortgaged && ownerPlayer.mortgaged.includes(id))) : [];
+            const renderProps = (offerProps, ownerProps, isForP1Offer, ownerPlayer, canEdit) => {
+                const availableProps = ownerProps || [];
 
-                if (!availableProps || availableProps.length === 0) return <p className="text-slate-500 text-xs text-center py-4">Ninguna propiedad libre de hipoteca</p>;
+                if (!availableProps || availableProps.length === 0) return <p className="text-slate-500 text-xs text-center py-4">Ninguna propiedad</p>;
                 
                 const propDatas = availableProps.map(id => boardSpaces.find(s => s.id === id)).filter(Boolean);
                 
@@ -1489,13 +1525,15 @@
                     <div className="grid grid-cols-2 gap-2 mt-2">
                         {propDatas.map(p => {
                             const isSelected = offerProps.includes(p.id);
+                            const isMortgaged = ownerPlayer.mortgaged && ownerPlayer.mortgaged.includes(p.id);
                             return (
-                                <div key={p.id} onClick={() => isMe ? handleToggleProperty(p.id) : null}
-                                    className={`relative rounded-lg border-2 p-1 text-center select-none overflow-hidden flex flex-col justify-center min-h-[40px] shadow-sm ${isMe ? 'cursor-pointer hover:scale-105 active:scale-95 transition-all' : ''} ${isSelected ? 'border-green-400 ring-2 ring-green-400 ring-offset-1 ring-offset-slate-900 opacity-100' : 'border-white/30 opacity-90 brightness-75 hover:brightness-100 hover:opacity-100'}`}
+                                <div key={p.id} onClick={() => canEdit ? handleToggleProperty(p.id, isForP1Offer) : null}
+                                    className={`relative rounded-lg border-2 p-1 text-center select-none overflow-hidden flex flex-col justify-center min-h-[40px] shadow-sm ${canEdit ? 'cursor-pointer hover:scale-105 active:scale-95 transition-all' : ''} ${isSelected ? 'border-green-400 ring-2 ring-green-400 ring-offset-1 ring-offset-slate-900 opacity-100' : 'border-white/30 opacity-90 brightness-75 hover:brightness-100 hover:opacity-100'}`}
                                     style={{ backgroundColor: p.colorHex || (p.type === 'station' ? '#374151' : '#4b5563') }}>
-                                    <div className="text-[9px] sm:text-[10px] font-black uppercase leading-tight text-white drop-shadow-md z-10">{p.name}</div>
+                                    <div className={`text-[9px] sm:text-[10px] font-black uppercase leading-tight text-white drop-shadow-md z-10 ${isMortgaged ? 'opacity-50 line-through' : ''}`}>{p.name}</div>
+                                    {isMortgaged && <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"><span className="bg-red-600 text-white text-[8px] font-black px-1 py-0.5 rounded -rotate-12 border border-white/50 shadow">HIPOT.</span></div>}
                                     {isSelected && <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-lg shadow-md z-20 flex items-center justify-center">✓</div>}
-                                    {!isSelected && isMe && <div className="absolute inset-0 bg-black/40 z-0 pointer-events-none"></div>}
+                                    {!isSelected && canEdit && <div className="absolute inset-0 bg-black/40 z-0 pointer-events-none"></div>}
                                 </div>
                             );
                         })}
@@ -1503,99 +1541,118 @@
                 );
             };
 
+            const p1 = gameState.players.find(p => p.id === trade.p1Id);
+            const p2 = gameState.players.find(p => p.id === trade.p2Id);
+
             return (
                 <div className="fixed inset-0 lg:right-[30%] z-[200] flex items-center justify-center p-2 sm:p-4 pointer-events-none animate-in fade-in duration-300 bg-black/60 backdrop-blur-sm">
                     <div className="bg-slate-900 border border-slate-700 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] w-full max-w-5xl flex flex-col md:flex-row overflow-hidden relative pointer-events-auto">
-                        {trade.status === 'building' && (
+                        {(trade.status === 'building' || trade.status === 'review') && (
                             <button onClick={handleReject} className="absolute top-2 right-2 md:top-3 md:right-3 z-50 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-red-500 rounded-full p-2 transition-all">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
                             </button>
                         )}
                         
                         {trade.status === 'building' ? (
-                            <>
-                                {/* MI LADO */}
-                                <div className="flex-1 p-4 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col overflow-hidden bg-slate-900/30">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <h3 className="font-black text-white uppercase text-lg">Mi Oferta</h3>
-                                        {myOffer.locked && <span className="text-xs bg-green-500/20 text-green-400 font-bold px-2 py-1 rounded border border-green-500/30">Lista</span>}
-                                    </div>
-                                    
-                                    <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                                        <p className="text-xs text-slate-400 uppercase tracking-widest font-bold border-b border-slate-800 pb-1">Calles (Selecciona para añadir)</p>
-                                        {renderProps(myOffer.properties, me.properties, true, me)}
-                                    </div>
-                                    
-                                    <div className="mt-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700">
-                                        <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">Dinero a Pagar</p>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xl font-black text-green-400">M</span>
-                                            <input type="number" min="0" max={me.balance} value={localMoney} onChange={e => handleMoneyChange(e.target.value)} onBlur={handleMoneyBlur} disabled={myOffer.locked} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold outline-none focus:border-orange-500" />
+                            isP1 ? (
+                                <div className="flex flex-col w-full h-full">
+                                    <div className="flex flex-col md:flex-row flex-1 min-h-0">
+                                        {/* P1 VIEW (Initiator) */}
+                                        <div className="flex-1 p-4 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col bg-slate-900/30">
+                                            <div className="flex justify-between items-center mb-2 shrink-0">
+                                                <h3 className="font-black text-white uppercase text-lg">Yo Doy</h3>
+                                            </div>
+                                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 min-h-[100px]">
+                                                <p className="text-xs text-slate-400 uppercase tracking-widest font-bold border-b border-slate-800 pb-1 mb-2">Mis Calles (Selecciona para dar)</p>
+                                                {renderProps(trade.p1Offer.properties, p1.properties, true, p1, true)}
+                                            </div>
+                                            <div className="mt-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700 shrink-0">
+                                                <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">Dinero que Doy</p>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xl font-black text-green-400">M</span>
+                                                    <input type="number" min="0" max={p1.balance} value={localMoneyMe == '0' ? '' : localMoneyMe} placeholder="0" onChange={e => handleMoneyChange(e.target.value, true)} onBlur={() => handleMoneyBlur(true)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold outline-none focus:border-orange-500 placeholder-slate-600" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex-1 p-4 flex flex-col bg-slate-900/30">
+                                            <div className="flex justify-between items-center mb-2 shrink-0">
+                                                <h3 className="font-black text-white uppercase text-lg">{p2.name} Da</h3>
+                                            </div>
+                                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 min-h-[100px]">
+                                                <p className="text-xs text-slate-400 uppercase tracking-widest font-bold border-b border-slate-800 pb-1 mb-2">Sus Calles (Selecciona para pedir)</p>
+                                                {renderProps(trade.p2Offer.properties, p2.properties, false, p2, true)}
+                                            </div>
+                                            <div className="mt-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700 shrink-0">
+                                                <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">Dinero que Pido</p>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xl font-black text-green-400">M</span>
+                                                    <input type="number" min="0" max={p2.balance} value={localMoneyThem == '0' ? '' : localMoneyThem} placeholder="0" onChange={e => handleMoneyChange(e.target.value, false)} onBlur={() => handleMoneyBlur(false)} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold outline-none focus:border-orange-500 placeholder-slate-600" />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    
-                                    <button onClick={toggleLock} className={`w-full mt-4 py-3 rounded-xl font-black uppercase tracking-wider transition-all shadow-md ${myOffer.locked ? 'bg-slate-700 text-white border border-slate-600' : 'bg-gradient-to-r from-orange-500 to-yellow-600 text-white hover:from-orange-400 hover:to-yellow-500'}`}>
-                                        {myOffer.locked ? 'Modificar Oferta' : 'Fijar Mi Oferta'}
-                                    </button>
-                                </div>
-                                
-                                {/* SU LADO */}
-                                <div className="flex-1 p-4 flex flex-col overflow-hidden bg-slate-900/30">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <h3 className="font-black text-white uppercase text-lg">Oferta de {them.name}</h3>
-                                        {theirOffer.locked ? <span className="text-xs bg-green-500/20 text-green-400 font-bold px-2 py-1 rounded border border-green-500/30">Lista</span> : <span className="text-xs text-orange-400/70 font-bold animate-pulse">Editando...</span>}
-                                    </div>
-                                    
-                                    <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                                        <p className="text-xs text-slate-400 uppercase tracking-widest font-bold border-b border-slate-800 pb-1">Calles Solicitadas</p>
-                                        {renderProps(theirOffer.properties, them.properties, false, them)}
-                                    </div>
-                                    
-                                    <div className="mt-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700 flex flex-col justify-center min-h-[80px]">
-                                        <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Dinero Recibido</p>
-                                        <p className="text-3xl font-black text-green-400">M{theirOffer.money}</p>
+                                    <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex justify-center shrink-0">
+                                        <button onClick={proposeTrade} className="w-full max-w-md py-3 rounded-xl font-black uppercase tracking-wider transition-all shadow-md bg-gradient-to-r from-orange-500 to-yellow-600 text-white hover:from-orange-400 hover:to-yellow-500 active:scale-95">
+                                            Proponer Trueque Completo
+                                        </button>
                                     </div>
                                 </div>
-                            </>
+                            ) : (
+                                // P2 VIEW during building (Waiting)
+                                <div className="flex-1 p-8 flex flex-col items-center justify-center text-center">
+                                    <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                    <h3 className="text-2xl font-black text-white uppercase mb-2">Esperando Oferta</h3>
+                                    <p className="text-slate-400">{p1.name} está preparando una propuesta de trueque para ti. Por favor, espera a que termine de armarla.</p>
+                                </div>
+                            )
                         ) : (
-                            // REVIEW PHASE
+                            // REVIEW PHASE (Both see this)
                             <div className="flex-1 p-4 sm:p-8 flex flex-col items-center justify-center text-center">
-                                <h3 className="text-2xl font-black text-white uppercase mb-2">Revisión de Oferta Final</h3>
-                                <p className="text-slate-400 mb-8">Ambos jugadores han fijado sus ofertas. Si ambos aceptan, el trato se cerrará inmediatamente.</p>
+                                <h3 className="text-2xl font-black text-white uppercase mb-2">Propuesta de Trueque</h3>
+                                <p className="text-slate-400 mb-8">{isP1 ? `Esperando a que ${p2.name} revise y acepte tu propuesta.` : `${p1.name} te ha enviado esta propuesta. ¿La aceptas?`}</p>
                                 
                                 <div className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl mb-8">
                                     <div className="flex-1 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-                                        <h4 className="font-black text-orange-400 uppercase border-b border-slate-700 pb-2 mb-2">Tú das:</h4>
-                                        {myOffer.properties.length > 0 ? (
+                                        <h4 className="font-black text-orange-400 uppercase border-b border-slate-700 pb-2 mb-2">{p1.name} Da:</h4>
+                                        {trade.p1Offer.properties.length > 0 ? (
                                             <div className="flex flex-wrap gap-1 justify-center mb-3">
-                                                {myOffer.properties.map(id => {
+                                                {trade.p1Offer.properties.map(id => {
                                                     const s = boardSpaces.find(bs=>bs.id===id);
-                                                    return <span key={id} className="text-[10px] font-black uppercase px-2 py-1 rounded text-white shadow-sm border border-white/20" style={{ backgroundColor: s.colorHex || (s.type === 'station' ? '#374151' : '#4b5563') }}>{s.name}</span>;
+                                                    const isMortgaged = p1.mortgaged && p1.mortgaged.includes(id);
+                                                    return <span key={id} className={`text-[10px] font-black uppercase px-2 py-1 rounded text-white shadow-sm border ${isMortgaged ? 'border-red-500 opacity-80' : 'border-white/20'}`} style={{ backgroundColor: s.colorHex || (s.type === 'station' ? '#374151' : '#4b5563') }}>{s.name} {isMortgaged && '(Hipot.)'}</span>;
                                                 })}
                                             </div>
                                         ) : <p className="text-xs text-slate-500 mb-3">Ninguna calle</p>}
-                                        <p className="text-xl font-black text-green-400">M{myOffer.money}</p>
+                                        <p className="text-xl font-black text-green-400">M{trade.p1Offer.money}</p>
                                     </div>
                                     <div className="flex items-center justify-center"><ArrowRightLeft className="w-8 h-8 text-slate-500" /></div>
                                     <div className="flex-1 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-                                        <h4 className="font-black text-orange-400 uppercase border-b border-slate-700 pb-2 mb-2">{them.name} da:</h4>
-                                        {theirOffer.properties.length > 0 ? (
+                                        <h4 className="font-black text-orange-400 uppercase border-b border-slate-700 pb-2 mb-2">{p2.name} Da:</h4>
+                                        {trade.p2Offer.properties.length > 0 ? (
                                             <div className="flex flex-wrap gap-1 justify-center mb-3">
-                                                {theirOffer.properties.map(id => {
+                                                {trade.p2Offer.properties.map(id => {
                                                     const s = boardSpaces.find(bs=>bs.id===id);
-                                                    return <span key={id} className="text-[10px] font-black uppercase px-2 py-1 rounded text-white shadow-sm border border-white/20" style={{ backgroundColor: s.colorHex || (s.type === 'station' ? '#374151' : '#4b5563') }}>{s.name}</span>;
+                                                    const isMortgaged = p2.mortgaged && p2.mortgaged.includes(id);
+                                                    return <span key={id} className={`text-[10px] font-black uppercase px-2 py-1 rounded text-white shadow-sm border ${isMortgaged ? 'border-red-500 opacity-80' : 'border-white/20'}`} style={{ backgroundColor: s.colorHex || (s.type === 'station' ? '#374151' : '#4b5563') }}>{s.name} {isMortgaged && '(Hipot.)'}</span>;
                                                 })}
                                             </div>
                                         ) : <p className="text-xs text-slate-500 mb-3">Ninguna calle</p>}
-                                        <p className="text-xl font-black text-green-400">M{theirOffer.money}</p>
+                                        <p className="text-xl font-black text-green-400">M{trade.p2Offer.money}</p>
                                     </div>
                                 </div>
                                 
                                 <div className="flex gap-4 w-full max-w-md">
                                     <button onClick={handleReject} className="flex-1 py-4 rounded-xl bg-slate-800 border border-slate-600 hover:bg-red-900/30 hover:border-red-500 hover:text-red-400 font-black text-white uppercase transition-colors">Rechazar</button>
-                                    <button onClick={handleAccept} disabled={myOffer.accepted} className={`flex-1 py-4 rounded-xl font-black uppercase transition-all ${myOffer.accepted ? 'bg-green-600/50 border-green-500 text-white cursor-wait' : 'bg-green-600 hover:bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]'}`}>
-                                        {myOffer.accepted ? 'Esperando al otro...' : 'Aceptar Trato'}
-                                    </button>
+                                    {isP2 ? (
+                                        <button onClick={handleAccept} className="flex-1 py-4 rounded-xl bg-green-600 hover:bg-green-500 text-white font-black uppercase transition-all shadow-[0_0_15px_rgba(34,197,94,0.4)] active:scale-95">
+                                            Aceptar Trato
+                                        </button>
+                                    ) : (
+                                        <button disabled className="flex-1 py-4 rounded-xl bg-green-600/50 border border-green-500 text-white font-black uppercase cursor-wait">
+                                            Esperando...
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -1613,7 +1670,7 @@
             const [showTurnSplash, setShowTurnSplash] = useState(false);
             const [showTradeSelector, setShowTradeSelector] = useState(false);
             const [showBankruptcyConfirm, setShowBankruptcyConfirm] = useState(false);
-            const [confirmAction, setConfirmAction] = useState(null);
+
             const [prevTurnIndex, setPrevTurnIndex] = useState(null);
             const [balanceDiff, setBalanceDiff] = useState(null);
             const [localName, setLocalName] = useState('');
@@ -2174,11 +2231,19 @@
                 } else if (card.action === 'jailFree') {
                     meUpdated.getOutJailFreeCards = (meUpdated.getOutJailFreeCards || 0) + 1;
                 } else if (card.action === 'repairs') {
-                    let cost = (meUpdated.properties ? meUpdated.properties.length : 0) * card.value;
+                    let numHouses = 0;
+                    let numHotels = 0;
+                    if (meUpdated.buildings) {
+                        Object.values(meUpdated.buildings).forEach(count => {
+                            if (count === 5) numHotels++;
+                            else numHouses += count;
+                        });
+                    }
+                    let cost = (numHouses * card.houseCost) + (numHotels * card.hotelCost);
                     meUpdated.balance -= cost;
                     newPot += cost;
                     updateData.freeParkingPot = newPot;
-                    logMsg += ` (Pagó M${cost})`;
+                    logMsg += ` (Pagó M${cost} por ${numHouses} casas y ${numHotels} hoteles)`;
                 }
 
                 updatedPlayers[pIndex] = meUpdated;
@@ -2327,24 +2392,33 @@
             };
 
             const handleMortgage = async (spaceId) => {
-                const space = boardSpaces[spaceId];
-                const myBuildings = me.buildings?.[spaceId] || 0;
-                if (myBuildings > 0) return;
-                
-                const mortgageVal = space.mortgage || Math.floor(space.price / 2);
-                const updatedPlayers = gameState.players.map(p => {
-                    if (p.id === playerId) {
-                        return { ...p, balance: p.balance + mortgageVal, mortgaged: [...(p.mortgaged || []), spaceId] };
-                    }
-                    return p;
-                });
                 try {
+                    const space = boardSpaces[spaceId];
+                    const myBuildings = me.buildings?.[spaceId] || 0;
+                    if (myBuildings > 0) {
+                        alert("No puedes hipotecar una propiedad con casas. Véndelas primero.");
+                        return false;
+                    }
+                    
+                    const mortgageVal = space.mortgage || Math.floor(space.price / 2);
+                    const updatedPlayers = gameState.players.map(p => {
+                        if (p.id === playerId) {
+                            return { ...p, balance: p.balance + mortgageVal, mortgaged: [...(p.mortgaged || []), spaceId] };
+                        }
+                        return p;
+                    });
+                    
                     await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
                         players: updatedPlayers,
                         logs: [...(gameState.logs || []), `${me.name} hipotecó ${space.name} y obtuvo M${mortgageVal}.`]
                     });
                     setSelectedSpacePC(null);
-                } catch(e) { console.error(e); }
+                    return true;
+                } catch(e) { 
+                    console.error("Error en handleMortgage:", e);
+                    alert("Hubo un error al hipotecar. Revisa tu conexión.");
+                    return false;
+                }
             };
 
             const handleUnmortgage = async (spaceId) => {
@@ -2734,6 +2808,7 @@
                                         <div key={p.id} className={`flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-xl border backdrop-blur-md shadow-sm transition-all duration-300 w-16 sm:w-20 ${isCurrentTurn ? 'bg-green-900/40 border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'bg-black/40 border-white/10'}`}>
                                             <TokenIcon tokenId={p.token} className={`w-6 h-6 sm:w-8 sm:h-8 drop-shadow-md transition-transform mb-1 ${isCurrentTurn ? 'animate-bounce' : 'opacity-70'}`} />
                                             <span className={`text-[9px] sm:text-[11px] font-bold text-center leading-tight overflow-hidden text-ellipsis whitespace-nowrap w-full ${isCurrentTurn ? 'text-green-400' : 'text-slate-300'}`}>{p.name}</span>
+                                            <span className={`text-[9px] sm:text-[11px] font-black tracking-tighter mt-0.5 ${p.balance < 0 ? 'text-red-400' : 'text-emerald-400'}`}>M{p.balance}</span>
                                             {isCurrentTurn && <span className="mt-1 text-[7px] sm:text-[9px] bg-green-500 text-white px-1 py-0.5 rounded shadow w-full text-center tracking-wider">TURNO</span>}
                                         </div>
                                     );
@@ -2888,15 +2963,13 @@
                                     canMortgage={canMortgage}
                                     canBuild={canBuild}
                                     canSellBuild={canSellBuild}
-                                    onMortgage={() => {
-                                        setSelectedSpacePC(null);
-                                        setConfirmAction({ type: 'mortgage', spaceId: selectedSpacePC.id });
+                                    onMortgage={async () => {
+                                        return await handleMortgage(selectedSpacePC.id);
                                     }}
                                     onUnmortgage={() => handleUnmortgage(selectedSpacePC.id)}
                                     onBuild={(qty) => handleBuild(selectedSpacePC.id, qty)}
-                                    onSellBuild={() => {
-                                        setSelectedSpacePC(null);
-                                        setConfirmAction({ type: 'sellHouse', spaceId: selectedSpacePC.id });
+                                    onSellBuild={async () => {
+                                        return await handleSellBuild(selectedSpacePC.id);
                                     }}
                                     onClose={() => setSelectedSpacePC(null)}
                                 />
@@ -2922,6 +2995,17 @@
                                         ) : (
                                             <div className="w-full text-center">
                                                 <button disabled className="w-full py-4 rounded-xl bg-slate-800 text-slate-500 font-black text-lg border border-slate-700 uppercase tracking-wider cursor-not-allowed">Fondos Insuficientes</button>
+                                                {showBankruptcyConfirm ? (
+                                                    <div className="w-full bg-red-900/40 p-3 rounded-xl border-2 border-red-500 mt-2">
+                                                        <p className="text-red-400 text-xs font-black uppercase mb-2">¿Seguro? Quedarás eliminado.</p>
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => setShowBankruptcyConfirm(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-lg text-xs transition">Cancelar</button>
+                                                            <button onClick={handleBankruptcy} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-black py-2 rounded-lg text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] transition">Confirmar 💀</button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <button onClick={() => setShowBankruptcyConfirm(true)} className="w-full mt-2 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider border border-red-400 shadow-lg shadow-red-900/50 transition">Declarar Bancarrota</button>
+                                                )}
                                                 <p className="text-xs text-red-400 mt-2 font-bold animate-pulse">Vende casas o hipoteca desde Patrimonio.</p>
                                             </div>
                                         )}
@@ -2953,6 +3037,17 @@
                                         ) : (
                                             <div className="w-full flex flex-col gap-2 text-center">
                                                 <button disabled className="w-full py-3 rounded-xl bg-slate-800 text-slate-500 font-black text-sm border border-slate-700 uppercase tracking-wider cursor-not-allowed">Fondos Insuficientes</button>
+                                                {showBankruptcyConfirm ? (
+                                                    <div className="w-full bg-red-900/40 p-3 rounded-xl border-2 border-red-500">
+                                                        <p className="text-red-400 text-xs font-black uppercase mb-2">¿Seguro? Quedarás eliminado.</p>
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => setShowBankruptcyConfirm(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-lg text-xs transition">Cancelar</button>
+                                                            <button onClick={handleBankruptcy} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-black py-2 rounded-lg text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] transition">Confirmar 💀</button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <button onClick={() => setShowBankruptcyConfirm(true)} className="w-full py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider border border-red-400 shadow-lg shadow-red-900/50 transition">Declarar Bancarrota</button>
+                                                )}
                                                 <button onClick={async () => {
                                                     try {
                                                         await updateDoc(doc(db, 'artifacts', appId, 'games', gameId), {
@@ -3095,7 +3190,17 @@
                             let cardCost = 0;
                             if (card.action === 'payBank') cardCost = card.value;
                             else if (card.action === 'payPlayers') cardCost = card.value * (gameState.players.length - 1);
-                            else if (card.action === 'repairs') cardCost = (me.properties ? me.properties.length : 0) * card.value;
+                            else if (card.action === 'repairs') {
+                                let numHouses = 0;
+                                let numHotels = 0;
+                                if (me.buildings) {
+                                    Object.values(me.buildings).forEach(count => {
+                                        if (count === 5) numHotels++;
+                                        else numHouses += count;
+                                    });
+                                }
+                                cardCost = (numHouses * card.houseCost) + (numHotels * card.hotelCost);
+                            }
                             
                             const canAfford = me.balance >= cardCost;
                             
@@ -3123,7 +3228,18 @@
                                             ) : (
                                                 <div className="w-full text-center">
                                                     <button disabled className="w-full py-3 rounded-xl bg-slate-800 text-slate-500 font-black text-sm border border-slate-700 uppercase tracking-wider cursor-not-allowed">Fondos Insuficientes</button>
-                                                    <p className="text-xs text-red-400 mt-2 font-bold animate-pulse">Vende casas, hipoteca o declara Bancarrota.</p>
+                                                    {showBankruptcyConfirm ? (
+                                                        <div className="w-full bg-red-900/40 p-3 rounded-xl border-2 border-red-500 mt-2">
+                                                            <p className="text-red-400 text-xs font-black uppercase mb-2">¿Seguro? Quedarás eliminado.</p>
+                                                            <div className="flex gap-2">
+                                                                <button onClick={() => setShowBankruptcyConfirm(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-lg text-xs transition">Cancelar</button>
+                                                                <button onClick={handleBankruptcy} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-black py-2 rounded-lg text-xs shadow-[0_0_10px_rgba(239,68,68,0.5)] transition">Confirmar 💀</button>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <button onClick={() => setShowBankruptcyConfirm(true)} className="w-full mt-2 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider border border-red-400 shadow-lg shadow-red-900/50 transition">Declarar Bancarrota</button>
+                                                    )}
+                                                    <p className="text-xs text-red-400 mt-2 font-bold animate-pulse">Vende casas o hipoteca desde Patrimonio.</p>
                                                 </div>
                                             )
                                         ) : (
@@ -3227,15 +3343,25 @@
                                             </button>
                                         );
                                     })()}
-                                    <button onClick={() => setShowTradeSelector(true)} disabled={(gameState.activeTrade !== undefined && gameState.activeTrade !== null) || !isMyTurn} className={`p-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md border group ${(gameState.activeTrade || !isMyTurn) ? 'bg-slate-800/50 text-slate-600 border-slate-700/50 cursor-not-allowed' : 'bg-slate-700/50 hover:bg-slate-700 border-slate-600'}`}>
-                                        <ArrowRightLeft className={`w-4 h-4 transition-transform duration-500 ${(gameState.activeTrade || !isMyTurn) ? 'text-slate-600' : 'text-orange-400 group-hover:rotate-180'}`} />
-                                        <span className={`font-bold text-xs uppercase ${(gameState.activeTrade || !isMyTurn) ? 'text-slate-600' : 'text-slate-300 group-hover:text-white'}`}>Trueque</span>
+                                    <button onClick={() => setShowTradeSelector(true)} disabled={(gameState.activeTrade !== undefined && gameState.activeTrade !== null)} className={`p-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md border group ${gameState.activeTrade ? 'bg-slate-800/50 text-slate-600 border-slate-700/50 cursor-not-allowed' : 'bg-slate-700/50 hover:bg-slate-700 border-slate-600'}`}>
+                                        <ArrowRightLeft className={`w-4 h-4 transition-transform duration-500 ${gameState.activeTrade ? 'text-slate-600' : 'text-orange-400 group-hover:rotate-180'}`} />
+                                        <span className={`font-bold text-xs uppercase ${gameState.activeTrade ? 'text-slate-600' : 'text-slate-300 group-hover:text-white'}`}>Trueque</span>
                                     </button>
                                 </div>
                             </div>
                             {me.balance <= 0 && (
                                 <div className="mt-2 pt-2 border-t border-slate-700">
-                                    <button onClick={() => setShowBankruptcyConfirm(true)} className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-2 rounded-lg text-xs uppercase animate-pulse border border-red-400 shadow-lg shadow-red-900/50">Declarar Bancarrota</button>
+                                    {showBankruptcyConfirm ? (
+                                        <div className="w-full bg-red-900/40 p-3 rounded-xl border-2 border-red-500">
+                                            <p className="text-red-400 text-[10px] font-black uppercase mb-2 text-center">¿Seguro? Quedarás eliminado.</p>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => setShowBankruptcyConfirm(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 rounded-lg text-[10px] transition">Cancelar</button>
+                                                <button onClick={handleBankruptcy} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-black py-2 rounded-lg text-[10px] shadow-[0_0_10px_rgba(239,68,68,0.5)] transition">Confirmar 💀</button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <button onClick={() => setShowBankruptcyConfirm(true)} className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-2 rounded-lg text-xs uppercase animate-pulse border border-red-400 shadow-lg shadow-red-900/50">Declarar Bancarrota</button>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -3397,48 +3523,7 @@
                                 )}
                             </div>
 
-                            {/* MODAL DE CONFIRMACIÓN DE BANCARROTA */}
-                            {showBankruptcyConfirm && (
-                                <div className="fixed inset-0 lg:right-[30%] z-[300] flex items-center justify-center pointer-events-none p-4 animate-in fade-in zoom-in duration-300 bg-black/60 backdrop-blur-sm">
-                                    <div className="bg-slate-900 border border-red-500/50 p-8 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.3)] w-full max-w-sm text-center flex flex-col items-center pointer-events-auto">
-                                        <div className="text-6xl mb-4 animate-bounce">💀</div>
-                                        <h2 className="text-2xl font-black text-red-500 uppercase tracking-widest mb-4 drop-shadow-md">¿Estás seguro?</h2>
-                                        <p className="text-slate-300 text-sm mb-8">Al declarar la bancarrota quedarás <strong className="text-red-400">eliminado</strong> de la partida. Todas tus propiedades, casas y hoteles volverán al banco y podrán ser compradas por otros jugadores. Esta acción no se puede deshacer.</p>
-                                        <div className="flex gap-4 w-full">
-                                            <button onClick={() => setShowBankruptcyConfirm(false)} className="flex-1 bg-slate-800 text-white font-black py-4 rounded-xl border border-slate-600 hover:bg-slate-700 transition uppercase active:scale-95">Cancelar</button>
-                                            <button onClick={handleBankruptcy} className="flex-1 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-black py-4 rounded-xl shadow-[0_0_15px_rgba(239,68,68,0.5)] transition uppercase active:scale-95 border border-red-500">Confirmar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
 
-                            {/* MODAL DE CONFIRMACIÓN (VENDER CASA / HIPOTECAR) */}
-                            {confirmAction && (() => {
-                                const space = boardSpaces.find(s => s.id === confirmAction.spaceId);
-                                const isSell = confirmAction.type === 'sellHouse';
-                                const val = isSell ? Math.floor(space.houseCost / 2) : (space.mortgage || Math.floor(space.price / 2));
-                                const title = isSell ? '¿Vender Construcción?' : '¿Hipotecar Propiedad?';
-                                const desc = isSell ? `¿Estás seguro de que quieres vender una construcción de ${space.name}?` : `¿Estás seguro de que quieres hipotecar ${space.name}? No cobrarás alquiler hasta deshipotecarla.`;
-                                const btnText = isSell ? `Vender por M${val}` : `Hipotecar por M${val}`;
-                                
-                                return (
-                                    <div className="fixed inset-0 lg:right-[30%] z-[300] flex items-center justify-center pointer-events-none p-4 animate-in fade-in zoom-in duration-300 bg-black/60 backdrop-blur-sm">
-                                        <div className="bg-slate-900 border border-slate-700 p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-sm text-center flex flex-col items-center pointer-events-auto">
-                                            <div className="text-5xl mb-4 animate-bounce">⚠️</div>
-                                            <h2 className="text-2xl font-black text-orange-400 uppercase tracking-widest mb-4">{title}</h2>
-                                            <p className="text-slate-300 text-sm mb-8">{desc}</p>
-                                            <div className="flex gap-4 w-full">
-                                                <button onClick={() => setConfirmAction(null)} className="flex-1 bg-slate-800 text-white font-black py-4 rounded-xl border border-slate-600 hover:bg-slate-700 transition uppercase active:scale-95 text-xs">Cancelar</button>
-                                                <button onClick={() => {
-                                                    if(isSell) handleSellBuild(space.id);
-                                                    else handleMortgage(space.id);
-                                                    setConfirmAction(null);
-                                                }} className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white font-black py-4 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] transition uppercase active:scale-95 border border-orange-500 text-xs">{btnText}</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })()}
 
                         </div>
                     </div>
